@@ -1,0 +1,39 @@
+/* navigation-bar.css */
+
+nav {
+    display: flex;
+    justify-content:right;
+    align-items: center;
+    background-image: linear-gradient(to top, #1435a4, #008ad4);
+    color: #fff;
+    padding: 10px;
+  }
+  
+  .logo {
+    position: absolute;
+    font-size: 20px;
+    left:5%;
+    font-weight: bold;
+  }
+  
+  ul {
+    display:flex;
+    list-style: none;
+    gap: 20px;
+  }
+  
+  ul li a {
+    text-decoration: none;
+    color: #fff;
+  }
+  
+  .auth-buttons button {
+    margin-left: 10px;
+    padding: 8px 16px;
+    border: none;
+    background-color: #d6fedb;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
