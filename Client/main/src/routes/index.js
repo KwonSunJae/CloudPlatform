@@ -6,7 +6,7 @@ import Home from './home';
 import Profile from './profile';
 import Cluster from './createCluster'
 import Machine from './createMachine'
-
+import VM from './createVM'
 const Routers = () => {
 
     return (
@@ -16,6 +16,7 @@ const Routers = () => {
                 <Route  path="/profile" element={<Profile />} />
                 <Route  path="/create/cluster" element={<Cluster />} />
                 <Route  path="/create/machine" element={<Machine />} />
+                <Route path='/create/vm' element={<VM/>}/>
                 <Route path = "*" element={<Error/>}/>
             </Routes>
         </Router>
