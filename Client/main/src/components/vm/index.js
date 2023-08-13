@@ -1,5 +1,5 @@
 // VMCreateForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 const VMCreateForm = () => {
     const [vmName, setVmName] = useState('');
@@ -13,6 +13,29 @@ const VMCreateForm = () => {
     const [keyPair, setKeyPair] = useState('');
     const [selectedSecurityGroup, setSelectedSecurityGroup] = useState('');
 
+    const [osOptions, setOSOptions] = useState([]);
+    const [internalIPOptions, setInternalIPOptions] = useState([]);
+    const [keyPairOptions, setKeyPairOptions] = useState([]);
+
+    useEffect(() => {
+        // Fetch OS options from API
+        fetch('osApiUrl')
+            .then(response => response.json())
+            .then(data => setOSOptions(data))
+            .catch(error => console.error('Error fetching OS options:', error));
+
+        // Fetch Internal IP options from API
+        fetch('internalIpApiUrl')
+            .then(response => response.json())
+            .then(data => setInternalIPOptions(data))
+            .catch(error => console.error('Error fetching Internal IP options:', error));
+
+        // Fetch Key Pair options from API
+        fetch('keyPairApiUrl')
+            .then(response => response.json())
+            .then(data => setKeyPairOptions(data))
+            .catch(error => console.error('Error fetching Key Pair options:', error));
+    }, []);
     const handleCreateKeyPair = () => {
         // Implement logic to create a new key pair
     };
@@ -80,8 +103,9 @@ const VMCreateForm = () => {
                         onChange={(e) => setInternalIP(e.target.value)}
                     >
                         <option value="">Select Internal IP</option>
-                        <option value="192.168.100.0">192.168.100.0</option>
-                        <option value="192.168.200.0">192.168.200.0</option>
+                        {internalIPOptions.map(option => (
+                            <option key={option.id} value={option.value}>{option.label}</option>
+                        ))}
                     </select>
                 </label>
 
@@ -92,9 +116,9 @@ const VMCreateForm = () => {
                         onChange={(e) => setSelectedOS(e.target.value)}
                     >
                         <option value="">Select OS</option>
-                        <option value="ubuntu 20.04">Ubuntu 20.04</option>
-                        <option value="ubuntu 18.04">Ubuntu 18.04</option>
-                        <option value="Windows 10">Windows 10</option>
+                        {osOptions.map(option => (
+                            <option key={option.id} value={option.value}>{option.label}</option>
+                        ))}
                     </select>
                 </label>
 
@@ -138,8 +162,9 @@ const VMCreateForm = () => {
                         onChange={(e) => setSelectedSecurityGroup(e.target.value)}
                     >
                         <option value="">Select Security Group</option>
-                        <option value="Default">Default</option>
-                        <option value="release">release</option>
+                        {keyPairOptions.map(option => (
+                            <option key={option.id} value={option.value}>{option.label}</option>
+                        ))}
                     </select>
                 </label>
 
