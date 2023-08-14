@@ -9,16 +9,28 @@ import (
 )
 
 type VmDto struct {
-	Title   string
-	Author  string
-	Content string
+	Name                  string
+	FlavorID              string
+	ExternalIP            string
+	InternalIP            string
+	SelectedOS            string
+	UnionmountImage       string
+	Keypair               string
+	SelectedSecuritygroup string
+	UserID                string
 }
 
 type VmRaw struct {
-	Id      string
-	Author  string
-	Title   string
-	Content string
+	Id                    string
+	Name                  string
+	FlavorID              string
+	ExternalIP            string
+	InternalIP            string
+	SelectedOS            string
+	UnionmountImage       string
+	Keypair               string
+	SelectedSecuritygroup string
+	UserID                string
 }
 
 type VmRepository struct {
@@ -39,11 +51,11 @@ func (r *VmRepository) InsertVm(n VmDto) (sql.Result, error) {
 	}
 
 	query := `
-    INSERT INTO Vm
-    (id, title, author, content)
+    INSERT INTO vm
+    (id, name, flavorID, externalIP, internalIP,selectedOS, unionmountImage, keypair,selectedSecuritygroup,userID)
     VALUES (?, ?, ?, ?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.Title, n.Author, n.Content)
+	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.UserID)
 
 	if err != nil {
 		return nil, err
@@ -55,12 +67,12 @@ func (r *VmRepository) InsertVm(n VmDto) (sql.Result, error) {
 func (r *VmRepository) GetAllVm() (*[]VmRaw, error) {
 	var raws []VmRaw
 
-	query := `SELECT * FROM Vm`
+	query := `SELECT * FROM vm`
 	rows, err := r.DB.Query(query)
 
 	for rows.Next() {
 		var raw VmRaw
-		rows.Scan(&raw.Id, &raw.Title, &raw.Author, &raw.Content)
+		rows.Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
 		raws = append(raws, raw)
 	}
 
@@ -75,7 +87,7 @@ func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 	var raw VmRaw
 
 	query := `SELECT * FROM Vm WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.Title, &raw.Author, &raw.Content)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -89,7 +101,7 @@ func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 }
 
 func (r *VmRepository) DeleteOneVm(id string) (sql.Result, error) {
-	query := `DELETE FROM Vm WHERE id = ?`
+	query := `DELETE FROM vm WHERE id = ?`
 	result, err := r.DB.Exec(query, id)
 
 	if err != nil {
@@ -110,22 +122,60 @@ func (r *VmRepository) DeleteOneVm(id string) (sql.Result, error) {
 }
 
 func (r *VmRepository) UpdateOneVm(id string, n VmDto) (sql.Result, error) {
-	query := `UPDATE Vm SET title = IFNULL(?, title), author = IFNULL(?, author), content = IFNULL(?, content) WHERE id = ?`
-	var title, author, content *string
+	query := `
+    UPDATE vm
+    SET
+        name = IFNULL(?, name),
+        flavorID = IFNULL(?, flavorID),
+        externalIP = IFNULL(?, externalIP),
+        internalIP = IFNULL(?, internalIP),
+        selectedOS = IFNULL(?, selectedOS),
+        unionmountImage = IFNULL(?, unionmountImage),
+        keypair = IFNULL(?, keypair),
+        selectedSecuritygroup = IFNULL(?, selectedSecuritygroup),
+        userID = IFNULL(?, userID)
+    WHERE
+        id = ?
+	`
+	var name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, userID *string
 
-	if n.Title != "" {
-		title = &n.Title
+	if n.Name != "" {
+		name = &n.Name
 	}
 
-	if n.Author != "" {
-		author = &n.Author
+	if n.FlavorID != "" {
+		flavorID = &n.FlavorID
 	}
 
-	if n.Content != "" {
-		content = &n.Content
+	if n.ExternalIP != "" {
+		externalIP = &n.ExternalIP
 	}
 
-	result, err := r.DB.Exec(query, title, author, content, id)
+	if n.InternalIP != "" {
+		internalIP = &n.InternalIP
+	}
+
+	if n.SelectedOS != "" {
+		selectedOS = &n.SelectedOS
+	}
+
+	if n.UnionmountImage != "" {
+		unionmountImage = &n.UnionmountImage
+	}
+
+	if n.Keypair != "" {
+		keypair = &n.Keypair
+	}
+
+	if n.SelectedSecuritygroup != "" {
+		selectedSecuritygroup = &n.SelectedSecuritygroup
+	}
+
+	if n.UserID != "" {
+		userID = &n.UserID
+	}
+
+	result, err := r.DB.Exec(query, name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, userID, id)
 
 	if err != nil {
 		return nil, err

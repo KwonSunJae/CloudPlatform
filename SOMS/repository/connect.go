@@ -19,7 +19,7 @@ func OpenWithMemory() (*sql.DB, error) {
 		return nil, err
 	}
 
-	_, err = createNewsTable(db)
+	_, err = createVmTable(db)
 
 	if err != nil {
 		return nil, err
@@ -28,14 +28,20 @@ func OpenWithMemory() (*sql.DB, error) {
 	return db, nil
 }
 
-func createNewsTable(db *sql.DB) (sql.Result, error) {
+func createVmTable(db *sql.DB) (sql.Result, error) {
 	query := `
-  CREATE TABLE news (
+  CREATE TABLE vm (
     id TEXT PRIMARY KEY,
-    title TEXT NOT NULL,
-    author TEXT NOT NULL,
-    content TEXT NOT NULL
-  )
+    name TEXT NOT NULL,
+    flavorID TEXT NOT NULL,
+    externalIP TEXT NOT NULL,
+    internalIP TEXT NOT NULL,
+    selectedOS TEXT NOT NULL,
+    unionmountImage TEXT NOT NULL,
+    keypair TEXT NOT NULL,
+    selectedSecuritygroup TEXT NOT NULL,
+    userID TEXT NOT NULL
+)
   `
 
 	result, err := db.Exec(query)

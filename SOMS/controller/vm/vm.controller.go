@@ -40,7 +40,7 @@ func VmController(router *mux.Router) error {
 	}
 
 	// GET 특정 id의 뉴스 데이터 반환
-	router.HandleFunc("/Vm/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
@@ -76,9 +76,15 @@ func VmController(router *mux.Router) error {
 	// POST 새로운 뉴스 등록
 	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			Title   string
-			Author  string
-			Content string
+			Name                  string
+			FlavorID              string
+			ExternalIP            string
+			InternalIP            string
+			SelectedOS            string
+			UnionmountImage       string
+			Keypair               string
+			SelectedSecuritygroup string
+			UserID                string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -87,7 +93,9 @@ func VmController(router *mux.Router) error {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
 
-		if body.Title == "" || body.Author == "" || body.Content == "" {
+		if body.Name == "" || body.FlavorID == "" || body.ExternalIP == "" || body.InternalIP == "" ||
+			body.SelectedOS == "" || body.UnionmountImage == "" || body.Keypair == "" ||
+			body.SelectedSecuritygroup == "" || body.UserID == "" {
 			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
 			return
 		}
@@ -109,9 +117,15 @@ func VmController(router *mux.Router) error {
 		id := vars["id"]
 
 		var body struct {
-			Title   string
-			Author  string
-			Content string
+			Name                  string
+			FlavorID              string
+			ExternalIP            string
+			InternalIP            string
+			SelectedOS            string
+			UnionmountImage       string
+			Keypair               string
+			SelectedSecuritygroup string
+			UserID                string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
