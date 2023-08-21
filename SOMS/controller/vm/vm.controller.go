@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-
+	"os/exec"
 	"soms/service/vm"
 
 	"github.com/gorilla/mux"
@@ -57,6 +57,20 @@ func VmController(router *mux.Router) error {
 		}
 
 		Response(w, raw, http.StatusOK, nil)
+
+	}).Methods("GET")
+
+	router.HandleFunc("/vm/test", func(w http.ResponseWriter, r *http.Request) {
+		cmd := exec.Command("terraform", "apply")
+		cmd.Dir = "/home/ubuntu/test/"
+
+		output, err := cmd.Output()
+
+		if err != nil {
+			Response(w, output, http.StatusOK, nil)
+		} else {
+			Response(w, err, http.StatusOK, nil)
+		}
 
 	}).Methods("GET")
 
@@ -151,7 +165,7 @@ func VmController(router *mux.Router) error {
 	}).Methods("PATCH")
 
 	// DELETE 특정 id의 뉴스 데이터 삭제
-	router.HandleFunc("/Vm/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
