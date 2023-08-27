@@ -1,0 +1,2 @@
+from PlatformEnvironmentPackage.EnvironmentOfDiskImage import *
+from PlatformEnvironmentPackage.EnvironmentOfProvinConfiguration import *
