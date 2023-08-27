@@ -1,0 +1,45 @@
+# SoftwareInfo.yaml
+SystemSoftware:
+  - id: '1'
+    distribution: 'Ubuntu'
+    version: '18.04'
+    codename: 'jammy'
+    architecture:
+    - 'amd64'
+    description: ''
+  - id: '2'
+    distribution: 'Ubuntu'
+    version: '20.04'
+    codename: 'focal'
+    architecture:
+    - 'amd64'
+    description: ''
+  - id: '3'
+    distribution: 'Ubuntu'
+    version: '22.04'
+    codename: 'jammy'
+    architecture:
+    - 'amd64'
+    description: ''
+  - id: '4'
+    distribution: 'debian'
+    version: '10'
+    codename: 'Buster'
+    architecture:
+    - 'amd64'
+    description: ''
+  - id: '5'
+    distribution: 'debian'
+    version: '11'
+    codename: 'Bullseye'
+    architecture:
+    - 'amd64'
+    description: ''   
+ApplicationSoftware:
+  - id: '55'
+    software-name: PX4-Autopilot
+    inroduction: 
+    provider: github
+    github-url: https://github.com/PX4/PX4-Autopilot.git
+    project-name: PX4-Autopilot
+    latest-version: v1.13.3

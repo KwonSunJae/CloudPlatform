@@ -1,0 +1,18 @@
+{
+    "Path": {
+      "diskCreator": "/srv/fai/config",
+      "diskProvisioningFiles": "/var/local/vtron-ver-3"
+    },
+    "ProvinDirNameArray": [
+      "basefiles",
+      "class",
+      "debconfg",
+      "disk_config",
+      "files",
+      "hooks",
+      "package_config",
+      "scripts"
+    ],
+    "CenterId": 1207,
+    "WorkerId": 202008917
+}

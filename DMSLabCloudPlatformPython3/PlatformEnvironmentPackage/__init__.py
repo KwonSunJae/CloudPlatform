@@ -1,0 +1,1 @@
+from PlatformEnvironmentPackage.EnvironmentOfProvinConfiguration import initEnvironmentOfDiskImage

@@ -1,0 +1,5 @@
+#VirtualDiskImageCreatorDefaultProperty.yaml
+STOP_ON_ERROR: 700
+FAI_ALLOW_UNSIGNED: 1
+MAXPACKAGES: 800
+UTC: 'yes'

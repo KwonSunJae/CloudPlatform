@@ -1,0 +1,13 @@
+VirtualDiskImage:
+    - id: ''
+      format: 'qcow2'
+      size: '120G'
+      softwareType: 'SystemSoftware'
+      systemSoftwareInformationRefId: '2'
+      ProperList:
+         - key: 'hostname'
+           value: 'AutoProvingDiskImageCreator'
+         - key: 'rootpw'
+           value: 'test123!'
+         - key: 'TIMEZONE'
+           value: 'Asia/Seoul'

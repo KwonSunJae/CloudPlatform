@@ -1,0 +1,11 @@
+database:
+- type: redis
+  ipaddr: 117.16.136.212
+  port: '6379'
+  dbindex: 0
+- type: postgresql
+  host: 117.16.136.212
+  port: '5432'
+  user: dmslabcloud
+  password: dmslabcloud1207!
+  dbname: dmslabcloudplatformdb

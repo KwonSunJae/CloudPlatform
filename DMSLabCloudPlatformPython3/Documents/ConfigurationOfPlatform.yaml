@@ -1,0 +1,21 @@
+#ConfigurationOfPlatform.yaml
+Project:
+  name: AutoDiskImageProvioningServer
+  version: 1.0
+Path:
+  diskCreator: '/srv/fai/config'
+  diskProvisioningFiles: '/var/local/vtron-ver-3'
+ProvinDirNameArray:
+  - basefiles
+  - class
+  - debconfg
+  - disk_config
+  - files
+  - hooks
+  - package_config
+  - scripts
+CenterId: 1207
+WorkerId: 202008917
+RestFulAPIServer:
+   port: '50000'
+   ipaddr: '117.16.136.212'
