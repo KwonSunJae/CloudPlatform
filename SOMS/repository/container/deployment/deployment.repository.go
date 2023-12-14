@@ -60,7 +60,7 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 	query := `
     INSERT INTO vm
     (id, apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort)
-    VALUES (?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
 	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.Metadata_name, n.Metadata_labels_app, n.Spec_selector_matchLabels_app, n.Spec_template_metadata_labels_app, n.Spec_template_spec_hostname, n.Spec_template_spec_subdomain, n.Spec_template_spec_containers_image, n.Spec_template_spec_containers_imagePullPolicy, n.Spec_template_spec_containers_name, n.Spec_template_spec_containers_ports_containerPort)
 
@@ -145,7 +145,7 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
         spec_template_spec_containers_image = IFNULL(?, spec_template_spec_containers_image),
         spec_template_spec_containers_imagePullPolicy = IFNULL(?, spec_template_spec_containers_imagePullPolicy),
         spec_template_spec_containers_name = IFNULL(?, spec_template_spec_containers_name),
-   	 	spec_template_spec_containers_ports_containerPort = IFNULL(?, spec_template_spec_containers_ports_containerPort),
+        spec_template_spec_containers_ports_containerPort = IFNULL(?, spec_template_spec_containers_ports_containerPort)
 
     WHERE
         id = ?
