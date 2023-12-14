@@ -1,0 +1,33 @@
+/* ContainerCreatePage.css */
+
+.container-create-page {
+    max-width: 90%;
+    height: 60%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .container-create-page h2 {
+    text-align: center;
+  }
+  
+  .container-create-page div {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .container-create-page label {
+    display: flex;
+    margin: auto;
+    align-items: center;
+  }
+  
+  .container-create-page input[type="radio"] {
+    margin-right: 5px;
+  }
+  
