@@ -58,7 +58,7 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 	}
 
 	query := `
-    INSERT INTO vm
+    INSERT INTO Deployment
     (id, apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
@@ -72,10 +72,10 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 }
 
 
-func (r *DeploymentRepository) GetAllPod() (*[]DeploymentRepository, error) {
+func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRepository, error) {
 	var raws []DeploymentRaw
 
-	query := `SELECT * FROM vm`
+	query := `SELECT * FROM Deployment`
 	rows, err := r.DB.query(query)
 
 	for rows.Next() {
@@ -132,7 +132,7 @@ func (r *DeploymentRepository) DeleteOneDeployment(id string) (sql.Result, error
 
 func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (sql.Result, error) {
 	query := `
-    UPDATE deployment
+    UPDATE Deployment
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),
