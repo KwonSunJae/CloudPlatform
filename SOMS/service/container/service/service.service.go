@@ -1,8 +1,8 @@
 package service
 
 import (
-"soms/repository"
-"soms/repository/service"
+	"soms/repository"
+	"soms/repository/service"
 )
 
 type ServiceService struct {
