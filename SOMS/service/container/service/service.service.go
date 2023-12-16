@@ -2,11 +2,11 @@ package service
 
 import (
 	"soms/repository"
-	"soms/repository/service"
+	"soms/repository/container/service"
 )
 
 type ServiceService struct {
-	Repository * service.ServiceRepository
+	Repository *service.ServiceRepository
 }
 
 var Service ServiceService
@@ -53,4 +53,3 @@ func (s *ServiceService) DeleteService(id string) error {
 
 	return err
 }
-

@@ -1,32 +1,32 @@
 package service
 
 import (
-"database/sql"
-"errors"
+	"database/sql"
+	"errors"
 
-"github.com/google/uuid"
-_ "github.com/mattn/go-sqlite3"
+	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type ServiceDto struct {
-	ApiVersion				string
-	Kind 					string
-	Metadata_name    		string
-	Spec_ports_port			string
-	Spec_ports_protocol		string
-	Spec_ports_targetPort	string
-	Spec_selector_app		string
+	ApiVersion            string
+	Kind                  string
+	Metadata_name         string
+	Spec_ports_port       string
+	Spec_ports_protocol   string
+	Spec_ports_targetPort string
+	Spec_selector_app     string
 }
 
 type ServiceRaw struct {
-	Id						string
-	ApiVersion				string
-	Kind 					string
-	Metadata_name    		string
-	Spec_ports_port			string
-	Spec_ports_protocol		string
-	Spec_ports_targetPort	string
-	Spec_selector_app		string
+	Id                    string
+	ApiVersion            string
+	Kind                  string
+	Metadata_name         string
+	Spec_ports_port       string
+	Spec_ports_protocol   string
+	Spec_ports_targetPort string
+	Spec_selector_app     string
 }
 
 type ServiceRepository struct {
@@ -39,7 +39,7 @@ func (r *ServiceRepository) AssignDB(db *sql.DB) {
 	r.DB = db
 }
 
-func (r *ServiceRepository) createService(n ServiceDto) (sql.Result, error) {
+func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
@@ -60,12 +60,11 @@ func (r *ServiceRepository) createService(n ServiceDto) (sql.Result, error) {
 	return result, nil
 }
 
-
-func (r *ServiceRepository) GetAllService() (*[]ServiceRepository, error) {
+func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 	var raws []ServiceRaw
 
 	query := `SELECT * FROM Service`
-	rows, err := r.DB.query(query)
+	rows, err := r.DB.Query(query)
 
 	for rows.Next() {
 		var raw ServiceRaw

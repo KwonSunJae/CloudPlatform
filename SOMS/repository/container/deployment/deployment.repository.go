@@ -9,48 +9,47 @@ import (
 )
 
 type DeploymentDto struct {
-	ApiVersion                             				string
-	Kind                                   				string
-	Metadata_name                          				string
-	Metadata_labels_app									string
-	Spec_selector_matchLabels_app						string
-	Spec_template_metadata_labels_app					string
-	Spec_template_spec_hostname							string
-	Spec_template_spec_subdomain						string
-	Spec_template_spec_containers_image					string
-	Spec_template_spec_containers_imagePullPolicy  	 	string
-	Spec_template_spec_containers_name					string
-	Spec_template_spec_containers_ports_containerPort	string
-
+	ApiVersion                                        string
+	Kind                                              string
+	Metadata_name                                     string
+	Metadata_labels_app                               string
+	Spec_selector_matchLabels_app                     string
+	Spec_template_metadata_labels_app                 string
+	Spec_template_spec_hostname                       string
+	Spec_template_spec_subdomain                      string
+	Spec_template_spec_containers_image               string
+	Spec_template_spec_containers_imagePullPolicy     string
+	Spec_template_spec_containers_name                string
+	Spec_template_spec_containers_ports_containerPort string
 }
 
 type DeploymentRaw struct {
-	Id													string
-	ApiVersion                             				string
-	Kind                                   				string
-	Metadata_name                          				string
-	Metadata_labels_app									string
-	Spec_selector_matchLabels_app						string
-	Spec_template_metadata_labels_app					string
-	Spec_template_spec_hostname							string
-	Spec_template_spec_subdomain						string
-	Spec_template_spec_containers_image					string
-	Spec_template_spec_containers_imagePullPolicy  	 	string
-	Spec_template_spec_containers_name					string
-	Spec_template_spec_containers_ports_containerPort	string
+	Id                                                string
+	ApiVersion                                        string
+	Kind                                              string
+	Metadata_name                                     string
+	Metadata_labels_app                               string
+	Spec_selector_matchLabels_app                     string
+	Spec_template_metadata_labels_app                 string
+	Spec_template_spec_hostname                       string
+	Spec_template_spec_subdomain                      string
+	Spec_template_spec_containers_image               string
+	Spec_template_spec_containers_imagePullPolicy     string
+	Spec_template_spec_containers_name                string
+	Spec_template_spec_containers_ports_containerPort string
 }
 
 type DeploymentRepository struct {
-    DB *sql.DB
+	DB *sql.DB
 }
 
 var Repository DeploymentRepository
 
 func (r *DeploymentRepository) AssignDB(db *sql.DB) {
-    r.DB = db
+	r.DB = db
 }
 
-func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, error) {
+func (r *DeploymentRepository) InsertDeployment(n DeploymentDto) (sql.Result, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
@@ -71,12 +70,11 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 	return result, nil
 }
 
-
-func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRepository, error) {
+func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRaw, error) {
 	var raws []DeploymentRaw
 
 	query := `SELECT * FROM Deployment`
-	rows, err := r.DB.query(query)
+	rows, err := r.DB.Query(query)
 
 	for rows.Next() {
 		var raw DeploymentRaw

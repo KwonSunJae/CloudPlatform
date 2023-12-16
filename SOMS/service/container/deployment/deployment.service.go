@@ -1,12 +1,12 @@
 package deployment
 
 import (
-"soms/repository"
-"soms/repository/deployment"
+	"soms/repository"
+	"soms/repository/container/deployment"
 )
 
 type DeploymentService struct {
-	Repository * deployment.DeploymentRepository
+	Repository *deployment.DeploymentRepository
 }
 
 var Service DeploymentService
