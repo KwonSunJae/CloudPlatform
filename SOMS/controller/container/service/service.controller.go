@@ -1,11 +1,11 @@
-package vm
+package service
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
 	"os/exec"
-	"soms/service/vm"
+	"soms/service/container/service"
 
 	"github.com/gorilla/mux"
 )
@@ -32,24 +32,24 @@ func Response(w http.ResponseWriter, data interface{}, status int, err error) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func VmController(router *mux.Router) error {
-	err := vm.Service.InitService()
+func ServiceController(router *mux.Router) error {
+	err := service.Service.InitService()
 
 	if err != nil {
 		return err
 	}
 
-	// GET 특정 id의 VM 데이터 반환
-	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// GET 특정 id의 Service 데이터 반환
+	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		raw, err := vm.Service.GetOneVm(id)
+		raw, err := service.Service.GetOneService(id)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 VM가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -60,7 +60,7 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	router.HandleFunc("/vmtest", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/servicetest", func(w http.ResponseWriter, r *http.Request) {
 		cmd := exec.Command("terraform", "apply")
 		cmd.Dir = "/home/ubuntu/test/"
 
@@ -74,9 +74,9 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// GET 전체 VM 데이터 반환
-	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
-		raws, err := vm.Service.GetAllVm()
+	// GET 전체 Service 데이터 반환
+	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
+		raws, err := service.Service.GetAllService()
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -86,9 +86,8 @@ func VmController(router *mux.Router) error {
 		Response(w, raws, http.StatusOK, nil)
 
 	}).Methods("GET")
-
-	router.HandleFunc("/vmstat", func(w http.ResponseWriter, r *http.Request) {
-		rsp, err := vm.Service.GetStatusVM()
+	router.HandleFunc("/servicestat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := service.Service.GetServiceStatus()
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -99,18 +98,16 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// POST 새로운 VM 등록
-	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
+	// POST 새로운 Service 등록
+	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			Name                  string
-			FlavorID              string
-			ExternalIP            string
-			InternalIP            string
-			SelectedOS            string
-			UnionmountImage       string
-			Keypair               string
-			SelectedSecuritygroup string
-			UserID                string
+			ApiVersion            string
+			Kind                  string
+			Metadata_name         string
+			Spec_ports_port       string
+			Spec_ports_protocol   string
+			Spec_ports_targetPort string
+			Spec_selector_app     string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -119,14 +116,13 @@ func VmController(router *mux.Router) error {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
 
-		if body.Name == "" || body.FlavorID == "" || body.ExternalIP == "" || body.InternalIP == "" ||
-			body.SelectedOS == "" || body.UnionmountImage == "" || body.Keypair == "" ||
-			body.SelectedSecuritygroup == "" || body.UserID == "" {
+		if body.Metadata_name == "" || body.Spec_selector_app == "" || body.Spec_ports_protocol == "" ||
+			body.Spec_ports_port == "" || body.Spec_ports_targetPort == "" || body.ApiVersion == "" || body.Kind == "" {
 			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
 			return
 		}
 
-		err = vm.Service.CreateVm(body)
+		err = service.Service.CreateService(body)
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -137,21 +133,19 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("POST")
 
-	// PATCH 특정 id의 VM 데이터 수정
-	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// PATCH 특정 id의 Service 데이터 수정
+	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
 		var body struct {
-			Name                  string
-			FlavorID              string
-			ExternalIP            string
-			InternalIP            string
-			SelectedOS            string
-			UnionmountImage       string
-			Keypair               string
-			SelectedSecuritygroup string
-			UserID                string
+			ApiVersion            string
+			Kind                  string
+			Metadata_name         string
+			Spec_ports_port       string
+			Spec_ports_protocol   string
+			Spec_ports_targetPort string
+			Spec_selector_app     string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -160,12 +154,12 @@ func VmController(router *mux.Router) error {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
 
-		err = vm.Service.UpdateVm(id, body)
+		err = service.Service.UpdateService(id, body)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 VM이 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -176,17 +170,17 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("PATCH")
 
-	// DELETE 특정 id의 VM 데이터 삭제
-	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// DELETE 특정 id의 Service 데이터 삭제
+	router.HandleFunc("/deplooyment/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		err = vm.Service.DeleteVm(id)
+		err = service.Service.DeleteService(id)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당되는 VM이 존재하지 않습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당되는 Service가 존재하지 않습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}

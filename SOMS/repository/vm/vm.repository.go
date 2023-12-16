@@ -53,7 +53,7 @@ func (r *VmRepository) InsertVm(n VmDto) (sql.Result, error) {
 	query := `
     INSERT INTO vm
     (id, name, flavorID, externalIP, internalIP,selectedOS, unionmountImage, keypair,selectedSecuritygroup,userID)
-    VALUES (?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
 	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.UserID)
 
@@ -86,7 +86,7 @@ func (r *VmRepository) GetAllVm() (*[]VmRaw, error) {
 func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 	var raw VmRaw
 
-	query := `SELECT * FROM Vm WHERE id = ?`
+	query := `SELECT * FROM vm WHERE id = ?`
 	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
 
 	if err != nil {
