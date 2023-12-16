@@ -47,7 +47,7 @@ func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 	}
 
 	query := `
-    INSERT INTO Service
+    INSERT INTO service
     (id, apiVersion, kind, metadata_name, spec_ports_port, spec_ports_protocol, spec_ports_targetPort, spec_selector_app)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `
@@ -63,9 +63,11 @@ func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 	var raws []ServiceRaw
 
-	query := `SELECT * FROM Service`
+	query := `SELECT * FROM service`
 	rows, err := r.DB.Query(query)
-
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var raw ServiceRaw
 		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
@@ -83,7 +85,7 @@ func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 	var raw ServiceRaw
 
-	query := `SELECT * FROM Service WHERE id = ?`
+	query := `SELECT * FROM service WHERE id = ?`
 	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
 
 	if err != nil {
@@ -98,7 +100,7 @@ func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 }
 
 func (r *ServiceRepository) DeleteOneService(id string) (sql.Result, error) {
-	query := `DELETE FROM Service WHERE id = ?`
+	query := `DELETE FROM service WHERE id = ?`
 	result, err := r.DB.Exec(query, id)
 
 	if err != nil {
@@ -120,7 +122,7 @@ func (r *ServiceRepository) DeleteOneService(id string) (sql.Result, error) {
 
 func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Result, error) {
 	query := `
-    UPDATE Service
+    UPDATE service
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),

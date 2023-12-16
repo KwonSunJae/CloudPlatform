@@ -66,7 +66,7 @@ func (s *VmService) CreateVm(n vm.VmDto) error {
 
 	return err
 }
-func GetStatusVM() (string, error) {
+func (s *VmService) GetStatusVM() (string, error) {
 	// 고정된 파일 경로
 	filePath := "../../terraform/test/terraform.tfstate"
 

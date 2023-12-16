@@ -108,7 +108,7 @@ func (s *ServiceService) DeleteService(id string) error {
 	}
 	return err
 }
-func GetServiceStatus(namespace, deploymentName string) (string, error) {
+func (s *ServiceService) GetServiceStatus() (string, error) {
 	// kubectl 명령 실행
 	cmd := exec.Command("kubectl", "get", "services", "-o", "json")
 	output, err := cmd.CombinedOutput()

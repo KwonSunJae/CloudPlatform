@@ -86,6 +86,17 @@ func ServiceController(router *mux.Router) error {
 		Response(w, raws, http.StatusOK, nil)
 
 	}).Methods("GET")
+	router.HandleFunc("/servicestat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := service.Service.GetServiceStatus()
+
+		if err != nil {
+			Response(w, nil, http.StatusInternalServerError, err)
+			return
+		}
+
+		Response(w, rsp, http.StatusOK, nil)
+
+	}).Methods("GET")
 
 	// POST 새로운 Service 등록
 	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {

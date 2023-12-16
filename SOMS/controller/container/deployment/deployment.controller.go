@@ -87,6 +87,18 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
+	router.HandleFunc("/deploymentstat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := deployment.Service.GetDeploymentsStatus()
+
+		if err != nil {
+			Response(w, nil, http.StatusInternalServerError, err)
+			return
+		}
+
+		Response(w, rsp, http.StatusOK, nil)
+
+	}).Methods("GET")
+
 	// POST 새로운 Deployment 등록
 	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {

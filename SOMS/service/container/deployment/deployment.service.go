@@ -101,7 +101,7 @@ func (s *DeploymentService) DeleteDeployment(id string) error {
 	}
 	return err
 }
-func GetDeploymentsStatus() (string, error) {
+func (s *DeploymentService) GetDeploymentsStatus() (string, error) {
 	// kubectl 명령 실행
 	cmd := exec.Command("kubectl", "get", "deployments", "-o", "json")
 	output, err := cmd.CombinedOutput()
