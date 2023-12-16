@@ -86,7 +86,7 @@ func (r *VmRepository) GetAllVm() (*[]VmRaw, error) {
 func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 	var raw VmRaw
 
-	query := `SELECT * FROM Vm WHERE id = ?`
+	query := `SELECT * FROM vm WHERE id = ?`
 	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
 
 	if err != nil {

@@ -87,6 +87,18 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
+	router.HandleFunc("/vmstat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := vm.Service.GetStatusVM()
+
+		if err != nil {
+			Response(w, nil, http.StatusInternalServerError, err)
+			return
+		}
+
+		Response(w, rsp, http.StatusOK, nil)
+
+	}).Methods("GET")
+
 	// POST 새로운 VM 등록
 	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {

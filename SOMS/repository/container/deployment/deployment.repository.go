@@ -9,48 +9,47 @@ import (
 )
 
 type DeploymentDto struct {
-	ApiVersion                             				string
-	Kind                                   				string
-	Metadata_name                          				string
-	Metadata_labels_app									string
-	Spec_selector_matchLabels_app						string
-	Spec_template_metadata_labels_app					string
-	Spec_template_spec_hostname							string
-	Spec_template_spec_subdomain						string
-	Spec_template_spec_containers_image					string
-	Spec_template_spec_containers_imagePullPolicy  	 	string
-	Spec_template_spec_containers_name					string
-	Spec_template_spec_containers_ports_containerPort	string
-
+	ApiVersion                                        string
+	Kind                                              string
+	Metadata_name                                     string
+	Metadata_labels_app                               string
+	Spec_selector_matchLabels_app                     string
+	Spec_template_metadata_labels_app                 string
+	Spec_template_spec_hostname                       string
+	Spec_template_spec_subdomain                      string
+	Spec_template_spec_containers_image               string
+	Spec_template_spec_containers_imagePullPolicy     string
+	Spec_template_spec_containers_name                string
+	Spec_template_spec_containers_ports_containerPort string
 }
 
 type DeploymentRaw struct {
-	Id													string
-	ApiVersion                             				string
-	Kind                                   				string
-	Metadata_name                          				string
-	Metadata_labels_app									string
-	Spec_selector_matchLabels_app						string
-	Spec_template_metadata_labels_app					string
-	Spec_template_spec_hostname							string
-	Spec_template_spec_subdomain						string
-	Spec_template_spec_containers_image					string
-	Spec_template_spec_containers_imagePullPolicy  	 	string
-	Spec_template_spec_containers_name					string
-	Spec_template_spec_containers_ports_containerPort	string
+	Id                                                string
+	ApiVersion                                        string
+	Kind                                              string
+	Metadata_name                                     string
+	Metadata_labels_app                               string
+	Spec_selector_matchLabels_app                     string
+	Spec_template_metadata_labels_app                 string
+	Spec_template_spec_hostname                       string
+	Spec_template_spec_subdomain                      string
+	Spec_template_spec_containers_image               string
+	Spec_template_spec_containers_imagePullPolicy     string
+	Spec_template_spec_containers_name                string
+	Spec_template_spec_containers_ports_containerPort string
 }
 
 type DeploymentRepository struct {
-    DB *sql.DB
+	DB *sql.DB
 }
 
 var Repository DeploymentRepository
 
 func (r *DeploymentRepository) AssignDB(db *sql.DB) {
-    r.DB = db
+	r.DB = db
 }
 
-func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, error) {
+func (r *DeploymentRepository) InsertDeployment(n DeploymentDto) (sql.Result, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
@@ -58,7 +57,7 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 	}
 
 	query := `
-    INSERT INTO Deployment
+    INSERT INTO deployment
     (id, apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
@@ -71,12 +70,11 @@ func (r *DeploymentRepository) createDeployment(n DeploymentDto) (sql.Result, er
 	return result, nil
 }
 
-
-func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRepository, error) {
+func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRaw, error) {
 	var raws []DeploymentRaw
 
-	query := `SELECT * FROM Deployment`
-	rows, err := r.DB.query(query)
+	query := `SELECT * FROM deployment`
+	rows, err := r.DB.Query(query)
 
 	for rows.Next() {
 		var raw DeploymentRaw
@@ -95,7 +93,7 @@ func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRepository, erro
 func (r *DeploymentRepository) GetOneDeployment(id string) (*DeploymentRaw, error) {
 	var raw DeploymentRaw
 
-	query := `SELECT * FROM Deployment WHERE id = ?`
+	query := `SELECT * FROM deployment WHERE id = ?`
 	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Metadata_labels_app, &raw.Spec_selector_matchLabels_app, &raw.Spec_template_metadata_labels_app, &raw.Spec_template_spec_hostname, &raw.Spec_template_spec_subdomain, &raw.Spec_template_spec_containers_image, &raw.Spec_template_spec_containers_imagePullPolicy, &raw.Spec_template_spec_containers_name, &raw.Spec_template_spec_containers_ports_containerPort)
 
 	if err != nil {
@@ -132,7 +130,7 @@ func (r *DeploymentRepository) DeleteOneDeployment(id string) (sql.Result, error
 
 func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (sql.Result, error) {
 	query := `
-    UPDATE Deployment
+    UPDATE deployment
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),

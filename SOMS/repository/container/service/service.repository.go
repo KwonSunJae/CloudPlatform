@@ -1,32 +1,32 @@
 package service
 
 import (
-"database/sql"
-"errors"
+	"database/sql"
+	"errors"
 
-"github.com/google/uuid"
-_ "github.com/mattn/go-sqlite3"
+	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type ServiceDto struct {
-	ApiVersion				string
-	Kind 					string
-	Metadata_name    		string
-	Spec_ports_port			string
-	Spec_ports_protocol		string
-	Spec_ports_targetPort	string
-	Spec_selector_app		string
+	ApiVersion            string
+	Kind                  string
+	Metadata_name         string
+	Spec_ports_port       string
+	Spec_ports_protocol   string
+	Spec_ports_targetPort string
+	Spec_selector_app     string
 }
 
 type ServiceRaw struct {
-	Id						string
-	ApiVersion				string
-	Kind 					string
-	Metadata_name    		string
-	Spec_ports_port			string
-	Spec_ports_protocol		string
-	Spec_ports_targetPort	string
-	Spec_selector_app		string
+	Id                    string
+	ApiVersion            string
+	Kind                  string
+	Metadata_name         string
+	Spec_ports_port       string
+	Spec_ports_protocol   string
+	Spec_ports_targetPort string
+	Spec_selector_app     string
 }
 
 type ServiceRepository struct {
@@ -39,7 +39,7 @@ func (r *ServiceRepository) AssignDB(db *sql.DB) {
 	r.DB = db
 }
 
-func (r *ServiceRepository) createService(n ServiceDto) (sql.Result, error) {
+func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
@@ -47,7 +47,7 @@ func (r *ServiceRepository) createService(n ServiceDto) (sql.Result, error) {
 	}
 
 	query := `
-    INSERT INTO Service
+    INSERT INTO service
     (id, apiVersion, kind, metadata_name, spec_ports_port, spec_ports_protocol, spec_ports_targetPort, spec_selector_app)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `
@@ -60,13 +60,14 @@ func (r *ServiceRepository) createService(n ServiceDto) (sql.Result, error) {
 	return result, nil
 }
 
-
-func (r *ServiceRepository) GetAllService() (*[]ServiceRepository, error) {
+func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 	var raws []ServiceRaw
 
-	query := `SELECT * FROM Service`
-	rows, err := r.DB.query(query)
-
+	query := `SELECT * FROM service`
+	rows, err := r.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
 	for rows.Next() {
 		var raw ServiceRaw
 		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
@@ -84,7 +85,7 @@ func (r *ServiceRepository) GetAllService() (*[]ServiceRepository, error) {
 func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 	var raw ServiceRaw
 
-	query := `SELECT * FROM Service WHERE id = ?`
+	query := `SELECT * FROM service WHERE id = ?`
 	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
 
 	if err != nil {
@@ -99,7 +100,7 @@ func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 }
 
 func (r *ServiceRepository) DeleteOneService(id string) (sql.Result, error) {
-	query := `DELETE FROM Service WHERE id = ?`
+	query := `DELETE FROM service WHERE id = ?`
 	result, err := r.DB.Exec(query, id)
 
 	if err != nil {
@@ -121,7 +122,7 @@ func (r *ServiceRepository) DeleteOneService(id string) (sql.Result, error) {
 
 func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Result, error) {
 	query := `
-    UPDATE Service
+    UPDATE service
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),
