@@ -39,7 +39,7 @@ func VmController(router *mux.Router) error {
 		return err
 	}
 
-	// GET 특정 id의 뉴스 데이터 반환
+	// GET 특정 id의 VM 데이터 반환
 	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
@@ -49,7 +49,7 @@ func VmController(router *mux.Router) error {
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 뉴스가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 VM가 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -60,7 +60,7 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	router.HandleFunc("/vm/test", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/vmtest", func(w http.ResponseWriter, r *http.Request) {
 		cmd := exec.Command("terraform", "apply")
 		cmd.Dir = "/home/ubuntu/test/"
 
@@ -74,7 +74,7 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// GET 전체 뉴스 데이터 반환
+	// GET 전체 VM 데이터 반환
 	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
 		raws, err := vm.Service.GetAllVm()
 
@@ -87,7 +87,19 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// POST 새로운 뉴스 등록
+	router.HandleFunc("/vmstat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := vm.Service.GetStatusVM()
+
+		if err != nil {
+			Response(w, nil, http.StatusInternalServerError, err)
+			return
+		}
+
+		Response(w, rsp, http.StatusOK, nil)
+
+	}).Methods("GET")
+
+	// POST 새로운 VM 등록
 	router.HandleFunc("/vm", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			Name                  string
@@ -125,7 +137,7 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("POST")
 
-	// PATCH 특정 id의 뉴스 데이터 수정
+	// PATCH 특정 id의 VM 데이터 수정
 	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
@@ -153,7 +165,7 @@ func VmController(router *mux.Router) error {
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 뉴스가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 VM이 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -164,7 +176,7 @@ func VmController(router *mux.Router) error {
 
 	}).Methods("PATCH")
 
-	// DELETE 특정 id의 뉴스 데이터 삭제
+	// DELETE 특정 id의 VM 데이터 삭제
 	router.HandleFunc("/vm/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
@@ -174,7 +186,7 @@ func VmController(router *mux.Router) error {
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 뉴스가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당되는 VM이 존재하지 않습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
