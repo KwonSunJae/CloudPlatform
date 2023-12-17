@@ -3,8 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.tf
-*.mod
-*.terraform*
+*mod
+*terraform*
 # C extensions
 *.so
 
