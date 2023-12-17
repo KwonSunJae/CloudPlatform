@@ -113,7 +113,7 @@ func (s *VmService) DeleteVm(id string) error {
 }
 
 func generateTerraformConfig(vmDto vm.VmDto) string {
-	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "remoteCreateVM" {
+	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
       name      = "%s"
       region    = "RegionOne"
       flavor_id = "%s"
@@ -124,7 +124,7 @@ func generateTerraformConfig(vmDto vm.VmDto) string {
       }
       security_groups = ["default"]
       image_id = "%s"
-    }`, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
+    }`, vmDto.Name, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
 }
 
 func readFileContents(filename string) (string, error) {
