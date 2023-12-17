@@ -54,6 +54,7 @@ func (s *VmService) CreateVm(n vm.VmDto) error {
 	if err != nil {
 		return err
 	}
+	fmt.Print("file create!\n")
 
 	// Run `terraform apply -auto-approve` using an appropriate command execution method
 	// ...
