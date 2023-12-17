@@ -56,6 +56,7 @@ const VMCreateForm = () => {
         })
         .then(response => {
             console.log(response.data);
+            window.location.href="/vm/";
         })
         .catch(error => {
             console.error(error);

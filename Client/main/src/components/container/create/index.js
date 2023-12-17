@@ -1,7 +1,7 @@
 // ContainerCreatePage.js
 import React, { useState } from 'react';
-import DeploymentForm from '../deployment/index';
-import ServiceForm from '../service/index';
+import DeploymentForm from './deployment/index';
+import ServiceForm from './service/index';
 import "./index.css";
 const ContainerCreatePage = () => {
   const [selectedOption, setSelectedOption] = useState('deployment');

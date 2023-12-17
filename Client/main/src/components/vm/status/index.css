@@ -1,0 +1,90 @@
+/* index.css */
+
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa; /* Bootstrap background color */
+}
+
+.container {
+  height: 700px;
+  max-width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+h1 {
+  color: #007bff; /* Bootstrap primary color */
+  margin-bottom: 20px;
+  margin-left: 20pt;
+}
+
+.button-container {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.add-vm-button,
+.delete-button,
+.manage-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+  margin-top: 5pt;
+}
+
+.add-vm-button {
+  background-color: #007bff;
+  color: #fff;
+  margin-left: 10pt;
+  border: none;
+}
+
+.add-vm-button:hover {
+  background-color: #0056b3; /* Darker shade for hover */
+}
+
+.delete-button {
+  background-color: #dc3545; /* Bootstrap danger color */
+  color: #fff;
+  border: none;
+  margin-left: 5px;
+}
+
+.delete-button:hover {
+  background-color: #bd2130; /* Darker shade for hover */
+}
+
+.manage-button {
+  background-color: #ffc107; /* Bootstrap warning color */
+  color: #212529; /* Bootstrap body color */
+  border: none;
+  margin-left: 5px;
+}
+
+.manage-button:hover {
+  background-color: #e0a800; /* Darker shade for hover */
+}
+
+.vm-list {
+  margin-top: 20px;
+}
+
+.vm-item {
+  border: 1px solid rgba(0, 123, 255, 0.125); /* Bootstrap border color */
+  margin: 10px 0;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 0.25rem; /* Bootstrap border-radius */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.125); /* Bootstrap box-shadow */
+}
+
+.vm-item strong {
+  color: #007bff;
+}
