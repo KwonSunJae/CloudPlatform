@@ -87,7 +87,7 @@ func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 	var raw VmRaw
 
 	query := `SELECT * FROM vm WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {

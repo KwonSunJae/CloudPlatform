@@ -41,7 +41,7 @@ func (s *ServiceService) GetOneService(id string) (*service.ServiceRaw, error) {
 }
 
 func (s *ServiceService) CreateService(n service.ServiceDto) error {
-	_, err := s.Repository.InsertService(n)
+
 	yamlTemplate := `
 apiVersion: {{.ApiVersion}}
 kind: {{.Kind}}
@@ -63,7 +63,7 @@ spec:
 	}
 
 	// 파일 생성
-	fileName := fmt.Sprintf("../../k8s/test/%s_service.yaml", n.Metadata_name)
+	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("파일 생성 중 오류 발생: %v", err)
@@ -82,7 +82,10 @@ spec:
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
 	}
-
+	_, err2 := s.Repository.InsertService(n)
+	if err2 != nil {
+		return fmt.Errorf("db error: %v\n", err2)
+	}
 	fmt.Printf("YAML 파일 생성 및 kubectl apply 완료: %s\n", fileName)
 	return err
 }
@@ -98,9 +101,10 @@ func (s *ServiceService) DeleteService(id string) error {
 	if err0 != nil {
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
-	_, err := s.Repository.DeleteOneService(id)
+
 	cmd := exec.Command("kubectl", "delete", "service", svData.Metadata_name)
 	output, err2 := cmd.CombinedOutput()
+	_, err := s.Repository.DeleteOneService(id)
 	if err != nil {
 		fmt.Print(output)
 		return fmt.Errorf("kubectl 명령 실행 중 오류 발생: %v", err2)

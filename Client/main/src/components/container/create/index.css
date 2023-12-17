@@ -16,7 +16,7 @@
   }
   
   .container-create-page div {
-    display: flex;
+    display: block;
     justify-content: center;
     margin-bottom: 20px;
   }
@@ -30,4 +30,62 @@
   .container-create-page input[type="radio"] {
     margin-right: 5px;
   }
+  
+  .deployment-form {
+    
+    height: 500px;
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .deployment-form h2 {
+    margin-bottom: 15px;
+  }
+  
+  
+  .deployment-form form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    width : 40%;
+  }
+  
+  .deployment-form form input[type="text"],
+  .deployment-form form input[type="number"],
+  .deployment-form form select {
+    width: 40%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 15px;
+    margin-left: 10px;
+  }
+  
+  .deployment-form form button {
+    display: block;
+    margin: auto;
+    width: 50%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .deployment-form form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .deployment-form form input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  
   

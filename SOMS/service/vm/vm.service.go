@@ -41,34 +41,42 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 }
 
 func (s *VmService) CreateVm(n vm.VmDto) error {
-	_, err := s.Repository.InsertVm(n)
-	if err != nil {
-		return err
-	}
 
 	// Generate Terraform configuration
 	terraformConfig := generateTerraformConfig(n)
-	fileName := fmt.Sprintf("../../terraform/test/%s.tf", n.Name)
+	fileName := fmt.Sprintf("terraform/test/%s.tf", n.Name)
 	// Write to vm.tf
-	err = os.WriteFile(fileName, []byte(terraformConfig), 0644)
+	file, err := os.Create(fileName)
 	if err != nil {
 		return err
 	}
+	defer file.Close()
+
+	_, err = file.WriteString(terraformConfig)
+	if err != nil {
+		return err
+	}
+	fmt.Print(fileName)
 
 	// Run `terraform apply -auto-approve` using an appropriate command execution method
 	// ...
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "../../terraform/test/"
+	cmd.Dir = "terraform/test/"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
 	}
 
-	return err
+	_, err2 := s.Repository.InsertVm(n)
+	if err2 != nil {
+		return err
+	}
+
+	return nil
 }
 func (s *VmService) GetStatusVM() (string, error) {
 	// 고정된 파일 경로
-	filePath := "../../terraform/test/terraform.tfstate"
+	filePath := "terraform/test/terraform.tfstate"
 
 	// 파일 읽기
 	fileContent, err := os.ReadFile(filePath)
@@ -90,30 +98,30 @@ func (s *VmService) DeleteVm(id string) error {
 	if err != nil {
 		return err
 	}
-	_, err2 := s.Repository.DeleteOneVm(id)
-	if err2 != nil {
-		return err
-	}
 
 	// Generate the filename based on the VM's name
-	fileName := fmt.Sprintf("../../terraform/test/%s.tf", vmData.Name)
-
+	fileName := fmt.Sprintf("terraform/test/%s.tf", vmData.Name)
+	fmt.Print(fileName)
 	// Delete the Terraform file
 	if err := os.Remove(fileName); err != nil {
 		return err
 	}
 	// Run `terraform apply -auto-approve`
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "../../terraform/test/"
+	cmd.Dir = "terraform/test/"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
+	}
+	_, err2 := s.Repository.DeleteOneVm(id)
+	if err2 != nil {
+		return err
 	}
 	return nil
 }
 
 func generateTerraformConfig(vmDto vm.VmDto) string {
-	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "remoteCreateVM" {
+	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
       name      = "%s"
       region    = "RegionOne"
       flavor_id = "%s"
@@ -124,7 +132,7 @@ func generateTerraformConfig(vmDto vm.VmDto) string {
       }
       security_groups = ["default"]
       image_id = "%s"
-    }`, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
+    }`, vmDto.Name, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
 }
 
 func readFileContents(filename string) (string, error) {

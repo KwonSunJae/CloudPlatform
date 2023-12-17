@@ -1,6 +1,7 @@
 // VMCreateForm.js
 import React, { useState, useEffect } from 'react';
 import './index.css';
+import instance from '../../../apis/index'
 const VMCreateForm = () => {
     const [vmName, setVmName] = useState('');
     const [gpu, setGPU] = useState(false);
@@ -42,6 +43,26 @@ const VMCreateForm = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
+        instance.post("/vm",{
+            Name : vmName,
+            FlavorID : "df2ca4c3-715a-4749-b955-1c73a9aca1a6",
+            ExternalIP : "true",
+            internalIP : "false",
+            SelectedOS : "45adb171-6051-43db-af19-ec62c00a1bf2",
+            unionMountImage: "false",
+            KeyPair : keyPair,
+            SelectedSecurityGroup : "default",
+            UserID : "myuser"
+        })
+        .then(response => {
+            console.log(response.data);
+            window.location.href="/vm/";
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
+
         // Implement logic to create the virtual machine
     };
 

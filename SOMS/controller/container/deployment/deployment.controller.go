@@ -184,7 +184,7 @@ func DeploymentController(router *mux.Router) error {
 	}).Methods("PATCH")
 
 	// DELETE 특정 id의 Deployment 데이터 삭제
-	router.HandleFunc("/deplooyment/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 

@@ -2,10 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.tf
+*mod
+*terraform*
 # C extensions
 *.so
-
+./soms
+k8s/
 # Distribution / packaging
 .Python
 build/

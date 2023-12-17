@@ -8,6 +8,8 @@ import Cluster from './createCluster'
 import Machine from './createMachine'
 import Container from './createContainer';
 import VM from './createVM'
+import VMStat from './statusVM';
+import ContainerStat from './statusContainer';
 const Routers = () => {
 
     return (
@@ -19,6 +21,8 @@ const Routers = () => {
                 <Route path= "/create/container" element={<Container/>}/>
                 <Route  path="/create/machine" element={<Machine />} />
                 <Route path='/create/vm' element={<VM/>}/>
+                <Route path='/vm' element={<VMStat/>}/>
+                <Route path='/container' element={<ContainerStat/>}/>
                 <Route path = "*" element={<Error/>}/>
             </Routes>
         </Router>

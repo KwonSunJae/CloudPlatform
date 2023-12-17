@@ -171,7 +171,7 @@ func ServiceController(router *mux.Router) error {
 	}).Methods("PATCH")
 
 	// DELETE 특정 id의 Service 데이터 삭제
-	router.HandleFunc("/deplooyment/{id}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
