@@ -41,10 +41,6 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 }
 
 func (s *VmService) CreateVm(n vm.VmDto) error {
-	_, err := s.Repository.InsertVm(n)
-	if err != nil {
-		return err
-	}
 
 	// Generate Terraform configuration
 	terraformConfig := generateTerraformConfig(n)
@@ -69,6 +65,11 @@ func (s *VmService) CreateVm(n vm.VmDto) error {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
+	}
+
+	_, err2 := s.Repository.InsertVm(n)
+	if err2 != nil {
+		return err
 	}
 
 	return nil
@@ -97,14 +98,10 @@ func (s *VmService) DeleteVm(id string) error {
 	if err != nil {
 		return err
 	}
-	_, err2 := s.Repository.DeleteOneVm(id)
-	if err2 != nil {
-		return err
-	}
 
 	// Generate the filename based on the VM's name
 	fileName := fmt.Sprintf("terraform/test/%s.tf", vmData.Name)
-
+	fmt.Print(fileName)
 	// Delete the Terraform file
 	if err := os.Remove(fileName); err != nil {
 		return err
@@ -115,6 +112,10 @@ func (s *VmService) DeleteVm(id string) error {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
+	}
+	_, err2 := s.Repository.DeleteOneVm(id)
+	if err2 != nil {
+		return err
 	}
 	return nil
 }
