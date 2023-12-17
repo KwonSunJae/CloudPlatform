@@ -8,7 +8,7 @@ __pycache__/
 # C extensions
 *.so
 ./soms
-
+k8s/
 # Distribution / packaging
 .Python
 build/
