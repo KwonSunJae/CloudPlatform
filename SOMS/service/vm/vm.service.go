@@ -48,28 +48,34 @@ func (s *VmService) CreateVm(n vm.VmDto) error {
 
 	// Generate Terraform configuration
 	terraformConfig := generateTerraformConfig(n)
-	fileName := fmt.Sprintf("../../terraform/test/%s.tf", n.Name)
+	fileName := fmt.Sprintf("terraform/test/%s.tf", n.Name)
 	// Write to vm.tf
-	err = os.WriteFile(fileName, []byte(terraformConfig), 0644)
+	file, err := os.Create(fileName)
 	if err != nil {
 		return err
 	}
-	fmt.Print("file create!\n")
+	defer file.Close()
+
+	_, err = file.WriteString(terraformConfig)
+	if err != nil {
+		return err
+	}
+	fmt.Print(fileName)
 
 	// Run `terraform apply -auto-approve` using an appropriate command execution method
 	// ...
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "../../terraform/test/"
+	cmd.Dir = "terraform/test/"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
 	}
 
-	return err
+	return nil
 }
 func (s *VmService) GetStatusVM() (string, error) {
 	// 고정된 파일 경로
-	filePath := "../../terraform/test/terraform.tfstate"
+	filePath := "terraform/test/terraform.tfstate"
 
 	// 파일 읽기
 	fileContent, err := os.ReadFile(filePath)
@@ -97,7 +103,7 @@ func (s *VmService) DeleteVm(id string) error {
 	}
 
 	// Generate the filename based on the VM's name
-	fileName := fmt.Sprintf("../../terraform/test/%s.tf", vmData.Name)
+	fileName := fmt.Sprintf("terraform/test/%s.tf", vmData.Name)
 
 	// Delete the Terraform file
 	if err := os.Remove(fileName); err != nil {
@@ -105,7 +111,7 @@ func (s *VmService) DeleteVm(id string) error {
 	}
 	// Run `terraform apply -auto-approve`
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "../../terraform/test/"
+	cmd.Dir = "terraform/test/"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
