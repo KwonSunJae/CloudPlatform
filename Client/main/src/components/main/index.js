@@ -40,7 +40,7 @@ const Main = () => {
         </div>
         <div>
           <img src={icon1} width='100px' height='100px'></img>
-          <Link to="/virtual-machine">Virtual Machine</Link>
+          <Link to="/vm">Virtual Machine</Link>
             
         </div>
         <div>

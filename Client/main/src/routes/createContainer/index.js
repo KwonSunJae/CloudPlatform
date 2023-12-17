@@ -10,7 +10,6 @@ export default function Container() {
 
         <div>
             <NavigationBar />
-      
             <ContainerCreatePage/>
             <Footer/>
         </div>
