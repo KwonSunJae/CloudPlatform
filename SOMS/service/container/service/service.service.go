@@ -117,7 +117,7 @@ spec:
 	if err != nil {
 		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
 	}
-	
+
 	// 파일 불러오기
 	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
 	file, err := os.Open(fileName)
@@ -178,7 +178,7 @@ spec:
 	}
 
 	fmt.Printf("YAML 파일 수정 및 kubectl apply 완료: %s\n", fileName)
-	return nil
+	return err
 }
 
 func (s *ServiceService) DeleteService(id string) error {
