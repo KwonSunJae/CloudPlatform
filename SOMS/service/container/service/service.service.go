@@ -96,7 +96,7 @@ func (s *ServiceService) UpdateService(id string, n service.ServiceDto) error {
 	if err != nil {
 		return fmt.Errorf("db error : %v\n", err)
 	}
-	
+
 	// 실행중인 yaml 파일을 불러와 새로운 DTO값으로 다시 작성 후 실행
 	yamlTemplate := `
 apiVersion: {{.ApiVersion}}
@@ -110,7 +110,7 @@ spec:
       targetPort: {{.Spec_ports_targetPort}}
   selector:
     app: {{.Spec_selector_app}}
-`		
+`
 
 	// 템플릿에 데이터 적용
 	tmpl, err := template.New("yaml").Parse(yamlTemplate)
@@ -120,52 +120,14 @@ spec:
 
 	// 파일 불러오기
 	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
-	file, err := os.Open(fileName)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("파일 불러오기 중 오류 발생: %v", err)
 	}
 	defer file.Close()
 
-	// 존재하는 YAML 파일의 내용 구조체로 읽어오기
-	var existingServiceDto servcie.ServiceDto
-	decoder := yaml.NewDecoder(file)
-	err = decoder.Decode(&existingServiceDto)
-	if err != nil {
-		return fmt.Errorf("YAML 파일 읽어오기 중 오류 발생: %v", err)
-	}
-
-	// 새로운 DTO 값과 기존 파일 내용 비교 및 수정
-	if n.ApiVersion != existingServiceDto.ApiVersion {
-		existingServiceDto.ApiVersion = n.ApiVersion
-	}
-	if n.Kind != existingServiceDto.Kind {
-		existingServiceDto.Kind = n.Kind
-	}
-	if n.Metadata_name != existingServiceDto.Metadata_name {
-		existingServiceDto.Metadata_name = n.Metadata_name
-	}
-	if n.Spec_ports_port != existingServiceDto.Spec_ports_port {
-		existingServiceDto.Spec_ports_port = n.Spec_ports_port
-	}
-	if n.Spec_ports_protocol != existingServiceDto.Spec_ports_protocol {
-		existingServiceDto.Spec_ports_protocol = n.Spec_ports_protocol
-	}
-	if n.Spec_ports_targetPort != existingServiceDto.Spec_ports_targetPort {
-		existingServiceDto.Spec_ports_targetPort = n.Spec_ports_targetPort
-	}
-	if n.Spec_selector_app != existingServiceDto.Spec_selector_app {
-		existingServiceDto.Spec_selector_app = n.Spec_selector_app
-	}
-
-	// 파일 업데이트
-	file, err = os.Create(fileName)
-	if err != nil {
-		return fmt.Errorf("파일 업데이트 중 오류 발생: %v", err)
-	}
-	defer file.Close()
-
 	// 수정된 내용을 템플릿에 적용하여 파일에 쓰기
-	err = tmpl.Execute(file, existingServiceDto)
+	err = tmpl.Execute(file, n)
 	if err != nil {
 		return fmt.Errorf("YAML 파일 작성 중 오류 발생: %v", err)
 	}
