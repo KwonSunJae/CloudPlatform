@@ -91,8 +91,55 @@ spec:
 }
 
 func (s *ServiceService) UpdateService(id string, n service.ServiceDto) error {
+	// db에서 id에 해당하는 서비스를 새로운 serviceDTO로 업데이트
 	_, err := s.Repository.UpdateOneService(id, n)
+	if err != nil {
+		return fmt.Errorf("db error : %v\n", err)
+	}
 
+	// 실행중인 yaml 파일을 불러와 새로운 DTO값으로 다시 작성 후 실행
+	yamlTemplate := `
+apiVersion: {{.ApiVersion}}
+kind: {{.Kind}}
+metadata:
+  name: {{.Metadata_name}}
+spec:
+  ports:
+    - port: {{.Spec_ports_port}}
+      protocol: {{.Spec_ports_protocol}}
+      targetPort: {{.Spec_ports_targetPort}}
+  selector:
+    app: {{.Spec_selector_app}}
+`
+
+	// 템플릿에 데이터 적용
+	tmpl, err := template.New("yaml").Parse(yamlTemplate)
+	if err != nil {
+		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
+	}
+
+	// 파일 불러오기
+	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC, 0644)
+	if err != nil {
+		return fmt.Errorf("파일 불러오기 중 오류 발생: %v", err)
+	}
+	defer file.Close()
+
+	// 수정된 내용을 템플릿에 적용하여 파일에 쓰기
+	err = tmpl.Execute(file, n)
+	if err != nil {
+		return fmt.Errorf("YAML 파일 작성 중 오류 발생: %v", err)
+	}
+
+	// kubectl apply 실행
+	cmd := exec.Command("kubectl", "apply", "-f", fileName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
+	}
+
+	fmt.Printf("YAML 파일 수정 및 kubectl apply 완료: %s\n", fileName)
 	return err
 }
 
@@ -112,6 +159,7 @@ func (s *ServiceService) DeleteService(id string) error {
 	}
 	return err
 }
+
 func (s *ServiceService) GetServiceStatus() (string, error) {
 	// kubectl 명령 실행
 	cmd := exec.Command("kubectl", "get", "services", "-o", "json")
