@@ -7,6 +7,7 @@ import (
 
 	"soms/repository"
 	"soms/repository/vm"
+	resource "soms/util/resource/vm"
 )
 
 type VmService struct {
@@ -43,30 +44,11 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 func (s *VmService) CreateVm(n vm.VmDto) error {
 
 	// Generate Terraform configuration
-	terraformConfig := generateTerraformConfig(n)
-	fileName := fmt.Sprintf("terraform/test/%s.tf", n.Name)
-	// Write to vm.tf
-	file, err := os.Create(fileName)
+	vmBuilder := resource.New()
+	err := vmBuilder.Init(n.Name).User("test").Flavor(n.FlavorID).Security_groups(n.SelectedSecuritygroup).Keypair(n.Keypair).Image(n.SelectedOS).Build()
 	if err != nil {
 		return err
 	}
-	defer file.Close()
-
-	_, err = file.WriteString(terraformConfig)
-	if err != nil {
-		return err
-	}
-	fmt.Print(fileName)
-
-	// Run `terraform apply -auto-approve` using an appropriate command execution method
-	// ...
-	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "terraform/test/"
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
-	}
-
 	_, err2 := s.Repository.InsertVm(n)
 	if err2 != nil {
 		return err
