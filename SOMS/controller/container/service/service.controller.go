@@ -1,10 +1,10 @@
-package service
+package controller
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os/exec"
+	checker "soms/controller/checker/container/service"
 	"soms/service/container/service"
 
 	"github.com/gorilla/mux"
@@ -60,20 +60,6 @@ func ServiceController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	router.HandleFunc("/servicetest", func(w http.ResponseWriter, r *http.Request) {
-		cmd := exec.Command("terraform", "apply")
-		cmd.Dir = "/home/ubuntu/test/"
-
-		output, err := cmd.Output()
-
-		if err != nil {
-			Response(w, output, http.StatusOK, nil)
-		} else {
-			Response(w, err, http.StatusOK, nil)
-		}
-
-	}).Methods("GET")
-
 	// GET 전체 Service 데이터 반환
 	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
 		raws, err := service.Service.GetAllService()
@@ -86,6 +72,8 @@ func ServiceController(router *mux.Router) error {
 		Response(w, raws, http.StatusOK, nil)
 
 	}).Methods("GET")
+
+	// GET Service status 반환
 	router.HandleFunc("/servicestat", func(w http.ResponseWriter, r *http.Request) {
 		rsp, err := service.Service.GetServiceStatus()
 
@@ -101,24 +89,39 @@ func ServiceController(router *mux.Router) error {
 	// POST 새로운 Service 등록
 	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			ApiVersion            string
-			Kind                  string
-			Metadata_name         string
-			Spec_ports_port       string
-			Spec_ports_protocol   string
-			Spec_ports_targetPort string
-			Spec_selector_app     string
+			// ClusterIP
+			ApiVersion          string
+			Kind                string
+			MetadataName        string
+			SpecType            string
+			SpecSelectorApp     string
+			SpecPortsProtocol   string
+			SpecPortsPort       string
+			SpecPortsTargetport string
+
+			// NodePort
+			SpecPortsNodeport string
+
+			// LoadBalancer
+			SpecSelectorType string
+			SpecClusterIP    string
+
+			// ExternalName
+			MetadataNamespace string
+			SpecExternalname  string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
+			return
 		}
 
-		if body.Metadata_name == "" || body.Spec_selector_app == "" || body.Spec_ports_protocol == "" ||
-			body.Spec_ports_port == "" || body.Spec_ports_targetPort == "" || body.ApiVersion == "" || body.Kind == "" {
-			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
+		// 서비스타입별 바디에 파라미터 누락 표시
+		checkerErr := checker.ServiceTypeChecker(body)
+		if checkerErr != nil {
+			Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
 			return
 		}
 
@@ -139,13 +142,26 @@ func ServiceController(router *mux.Router) error {
 		id := vars["id"]
 
 		var body struct {
-			ApiVersion            string
-			Kind                  string
-			Metadata_name         string
-			Spec_ports_port       string
-			Spec_ports_protocol   string
-			Spec_ports_targetPort string
-			Spec_selector_app     string
+			// ClusterIP
+			ApiVersion          string
+			Kind                string
+			MetadataName        string
+			SpecType            string
+			SpecSelectorApp     string
+			SpecPortsProtocol   string
+			SpecPortsPort       string
+			SpecPortsTargetport string
+
+			// NodePort
+			SpecPortsNodeport string
+
+			// LoadBalancer
+			SpecSelectorType string
+			SpecClusterIP    string
+
+			// ExternalName
+			MetadataNamespace string
+			SpecExternalname  string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -153,6 +169,8 @@ func ServiceController(router *mux.Router) error {
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
+
+		Response(w, nil, http.StatusBadRequest, checker.ServiceTypeChecker(body)) // 서비스타입별 바디에 파라미터 누락 표시
 
 		err = service.Service.UpdateService(id, body)
 

@@ -66,11 +66,17 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 		id TEXT PRIMARY KEY,
 		apiVersion TEXT,
 		kind TEXT,
-		metadata_name TEXT,
-		spec_ports_port TEXT,
-		spec_ports_protocol TEXT,
-		spec_ports_targetPort TEXT,
-		spec_selector_app TEXT
+		metadataName TEXT,
+		specType TEXT,
+		specSelectorApp TEXT,
+		specPortsProtocol TEXT,
+		specPortsPort TEXT,
+		specPortsTargetport TEXT,
+		specPortsNodeport TEXT,
+		specSelectorType TEXT,
+		specClusterIP TEXT,
+		metadataNamespace TEXT,
+		specExternalname TEXT
 	)
   `
 
@@ -82,6 +88,7 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 
 	return result, nil
 }
+
 func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE deployment (
