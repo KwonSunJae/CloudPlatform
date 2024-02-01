@@ -92,19 +92,17 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE deployment (
-		id SERIAL PRIMARY KEY,
+		id TEXT PRIMARY KEY,
 		apiVersion TEXT,
 		kind TEXT,
-		metadata_name TEXT,
-		metadata_labels_app TEXT,
-		spec_selector_matchLabels_app TEXT,
-		spec_template_metadata_labels_app TEXT,
-		spec_template_spec_hostname TEXT,
-		spec_template_spec_subdomain TEXT,
-		spec_template_spec_containers_image TEXT,
-		spec_template_spec_containers_imagePullPolicy TEXT,
-		spec_template_spec_containers_name TEXT,
-		spec_template_spec_containers_ports_containerPort TEXT
+		metadataName TEXT,
+		metadataLabelsApp TEXT,
+		specReplicas TEXT,
+		specSelectorMatchlabelsApp TEXT,
+		specTemplateMetadataLabelsApp TEXT,
+		specTemplateSpecContainersName TEXT,
+		specTemplateSpecContainersImage TEXT,
+		specTemplateSpecContainersPortsContainerport TEXT
 	)
   `
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os/exec"
 	"soms/service/container/deployment"
 
 	"github.com/gorilla/mux"
@@ -60,20 +59,6 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	router.HandleFunc("/deploymenttest", func(w http.ResponseWriter, r *http.Request) {
-		cmd := exec.Command("terraform", "apply")
-		cmd.Dir = "/home/ubuntu/test/"
-
-		output, err := cmd.Output()
-
-		if err != nil {
-			Response(w, output, http.StatusOK, nil)
-		} else {
-			Response(w, err, http.StatusOK, nil)
-		}
-
-	}).Methods("GET")
-
 	// GET 전체 Deployment 데이터 반환
 	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
 		raws, err := deployment.Service.GetAllDeployment()
@@ -87,6 +72,7 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
+	// GET Deployment status 반환
 	router.HandleFunc("/deploymentstat", func(w http.ResponseWriter, r *http.Request) {
 		rsp, err := deployment.Service.GetDeploymentsStatus()
 
@@ -102,28 +88,28 @@ func DeploymentController(router *mux.Router) error {
 	// POST 새로운 Deployment 등록
 	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
-			ApiVersion                                        string
-			Kind                                              string
-			Metadata_name                                     string
-			Metadata_labels_app                               string
-			Spec_selector_matchLabels_app                     string
-			Spec_template_metadata_labels_app                 string
-			Spec_template_spec_hostname                       string
-			Spec_template_spec_subdomain                      string
-			Spec_template_spec_containers_image               string
-			Spec_template_spec_containers_imagePullPolicy     string
-			Spec_template_spec_containers_name                string
-			Spec_template_spec_containers_ports_containerPort string
+			ApiVersion                                   string
+			Kind                                         string
+			MetadataName                                 string
+			MetadataLabelsApp                            string
+			SpecReplicas                                 string
+			SpecSelectorMatchlabelsApp                   string
+			SpecTemplateMetadataLabelsApp                string
+			SpecTemplateSpecContainersName               string
+			SpecTemplateSpecContainersImage              string
+			SpecTemplateSpecContainersPortsContainerport string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
+			return
 		}
-		if body.Metadata_name == "" || body.Metadata_labels_app == "" || body.Spec_selector_matchLabels_app == "" || body.Spec_template_metadata_labels_app == "" ||
-			body.Spec_template_spec_hostname == "" || body.Spec_template_spec_subdomain == "" || body.Spec_template_spec_containers_image == "" ||
-			body.Spec_template_spec_containers_imagePullPolicy == "" || body.Spec_template_spec_containers_name == "" || body.Spec_template_spec_containers_ports_containerPort == "" {
+
+		if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" || body.MetadataLabelsApp == "" ||
+			body.SpecReplicas == "" || body.SpecSelectorMatchlabelsApp == "" || body.SpecTemplateMetadataLabelsApp == "" ||
+			body.SpecTemplateSpecContainersName == "" || body.SpecTemplateSpecContainersImage == "" || body.SpecTemplateSpecContainersPortsContainerport == "" {
 			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
 			return
 		}
@@ -145,18 +131,16 @@ func DeploymentController(router *mux.Router) error {
 		id := vars["id"]
 
 		var body struct {
-			ApiVersion                                        string
-			Kind                                              string
-			Metadata_name                                     string
-			Metadata_labels_app                               string
-			Spec_selector_matchLabels_app                     string
-			Spec_template_metadata_labels_app                 string
-			Spec_template_spec_hostname                       string
-			Spec_template_spec_subdomain                      string
-			Spec_template_spec_containers_image               string
-			Spec_template_spec_containers_imagePullPolicy     string
-			Spec_template_spec_containers_name                string
-			Spec_template_spec_containers_ports_containerPort string
+			ApiVersion                                   string
+			Kind                                         string
+			MetadataName                                 string
+			MetadataLabelsApp                            string
+			SpecReplicas                                 string
+			SpecSelectorMatchlabelsApp                   string
+			SpecTemplateMetadataLabelsApp                string
+			SpecTemplateSpecContainersName               string
+			SpecTemplateSpecContainersImage              string
+			SpecTemplateSpecContainersPortsContainerport string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -164,8 +148,6 @@ func DeploymentController(router *mux.Router) error {
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
-
-		// ApiVersion와 Kind를 추가하여 DeploymentDto 생성
 
 		err = deployment.Service.UpdateDeployment(id, body)
 
