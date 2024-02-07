@@ -26,7 +26,7 @@ fi
 if ! nc -z localhost 5601; then
     echo "ELK is not running on port 5601."
     
-    cd docker-elk
+    cd setup
 
     sudo docker-compose down
     sleep 5
