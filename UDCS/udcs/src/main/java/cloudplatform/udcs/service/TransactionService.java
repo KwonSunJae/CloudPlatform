@@ -6,6 +6,7 @@ import cloudplatform.udcs.dto.RequestDto;
 import cloudplatform.udcs.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -25,7 +26,9 @@ public class TransactionService {
     private final MemberRepository memberRepository;
     private final RestTemplate restTemplate;
 
-    final String SOMS_URL = "https://artcare.kro.kr";
+    @Value("${go.server.url}")
+    private String SOMS_URL;
+
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void requestSOMS(RequestDto requestDto, Long memberId) {
