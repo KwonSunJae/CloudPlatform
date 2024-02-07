@@ -88,7 +88,7 @@ func VmController(router *mux.Router) error {
 	}).Methods("GET")
 
 	router.HandleFunc("/vmstat", func(w http.ResponseWriter, r *http.Request) {
-		rsp, err := vm.Service.GetStatusVM()
+		rsp, err := vm.Service.GetStatusVM("test")
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
