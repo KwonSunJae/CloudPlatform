@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 	"soms/controller/container/deployment"
-	service "soms/controller/container/service"
+	"soms/controller/container/service"
 	"soms/controller/vm"
 
 	"github.com/gorilla/mux"
