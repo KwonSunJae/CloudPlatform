@@ -109,3 +109,24 @@ func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 
 	return result, nil
 }
+
+func createUserTable(db *sql.DB) (sql.Result, error) {
+	query := `
+	CREATE TABLE user (
+		id TEXT PRIMARY KEY,
+		password TEXT,
+		email TEXT,
+		schoolNum TEXT,
+		detailRole TEXT,
+		isLocked BOOLEAN,
+	)
+  `
+
+	result, err := db.Exec(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
