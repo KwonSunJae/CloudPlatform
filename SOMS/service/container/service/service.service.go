@@ -2,11 +2,10 @@ package service
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"soms/repository"
 	"soms/repository/container/service"
-	"text/template"
+	resource "soms/util/resource/container/service"
 )
 
 type ServiceService struct {
@@ -40,107 +39,85 @@ func (s *ServiceService) GetOneService(id string) (*service.ServiceRaw, error) {
 	return raw, err
 }
 
-func (s *ServiceService) CreateService(n service.ServiceDto) error {
-
-	yamlTemplate := `
-apiVersion: {{.ApiVersion}}
-kind: {{.Kind}}
-metadata:
-  name: {{.Metadata_name}}
-spec:
-  ports:
-    - port: {{.Spec_ports_port}}
-      protocol: {{.Spec_ports_protocol}}
-      targetPort: {{.Spec_ports_targetPort}}
-  selector:
-    app: {{.Spec_selector_app}}
-`
-
-	// 템플릿에 데이터 적용
-	tmpl, err := template.New("yaml").Parse(yamlTemplate)
-	if err != nil {
-		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
+func (s *ServiceService) CreateService(n service.ServiceDto) error { // id는 requestbody에서 받지않고 임의적으로 여기서 지정
+	serviceManager := resource.New()
+	if n.SpecType == "ClusterIP" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "NodePort" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).SpecPortsNodeport(n.SpecPortsNodeport).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "LoadBalancer" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecSelectorType(n.SpecSelectorType).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).SpecClusterIP(n.SpecClusterIP).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "ExternalName" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecExternalname(n.SpecExternalname).Build()
+		if err != nil {
+			return err
+		}
 	}
 
-	// 파일 생성
-	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
-	file, err := os.Create(fileName)
-	if err != nil {
-		return fmt.Errorf("파일 생성 중 오류 발생: %v", err)
-	}
-	defer file.Close()
-
-	// 템플릿에 데이터 적용하여 파일에 쓰기
-	err = tmpl.Execute(file, n)
-	if err != nil {
-		return fmt.Errorf("YAML 파일 작성 중 오류 발생: %v", err)
-	}
-
-	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
-	}
 	_, err2 := s.Repository.InsertService(n)
 	if err2 != nil {
-		return fmt.Errorf("db error: %v\n", err2)
+		return fmt.Errorf("db error: %v", err2)
 	}
-	fmt.Printf("YAML 파일 생성 및 kubectl apply 완료: %s\n", fileName)
-	return err
+
+	return nil
 }
 
 func (s *ServiceService) UpdateService(id string, n service.ServiceDto) error {
-	// db에서 id에 해당하는 서비스를 새로운 serviceDTO로 업데이트
+	svData, err0 := s.Repository.GetOneService(id)
+	if err0 != nil {
+		return fmt.Errorf("해당 데이터가 없음: %v", err0)
+	}
+
+	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName)
+	_, err2 := cmd.CombinedOutput()
+	if err2 != nil {
+		return fmt.Errorf("기존 service 삭제실패: %v", err2)
+	}
+
+	serviceManager := resource.New()
+	if n.SpecType == "ClusterIP" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "NodePort" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).SpecPortsNodeport(n.SpecPortsNodeport).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "LoadBalancer" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecSelectorApp(n.SpecSelectorApp).SpecSelectorType(n.SpecSelectorType).SpecPortsProtocol(n.SpecPortsProtocol).SpecPortsPort(n.SpecPortsPort).SpecPortsTargetport(n.SpecPortsTargetport).SpecClusterIP(n.SpecClusterIP).Build()
+		if err != nil {
+			return err
+		}
+	}
+	if n.SpecType == "ExternalName" {
+		err := serviceManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).SpecType(n.SpecType).SpecExternalname(n.SpecExternalname).Build()
+		if err != nil {
+			return err
+		}
+	}
+
 	_, err := s.Repository.UpdateOneService(id, n)
 	if err != nil {
-		return fmt.Errorf("db error : %v\n", err)
+		return fmt.Errorf("db error : %v", err)
 	}
 
-	// 실행중인 yaml 파일을 불러와 새로운 DTO값으로 다시 작성 후 실행
-	yamlTemplate := `
-apiVersion: {{.ApiVersion}}
-kind: {{.Kind}}
-metadata:
-  name: {{.Metadata_name}}
-spec:
-  ports:
-    - port: {{.Spec_ports_port}}
-      protocol: {{.Spec_ports_protocol}}
-      targetPort: {{.Spec_ports_targetPort}}
-  selector:
-    app: {{.Spec_selector_app}}
-`
-
-	// 템플릿에 데이터 적용
-	tmpl, err := template.New("yaml").Parse(yamlTemplate)
-	if err != nil {
-		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
-	}
-
-	// 파일 불러오기
-	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", n.Metadata_name)
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		return fmt.Errorf("파일 불러오기 중 오류 발생: %v", err)
-	}
-	defer file.Close()
-
-	// 수정된 내용을 템플릿에 적용하여 파일에 쓰기
-	err = tmpl.Execute(file, n)
-	if err != nil {
-		return fmt.Errorf("YAML 파일 작성 중 오류 발생: %v", err)
-	}
-
-	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
-	}
-
-	fmt.Printf("YAML 파일 수정 및 kubectl apply 완료: %s\n", fileName)
-	return err
+	return nil
 }
 
 func (s *ServiceService) DeleteService(id string) error {
@@ -149,7 +126,7 @@ func (s *ServiceService) DeleteService(id string) error {
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
 
-	cmd := exec.Command("kubectl", "delete", "service", svData.Metadata_name)
+	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName)
 	output, err2 := cmd.CombinedOutput()
 	_, err := s.Repository.DeleteOneService(id)
 	if err != nil {
@@ -162,7 +139,7 @@ func (s *ServiceService) DeleteService(id string) error {
 
 func (s *ServiceService) GetServiceStatus() (string, error) {
 	// kubectl 명령 실행
-	cmd := exec.Command("kubectl", "get", "services", "-o", "json")
+	cmd := exec.Command("kubectl", "get", "services", "-o", "json") // 실행중인 서비스 정보 json으로 출력
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("kubectl 명령 실행 중 오류 발생: %v", err)

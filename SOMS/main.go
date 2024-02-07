@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"soms/controller/container/deployment"
 	"soms/controller/container/replicaset"
-	"soms/controller/container/service"
+	service "soms/controller/container/service"
 	"soms/controller/vm"
 
 	"github.com/gorilla/mux"
