@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"soms/controller/container/deployment"
+	"soms/controller/container/replicaset"
 	"soms/controller/container/service"
 	"soms/controller/vm"
 
@@ -21,9 +22,12 @@ func main() {
 		panic("deployment 실행에 실패했습니다.")
 	}
 	err3 := service.ServiceController(r)
-
 	if err3 != nil {
 		panic("service 실행에 실패했습니다.")
+	}
+	err4 := replicaset.ReplicasetController(r)
+	if err4 != nil {
+		panic("replicaset 실행에 실패했습니다.")
 	}
 
 	http.ListenAndServe(":3000", corsMiddleware(r))

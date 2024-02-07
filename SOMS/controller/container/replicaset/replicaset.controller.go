@@ -1,10 +1,10 @@
-package deployment
+package replicaset
 
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"soms/service/container/deployment"
+	"soms/service/container/replicaset"
 
 	"github.com/gorilla/mux"
 )
@@ -31,24 +31,24 @@ func Response(w http.ResponseWriter, data interface{}, status int, err error) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func DeploymentController(router *mux.Router) error {
-	err := deployment.Service.InitService()
+func ReplicasetController(router *mux.Router) error {
+	err := replicaset.Service.InitService()
 
 	if err != nil {
 		return err
 	}
 
-	// GET 특정 id의 Deployment 데이터 반환
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// GET 특정 id의 Replicaset 데이터 반환
+	router.HandleFunc("/replicaset/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		raw, err := deployment.Service.GetOneDeployment(id)
+		raw, err := replicaset.Service.GetOneReplicaset(id)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 Replicaset이 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -59,9 +59,9 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// GET 전체 Deployment 데이터 반환
-	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
-		raws, err := deployment.Service.GetAllDeployment()
+	// GET 전체 Replicaset 데이터 반환
+	router.HandleFunc("/replicaset", func(w http.ResponseWriter, r *http.Request) {
+		raws, err := replicaset.Service.GetAllReplicaset()
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -72,9 +72,9 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// GET Deployment status 반환
-	router.HandleFunc("/deploymentstat", func(w http.ResponseWriter, r *http.Request) {
-		rsp, err := deployment.Service.GetDeploymentsStatus()
+	// GET Replicaset status 반환
+	router.HandleFunc("/replicasetstat", func(w http.ResponseWriter, r *http.Request) {
+		rsp, err := replicaset.Service.GetReplicasetsStatus()
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -85,15 +85,15 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("GET")
 
-	// POST 새로운 Deployment 등록
-	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
+	// POST 새로운 Replicaset 등록
+	router.HandleFunc("/replicaset", func(w http.ResponseWriter, r *http.Request) {
 		var body struct {
 			ApiVersion                                   string
 			Kind                                         string
 			MetadataName                                 string
-			MetadataLabelsApp                            string
 			SpecReplicas                                 string
 			SpecSelectorMatchlabelsApp                   string
+			SpecTemplateMetadataName                     string
 			SpecTemplateMetadataLabelsApp                string
 			SpecTemplateSpecContainersName               string
 			SpecTemplateSpecContainersImage              string
@@ -107,14 +107,14 @@ func DeploymentController(router *mux.Router) error {
 			return
 		}
 
-		if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" || body.MetadataLabelsApp == "" ||
-			body.SpecReplicas == "" || body.SpecSelectorMatchlabelsApp == "" || body.SpecTemplateMetadataLabelsApp == "" ||
+		if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" || body.SpecReplicas == "" ||
+			body.SpecSelectorMatchlabelsApp == "" || body.SpecTemplateMetadataName == "" || body.SpecTemplateMetadataLabelsApp == "" ||
 			body.SpecTemplateSpecContainersName == "" || body.SpecTemplateSpecContainersImage == "" || body.SpecTemplateSpecContainersPortsContainerport == "" {
 			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
 			return
 		}
 
-		err = deployment.Service.CreateDeployment(body)
+		err = replicaset.Service.CreateReplicaset(body)
 
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
@@ -125,8 +125,8 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("POST")
 
-	// PATCH 특정 id의 Deployment 데이터 수정
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// PATCH 특정 id의 Replicaset 데이터 수정
+	router.HandleFunc("/replicaset/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
@@ -134,9 +134,9 @@ func DeploymentController(router *mux.Router) error {
 			ApiVersion                                   string
 			Kind                                         string
 			MetadataName                                 string
-			MetadataLabelsApp                            string
 			SpecReplicas                                 string
 			SpecSelectorMatchlabelsApp                   string
+			SpecTemplateMetadataName                     string
 			SpecTemplateMetadataLabelsApp                string
 			SpecTemplateSpecContainersName               string
 			SpecTemplateSpecContainersImage              string
@@ -149,12 +149,12 @@ func DeploymentController(router *mux.Router) error {
 			Response(w, nil, http.StatusInternalServerError, err)
 		}
 
-		err = deployment.Service.UpdateDeployment(id, body)
+		err = replicaset.Service.UpdateReplicaset(id, body)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당 Replicaset이 없습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
@@ -165,17 +165,17 @@ func DeploymentController(router *mux.Router) error {
 
 	}).Methods("PATCH")
 
-	// DELETE 특정 id의 Deployment 데이터 삭제
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
+	// DELETE 특정 id의 Replicaset 데이터 삭제
+	router.HandleFunc("/replicaset/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		err = deployment.Service.DeleteDeployment(id)
+		err = replicaset.Service.DeleteReplicaset(id)
 
 		if err != nil {
 			switch err.Error() {
 			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당되는 Deployment가 존재하지 않습니다."))
+				Response(w, nil, http.StatusNotFound, errors.New("해당되는 Replicaset이 존재하지 않습니다."))
 			default:
 				Response(w, nil, http.StatusInternalServerError, err)
 			}
