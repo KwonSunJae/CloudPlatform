@@ -44,21 +44,27 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 func (s *VmService) CreateVm(n vm.VmDto) error {
 
 	// Generate Terraform configuration
-	vmBuilder := resource.New()
-	err := vmBuilder.Init(n.Name).User("test").Flavor(n.FlavorID).Security_groups(n.SelectedSecuritygroup).Keypair(n.Keypair).Image(n.SelectedOS).Build()
-	if err != nil {
-		return err
+	vmManager := resource.New()
+	TerraformBuildErr := vmManager.
+		Init(n.Name).
+		User("test").
+		Flavor(n.FlavorID).
+		Security_groups(n.SelectedSecuritygroup).
+		Keypair(n.Keypair).
+		Image(n.SelectedOS).
+		Build()
+	if TerraformBuildErr != nil {
+		return TerraformBuildErr
 	}
-	_, err2 := s.Repository.InsertVm(n)
-	if err2 != nil {
-		return err
+	_, DBSaveErr := s.Repository.InsertVm(n)
+	if DBSaveErr != nil {
+		return DBSaveErr
 	}
-
 	return nil
 }
-func (s *VmService) GetStatusVM() (string, error) {
+func (s *VmService) GetStatusVM(userID string) (string, error) {
 	// 고정된 파일 경로
-	filePath := "terraform/test/terraform.tfstate"
+	filePath := "terraform/" + userID + "/terraform.tfstate"
 
 	// 파일 읽기
 	fileContent, err := os.ReadFile(filePath)
@@ -100,21 +106,6 @@ func (s *VmService) DeleteVm(id string) error {
 		return err
 	}
 	return nil
-}
-
-func generateTerraformConfig(vmDto vm.VmDto) string {
-	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
-      name      = "%s"
-      region    = "RegionOne"
-      flavor_id = "%s"
-      key_pair  = "%s"
-      network {
-        uuid = "2e26d161-5886-4e76-a9af-ad60d41761c5"
-        name = "provider"
-      }
-      security_groups = ["default"]
-      image_id = "%s"
-    }`, vmDto.Name, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
 }
 
 func readFileContents(filename string) (string, error) {

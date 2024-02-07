@@ -6,16 +6,16 @@ import (
 	"os/exec"
 )
 
-type VmBuilder interface {
-	Init(string) VmBuilder
-	User(string) VmBuilder
-	Flavor(string) VmBuilder
-	Security_groups(string) VmBuilder
-	Keypair(string) VmBuilder
-	Image(string) VmBuilder
+type VmManager interface {
+	Init(string) VmManager
+	User(string) VmManager
+	Flavor(string) VmManager
+	Security_groups(string) VmManager
+	Keypair(string) VmManager
+	Image(string) VmManager
 	Build() error
 }
-type vmBuilder struct {
+type vmManager struct {
 	fileName       string
 	userID         string
 	flavorID       string
@@ -24,38 +24,38 @@ type vmBuilder struct {
 	keypairs       string
 }
 
-func New() VmBuilder {
-	return &vmBuilder{}
+func New() VmManager {
+	return &vmManager{}
 }
-func (vb *vmBuilder) Init(fn string) VmBuilder {
+func (vb *vmManager) Init(fn string) VmManager {
 	vb.fileName = fn
 	return vb
 }
 
-func (vb *vmBuilder) User(u string) VmBuilder {
+func (vb *vmManager) User(u string) VmManager {
 	vb.userID = u
 	return vb
 }
 
-func (vb *vmBuilder) Flavor(f string) VmBuilder {
+func (vb *vmManager) Flavor(f string) VmManager {
 	vb.flavorID = f
 	return vb
 }
-func (vb *vmBuilder) Keypair(k string) VmBuilder {
+func (vb *vmManager) Keypair(k string) VmManager {
 	vb.keypairs = k
 	return vb
 }
-func (vb *vmBuilder) Security_groups(s string) VmBuilder {
+func (vb *vmManager) Security_groups(s string) VmManager {
 	vb.security_group = s
 	return vb
 }
-func (vb *vmBuilder) Image(i string) VmBuilder {
+func (vb *vmManager) Image(i string) VmManager {
 	vb.imageID = i
 	return vb
 }
-func (vb *vmBuilder) Build() error {
+func (vb *vmManager) Build() error {
 	terraformConfig := generateTerraformConfig(*vb)
-	fileName := fmt.Sprintf("terraform/test/%s.tf", vb.fileName)
+	fileName := fmt.Sprintf("terraform/%s/%s.tf", vb.userID, vb.fileName)
 	file, err := os.Create(fileName)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func (vb *vmBuilder) Build() error {
 	}
 	fmt.Print(fileName)
 	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "terraform/test/"
+	cmd.Dir = "terraform/" + vb.userID + "/"
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
@@ -76,7 +76,7 @@ func (vb *vmBuilder) Build() error {
 	return nil
 }
 
-func generateTerraformConfig(vb vmBuilder) string {
+func generateTerraformConfig(vb vmManager) string {
 	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
       name      = "%s"
       region    = "RegionOne"
