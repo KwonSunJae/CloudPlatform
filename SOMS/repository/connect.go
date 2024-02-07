@@ -32,6 +32,10 @@ func OpenWithMemory() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = createReplicasetTable(db)
+	if err != nil {
+		return nil, err
+	}
 	return db, nil
 }
 
@@ -99,6 +103,32 @@ func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 		metadataLabelsApp TEXT,
 		specReplicas TEXT,
 		specSelectorMatchlabelsApp TEXT,
+		specTemplateMetadataLabelsApp TEXT,
+		specTemplateSpecContainersName TEXT,
+		specTemplateSpecContainersImage TEXT,
+		specTemplateSpecContainersPortsContainerport TEXT
+	)
+  `
+
+	result, err := db.Exec(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func createReplicasetTable(db *sql.DB) (sql.Result, error) {
+	query := `
+	CREATE TABLE replicaset (
+		id TEXT PRIMARY KEY,
+		apiVersion TEXT,
+		kind TEXT,
+		metadataName TEXT,
+		specReplicas TEXT,
+		specSelectorMatchlabelsApp TEXT,
+		specTemplateMetadataName TEXT,
 		specTemplateMetadataLabelsApp TEXT,
 		specTemplateSpecContainersName TEXT,
 		specTemplateSpecContainersImage TEXT,
