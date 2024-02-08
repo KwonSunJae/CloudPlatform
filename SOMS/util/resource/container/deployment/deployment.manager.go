@@ -148,7 +148,7 @@ spec:
 	}
 
 	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName)
+	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", "test")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
