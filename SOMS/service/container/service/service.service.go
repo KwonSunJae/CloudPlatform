@@ -80,7 +80,7 @@ func (s *ServiceService) UpdateService(id string, n service.ServiceDto) error {
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
 
-	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName)
+	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName, "-n", "test")
 	_, err2 := cmd.CombinedOutput()
 	if err2 != nil {
 		return fmt.Errorf("기존 service 삭제실패: %v", err2)
@@ -126,7 +126,7 @@ func (s *ServiceService) DeleteService(id string) error {
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
 
-	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName)
+	cmd := exec.Command("kubectl", "delete", "service", svData.MetadataName, "-n", "test")
 	output, err2 := cmd.CombinedOutput()
 	_, err := s.Repository.DeleteOneService(id)
 	if err != nil {
@@ -139,7 +139,7 @@ func (s *ServiceService) DeleteService(id string) error {
 
 func (s *ServiceService) GetServiceStatus() (string, error) {
 	// kubectl 명령 실행
-	cmd := exec.Command("kubectl", "get", "services", "-o", "json") // 실행중인 서비스 정보 json으로 출력
+	cmd := exec.Command("kubectl", "get", "services", "-o", "json", "-n", "test") // 실행중인 서비스 정보 json으로 출력
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("kubectl 명령 실행 중 오류 발생: %v", err)
