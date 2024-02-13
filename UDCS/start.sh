@@ -3,10 +3,11 @@
 BASE_PATH=`pwd -P`
 BUILD_PATH=$(ls $BASE_PATH/udcs/build/libs/*.jar 2>/dev/null)
 
+chmod -v +x $BASE_PATH/setup/setup/entrypoint.sh
 
 #if [ -z "$BUILD_PATH" ]; then
 #    echo "JAR 파일이 존재하지 않습니다. 빌드를 시작합니다..."
-#    sudo $BASE_PATH/udcs/gradlew bootJar
+#    sudo $BASE_PATH/udcs/gradlew -p $BASE_PATH/udcs bootJar
 #    BUILD_PATH=$(ls $BASE_PATH/udcs/build/libs/*.jar)
 #fi
 
