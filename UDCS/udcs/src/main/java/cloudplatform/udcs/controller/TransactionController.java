@@ -27,8 +27,6 @@ public class TransactionController {
             @RequestBody RequestDto requestDto,
             @RequestHeader(value = "Access-Token") String access_token
     ) {
-
-
         transactionService.requestSOMS(requestDto, getMemberId());
         return ResponseEntity.noContent().build();
     }
