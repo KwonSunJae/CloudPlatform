@@ -36,6 +36,10 @@ func OpenWithMemory() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = createUserTable(db)
+	if err != nil {
+		return nil, err
+	}
 	return db, nil
 }
 
@@ -148,11 +152,12 @@ func createUserTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE user (
 		id TEXT PRIMARY KEY,
-		password TEXT,
-		email TEXT,
-		schoolNum TEXT,
-		detailRole TEXT,
-		isLocked BOOLEAN,
+		name TEXT,
+		userID TEXT,
+		encryptedPW TEXT,
+		role TEXT,
+		spot TEXT,
+		priority TEXT
 	)
   `
 
