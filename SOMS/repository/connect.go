@@ -55,7 +55,8 @@ func createVmTable(db *sql.DB) (sql.Result, error) {
     unionmountImage TEXT NOT NULL,
     keypair TEXT NOT NULL,
     selectedSecuritygroup TEXT NOT NULL,
-    userID TEXT NOT NULL
+	userID TEXT NOT NULL,
+    FOREIGN KEY(userID) REFERENCES user (userID)
 )
   `
 
@@ -152,7 +153,7 @@ func createUserTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE user (
 		id TEXT PRIMARY KEY,
-		name TEXT,
+		name TEXT UNIQUE,
 		userID TEXT,
 		encryptedPW TEXT,
 		role TEXT,

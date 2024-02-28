@@ -9,22 +9,22 @@ import (
 )
 
 type UserDto struct {
-	Name       string
-	UserID     string
-	EncyptedPW string
-	Role       string
-	Spot       string
-	Priority   string
+	Name        string
+	UserID      string
+	EncryptedPW string
+	Role        string
+	Spot        string
+	Priority    string
 }
 
 type UserRaw struct {
-	Id         string
-	Name       string
-	UserID     string
-	EncyptedPW string
-	Role       string
-	Spot       string
-	Priority   string
+	Id          string
+	Name        string
+	UserID      string
+	EncryptedPW string
+	Role        string
+	Spot        string
+	Priority    string
 }
 
 type UserRepository struct {
@@ -47,9 +47,9 @@ func (r *UserRepository) InsertUser(n UserDto) (sql.Result, error) {
 	query := `
     INSERT INTO user
     (id, name, userID, encyptedPW, role, spot, priority)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.Name, n.UserID, n.EncyptedPW, n.Role, n.Spot, n.Priority)
+	result, err := r.DB.Exec(query, id.String(), n.Name, n.UserID, n.EncryptedPW, n.Role, n.Spot, n.Priority)
 
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (r *UserRepository) GetAllUser() (*[]UserRaw, error) {
 
 	for rows.Next() {
 		var raw UserRaw
-		rows.Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncyptedPW, &raw.Role, &raw.Spot, &raw.Priority)
+		rows.Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
 		raws = append(raws, raw)
 	}
 
@@ -77,12 +77,11 @@ func (r *UserRepository) GetAllUser() (*[]UserRaw, error) {
 	}
 }
 
-func (r *UserRepository) GetOneUser(id string) (*UserRaw, error) {
+func (r *UserRepository) GetOneUser(userID string) (*UserRaw, error) {
 	var raw UserRaw
 
-	query := `SELECT * FROM user WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncyptedPW, &raw.Role, &raw.Spot, &raw.Priority)
-
+	query := `SELECT * FROM user WHERE userID = ?`
+	err := r.DB.QueryRow(query, userID).Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 			return nil, errors.New("NOT FOUND")
@@ -91,6 +90,23 @@ func (r *UserRepository) GetOneUser(id string) (*UserRaw, error) {
 		}
 	} else {
 		return &raw, nil
+	}
+
+}
+func (r *UserRepository) IsUserIDExit(userID string) (bool, error) {
+	var raw UserRaw
+
+	query := `SELECT * FROM user WHERE userID = ?`
+	err := r.DB.QueryRow(query, userID).Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
+
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return true, errors.New("NOT FOUND")
+		} else {
+			return false, err
+		}
+	} else {
+		return false, nil
 	}
 }
 
@@ -120,13 +136,12 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
     UPDATE user
     SET
         name = IFNULL(?, name),
-        userID = IFNULL(?, userID),
         encryptedPW = IFNULL(?, encryptedPW),
         role = IFNULL(?, role),
         spot = IFNULL(?, spot),
         priority = IFNULL(?, priority),
     WHERE
-        id = ?
+        userID = ?
 	`
 	var name, userID, encryptedPW, role, spot, priority *string
 
@@ -138,8 +153,8 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
 		userID = &n.UserID
 	}
 
-	if n.EncyptedPW != "" {
-		encryptedPW = &n.EncyptedPW
+	if n.EncryptedPW != "" {
+		encryptedPW = &n.EncryptedPW
 	}
 
 	if n.Role != "" {
@@ -154,7 +169,7 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
 		priority = &n.Priority
 	}
 
-	result, err := r.DB.Exec(query, name, userID, encryptedPW, role, spot, priority, id)
+	result, err := r.DB.Exec(query, name, encryptedPW, role, spot, priority, userID)
 
 	if err != nil {
 		return nil, err
@@ -171,4 +186,19 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
 	}
 
 	return result, nil
+}
+func (r *UserRepository) GetEncryptedPW(userID string) (string, error) {
+	var encryptedPW string
+
+	query := `SELECT encryptedPW FROM user WHERE userID = ?`
+	err := r.DB.QueryRow(query, userID).Scan(&encryptedPW)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return "", errors.New("NOT FOUND")
+		} else {
+			return "", err
+		}
+	} else {
+		return encryptedPW, nil
+	}
 }
