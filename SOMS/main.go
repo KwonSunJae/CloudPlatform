@@ -5,14 +5,16 @@ import (
 	"soms/controller/container/deployment"
 	"soms/controller/container/replicaset"
 	service "soms/controller/container/service"
+	"soms/controller/user"
 	"soms/controller/vm"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	r := mux.NewRouter()
-
+	envLoad()
 	err := vm.VmController(r)
 	if err != nil {
 		panic("vm 서버 실행에 실패했습니다.")
@@ -29,7 +31,10 @@ func main() {
 	if err4 != nil {
 		panic("replicaset 실행에 실패했습니다.")
 	}
-
+	err5 := user.UserController(r)
+	if err5 != nil {
+		panic("user 실행에 실패했습니다.")
+	}
 	http.ListenAndServe(":3000", corsMiddleware(r))
 }
 
@@ -46,4 +51,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func envLoad() {
+	err := godotenv.Load()
+	if err != nil {
+		panic("env file error")
+	}
 }

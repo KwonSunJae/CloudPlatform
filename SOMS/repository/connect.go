@@ -36,6 +36,10 @@ func OpenWithMemory() (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = createUserTable(db)
+	if err != nil {
+		return nil, err
+	}
 	return db, nil
 }
 
@@ -51,7 +55,8 @@ func createVmTable(db *sql.DB) (sql.Result, error) {
     unionmountImage TEXT NOT NULL,
     keypair TEXT NOT NULL,
     selectedSecuritygroup TEXT NOT NULL,
-    userID TEXT NOT NULL
+	userID TEXT NOT NULL,
+    FOREIGN KEY(userID) REFERENCES user (userID)
 )
   `
 
@@ -148,11 +153,12 @@ func createUserTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE user (
 		id TEXT PRIMARY KEY,
-		password TEXT,
-		email TEXT,
-		schoolNum TEXT,
-		detailRole TEXT,
-		isLocked BOOLEAN,
+		name TEXT UNIQUE,
+		userID TEXT,
+		encryptedPW TEXT,
+		role TEXT,
+		spot TEXT,
+		priority TEXT
 	)
   `
 
