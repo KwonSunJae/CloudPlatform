@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"soms/repository"
@@ -79,21 +78,28 @@ func (s *UserService) DeleteUser(id string) error {
 	return nil
 }
 
-func (s *UserService) UserLogin(userID string, plainPW string) (bool, error) {
+func (s *UserService) UserLogin(userID string, plainPW string) (string, error) {
 
 	encryptedPW, err := s.Repository.GetEncryptedPW(userID)
 	if err != nil {
-		return false, err
+		return "null", err
 	}
 	secretKey := os.Getenv("SECRET")
 	if secretKey == "" {
 		fmt.Println("SECRET key is not set.")
 	}
-	hasher := encrypt.NewPasswordHasher(secretKey)
 
-	rslt := hasher.ComparePassword(plainPW, encryptedPW)
+	hasher := encrypt.NewPasswordHasher(secretKey)
+	rslt := hasher.ComparePassword(plainPW+secretKey, encryptedPW)
+
 	if rslt != nil {
-		return false, errors.New("pw is not correct")
+		return "null", rslt
 	}
-	return true, nil
+
+	raw, err := s.Repository.GetOneUser(userID)
+
+	if err != nil {
+		return "error", err
+	}
+	return raw.Id, nil
 }

@@ -46,7 +46,7 @@ func (r *UserRepository) InsertUser(n UserDto) (sql.Result, error) {
 
 	query := `
     INSERT INTO user
-    (id, name, userID, encyptedPW, role, spot, priority)
+    (id, name, userID, encryptedPW, role, spot, priority)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `
 	result, err := r.DB.Exec(query, id.String(), n.Name, n.UserID, n.EncryptedPW, n.Role, n.Spot, n.Priority)
@@ -189,7 +189,7 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
 }
 func (r *UserRepository) GetEncryptedPW(userID string) (string, error) {
 	var encryptedPW string
-
+	//print(userID + "login check\n")
 	query := `SELECT encryptedPW FROM user WHERE userID = ?`
 	err := r.DB.QueryRow(query, userID).Scan(&encryptedPW)
 	if err != nil {

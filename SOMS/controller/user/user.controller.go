@@ -183,7 +183,7 @@ func UserController(router *mux.Router) error {
 		rslt, err := user.Service.UserLogin(body.UserID, body.PW)
 
 		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
+			Response(w, nil, http.StatusBadRequest, err)
 			return
 		}
 
