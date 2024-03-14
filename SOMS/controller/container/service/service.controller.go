@@ -108,6 +108,8 @@ func ServiceController(router *mux.Router) error {
 
 			// ExternalName
 			SpecExternalname string
+
+			UserID string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -160,6 +162,8 @@ func ServiceController(router *mux.Router) error {
 
 			// ExternalName
 			SpecExternalname string
+
+			UserID string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)

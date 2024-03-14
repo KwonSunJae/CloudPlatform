@@ -10,7 +10,7 @@ import (
 
 // Service 객체 생성 및 구성하는 추상화 인터페이스
 type ServiceManager interface {
-	UserId(string) ServiceManager
+	UserID(string) ServiceManager
 	ApiVersion(string) ServiceManager
 	Kind(string) ServiceManager
 	MetadataName(string) ServiceManager
@@ -28,27 +28,7 @@ type ServiceManager interface {
 
 // 생성할 Service 객체
 type serviceManager struct {
-	userId string
-	Dto    service.ServiceDto
-	// // ClusterIP
-	// apiVersion          string
-	// kind                string
-	// metadataName        string
-	// specType            string
-	// specSelectorApp     string
-	// specPortsProtocol   string // 배열로 나중에 바꿔야함
-	// specPortsPort       string
-	// specPortsTargetport string
-
-	// // NodePort
-	// specPortsNodeport string
-
-	// // LoadBalancer
-	// specSelectorType string
-	// specClusterIP    string
-
-	// // ExternalName
-	// specExternalname  string
+	Dto service.ServiceDto
 }
 
 // 새로운 ServiceManager 생성
@@ -56,8 +36,8 @@ func New() ServiceManager {
 	return &serviceManager{}
 }
 
-func (sb *serviceManager) UserId(i string) ServiceManager {
-	sb.userId = i
+func (sb *serviceManager) UserID(i string) ServiceManager {
+	sb.Dto.UserID = i
 	return sb
 }
 
@@ -135,7 +115,7 @@ func (sb *serviceManager) Build() error {
 		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
 	}
 
-	fileName := fmt.Sprintf("k8s/test/%s_service.yaml", sb.Dto.MetadataName) // test = id
+	fileName := fmt.Sprintf("k8s/%s/%s_service.yaml", sb.Dto.UserID, sb.Dto.MetadataName) // test = id
 	var file *os.File
 
 	if _, err = os.Stat(fileName); os.IsNotExist(err) {
@@ -161,7 +141,7 @@ func (sb *serviceManager) Build() error {
 	}
 
 	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", "test")
+	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", sb.Dto.UserID)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)

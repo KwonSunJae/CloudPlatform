@@ -41,7 +41,7 @@ func (s *DeploymentService) GetOneDeployment(id string) (*deployment.DeploymentR
 
 func (s *DeploymentService) CreateDeployment(n deployment.DeploymentDto) error {
 	deploymentManager := resource.New()
-	err := deploymentManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).MetadataLabelsApp(n.MetadataLabelsApp).SpecReplicas(n.SpecReplicas).SpecSelectorMatchlabelsApp(n.SpecSelectorMatchlabelsApp).SpecTemplateMetadataLabelsApp(n.SpecTemplateMetadataLabelsApp).SpecTemplateSpecContainersName(n.SpecTemplateSpecContainersName).SpecTemplateSpecContainersImage(n.SpecTemplateSpecContainersImage).SpecTemplateSpecContainersPortsContainerport(n.SpecTemplateSpecContainersPortsContainerport).Build()
+	err := deploymentManager.UserID(n.UserID).ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).MetadataLabelsApp(n.MetadataLabelsApp).SpecReplicas(n.SpecReplicas).SpecSelectorMatchlabelsApp(n.SpecSelectorMatchlabelsApp).SpecTemplateMetadataLabelsApp(n.SpecTemplateMetadataLabelsApp).SpecTemplateSpecContainersName(n.SpecTemplateSpecContainersName).SpecTemplateSpecContainersImage(n.SpecTemplateSpecContainersImage).SpecTemplateSpecContainersPortsContainerport(n.SpecTemplateSpecContainersPortsContainerport).Build()
 	if err != nil {
 		return err
 	}
@@ -59,14 +59,14 @@ func (s *DeploymentService) UpdateDeployment(id string, n deployment.DeploymentD
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
 
-	cmd := exec.Command("kubectl", "delete", "deployment", dpData.MetadataName, "-n", "test") // test = namespace
+	cmd := exec.Command("kubectl", "delete", "deployment", dpData.MetadataName, "-n", dpData.UserID) // , "-n", dpData.UserID
 	_, err2 := cmd.CombinedOutput()
 	if err2 != nil {
 		return fmt.Errorf("기존 deployment 삭제실패: %v", err2)
 	}
 
 	deploymentManager := resource.New()
-	err3 := deploymentManager.UserId("test").ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).MetadataLabelsApp(n.MetadataLabelsApp).SpecReplicas(n.SpecReplicas).SpecSelectorMatchlabelsApp(n.SpecSelectorMatchlabelsApp).SpecTemplateMetadataLabelsApp(n.SpecTemplateMetadataLabelsApp).SpecTemplateSpecContainersName(n.SpecTemplateSpecContainersName).SpecTemplateSpecContainersImage(n.SpecTemplateSpecContainersImage).SpecTemplateSpecContainersPortsContainerport(n.SpecTemplateSpecContainersPortsContainerport).Build()
+	err3 := deploymentManager.UserID(n.UserID).ApiVersion(n.ApiVersion).Kind(n.Kind).MetadataName(n.MetadataName).MetadataLabelsApp(n.MetadataLabelsApp).SpecReplicas(n.SpecReplicas).SpecSelectorMatchlabelsApp(n.SpecSelectorMatchlabelsApp).SpecTemplateMetadataLabelsApp(n.SpecTemplateMetadataLabelsApp).SpecTemplateSpecContainersName(n.SpecTemplateSpecContainersName).SpecTemplateSpecContainersImage(n.SpecTemplateSpecContainersImage).SpecTemplateSpecContainersPortsContainerport(n.SpecTemplateSpecContainersPortsContainerport).Build()
 	if err3 != nil {
 		return err3
 	}
@@ -84,7 +84,7 @@ func (s *DeploymentService) DeleteDeployment(id string) error {
 		return fmt.Errorf("해당 데이터가 없음: %v", err0)
 	}
 
-	cmd := exec.Command("kubectl", "delete", "deployment", dpData.MetadataName, "-n", "test")
+	cmd := exec.Command("kubectl", "delete", "deployment", dpData.MetadataName, "-n", dpData.UserID) // , "-n", dpData.UserID
 	output, err2 := cmd.CombinedOutput()
 	if err2 != nil {
 		return fmt.Errorf("삭제실패: %v", err2)
@@ -97,6 +97,7 @@ func (s *DeploymentService) DeleteDeployment(id string) error {
 	}
 	return err
 }
+
 func (s *DeploymentService) GetDeploymentsStatus() (string, error) {
 	// kubectl 명령 실행
 	cmd := exec.Command("kubectl", "get", "deployments", "-o", "json", "-n", "test")

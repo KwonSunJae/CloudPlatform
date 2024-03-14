@@ -84,7 +84,8 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 		specPortsNodeport TEXT,
 		specSelectorType TEXT,
 		specClusterIP TEXT,
-		specExternalname TEXT
+		specExternalname TEXT,
+		userID TEXT
 	)
   `
 
@@ -110,7 +111,8 @@ func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 		specTemplateMetadataLabelsApp TEXT,
 		specTemplateSpecContainersName TEXT,
 		specTemplateSpecContainersImage TEXT,
-		specTemplateSpecContainersPortsContainerport TEXT
+		specTemplateSpecContainersPortsContainerport TEXT,
+		userID TEXT
 	)
   `
 

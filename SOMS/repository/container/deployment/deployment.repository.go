@@ -19,6 +19,7 @@ type DeploymentDto struct {
 	SpecTemplateSpecContainersName               string
 	SpecTemplateSpecContainersImage              string
 	SpecTemplateSpecContainersPortsContainerport string
+	UserID                                       string
 }
 
 type DeploymentRaw struct {
@@ -33,6 +34,7 @@ type DeploymentRaw struct {
 	SpecTemplateSpecContainersName               string
 	SpecTemplateSpecContainersImage              string
 	SpecTemplateSpecContainersPortsContainerport string
+	UserID                                       string
 }
 
 type DeploymentRepository struct {
@@ -54,10 +56,10 @@ func (r *DeploymentRepository) InsertDeployment(n DeploymentDto) (sql.Result, er
 
 	query := `
     INSERT INTO deployment
-    (id, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (id, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, userID)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.MetadataLabelsApp, n.SpecReplicas, n.SpecSelectorMatchlabelsApp, n.SpecTemplateMetadataLabelsApp, n.SpecTemplateSpecContainersName, n.SpecTemplateSpecContainersImage, n.SpecTemplateSpecContainersPortsContainerport)
+	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.MetadataLabelsApp, n.SpecReplicas, n.SpecSelectorMatchlabelsApp, n.SpecTemplateMetadataLabelsApp, n.SpecTemplateSpecContainersName, n.SpecTemplateSpecContainersImage, n.SpecTemplateSpecContainersPortsContainerport, n.UserID)
 
 	if err != nil {
 		return nil, err
@@ -74,7 +76,7 @@ func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRaw, error) {
 
 	for rows.Next() {
 		var raw DeploymentRaw
-		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport)
+		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport, &raw.UserID)
 
 		raws = append(raws, raw)
 	}
@@ -90,7 +92,7 @@ func (r *DeploymentRepository) GetOneDeployment(id string) (*DeploymentRaw, erro
 	var raw DeploymentRaw
 
 	query := `SELECT * FROM deployment WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport, &raw.UserID)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -137,12 +139,13 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
         specTemplateMetadataLabelsApp = IFNULL(?, specTemplateMetadataLabelsApp),
         specTemplateSpecContainersName = IFNULL(?, specTemplateSpecContainersName),
         specTemplateSpecContainersImage = IFNULL(?, specTemplateSpecContainersImage),
-        specTemplateSpecContainersPortsContainerport = IFNULL(?, specTemplateSpecContainersPortsContainerport)
+        specTemplateSpecContainersPortsContainerport = IFNULL(?, specTemplateSpecContainersPortsContainerport),
+		userID = IFNULL(?, userID)
         
     WHERE
         id = ?
 	`
-	var apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport *string
+	var apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, userID *string
 
 	if n.ApiVersion != "" {
 		apiVersion = &n.ApiVersion
@@ -184,7 +187,11 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
 		specTemplateSpecContainersPortsContainerport = &n.SpecTemplateSpecContainersPortsContainerport
 	}
 
-	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, id)
+	if n.UserID != "" {
+		userID = &n.UserID
+	}
+
+	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, userID, id)
 
 	if err != nil {
 		return nil, err
