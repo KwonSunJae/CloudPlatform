@@ -1,2 +1,2 @@
 # CloudPlatform
-Struct Cloud Platform Web Service bia Openstack &amp; K8s
+Struct Cloud Platform Web Service via Openstack &amp; K8s
