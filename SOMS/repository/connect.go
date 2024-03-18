@@ -85,7 +85,8 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 		specSelectorType TEXT,
 		specClusterIP TEXT,
 		specExternalname TEXT,
-		userID TEXT
+		userID TEXT,
+		FOREIGN KEY(userID) REFERENCES user (userID)
 	)
   `
 
@@ -112,7 +113,8 @@ func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 		specTemplateSpecContainersName TEXT,
 		specTemplateSpecContainersImage TEXT,
 		specTemplateSpecContainersPortsContainerport TEXT,
-		userID TEXT
+		userID TEXT,
+		FOREIGN KEY(userID) REFERENCES user (userID)
 	)
   `
 
