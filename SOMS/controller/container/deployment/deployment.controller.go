@@ -98,6 +98,7 @@ func DeploymentController(router *mux.Router) error {
 			SpecTemplateSpecContainersName               string
 			SpecTemplateSpecContainersImage              string
 			SpecTemplateSpecContainersPortsContainerport string
+			UserID                                       string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)
@@ -109,7 +110,7 @@ func DeploymentController(router *mux.Router) error {
 
 		if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" || body.MetadataLabelsApp == "" ||
 			body.SpecReplicas == "" || body.SpecSelectorMatchlabelsApp == "" || body.SpecTemplateMetadataLabelsApp == "" ||
-			body.SpecTemplateSpecContainersName == "" || body.SpecTemplateSpecContainersImage == "" || body.SpecTemplateSpecContainersPortsContainerport == "" {
+			body.SpecTemplateSpecContainersName == "" || body.SpecTemplateSpecContainersImage == "" || body.SpecTemplateSpecContainersPortsContainerport == "" || body.UserID == "" {
 			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
 			return
 		}
@@ -141,6 +142,7 @@ func DeploymentController(router *mux.Router) error {
 			SpecTemplateSpecContainersName               string
 			SpecTemplateSpecContainersImage              string
 			SpecTemplateSpecContainersPortsContainerport string
+			UserID                                       string
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&body)

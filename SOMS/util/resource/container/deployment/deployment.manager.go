@@ -10,7 +10,7 @@ import (
 
 // Deployment 객체 생성 및 구성하는 추상화 인터페이스
 type DeploymentManager interface {
-	UserId(string) DeploymentManager
+	UserID(string) DeploymentManager
 	ApiVersion(string) DeploymentManager
 	Kind(string) DeploymentManager
 	MetadataName(string) DeploymentManager
@@ -26,8 +26,7 @@ type DeploymentManager interface {
 
 // 생성할 Deployment 객체
 type deploymentManager struct {
-	userId string
-	Dto    deployment.DeploymentDto
+	Dto deployment.DeploymentDto
 }
 
 // 새로운 DeploymentManager 생성
@@ -35,8 +34,8 @@ func New() DeploymentManager {
 	return &deploymentManager{}
 }
 
-func (dm deploymentManager) UserId(i string) DeploymentManager {
-	dm.userId = i
+func (dm deploymentManager) UserID(i string) DeploymentManager {
+	dm.Dto.UserID = i
 	return dm
 }
 
@@ -122,7 +121,7 @@ spec:
 		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
 	}
 
-	fileName := fmt.Sprintf("k8s/test/%s_deployment.yaml", dm.Dto.MetadataName) // test = id
+	fileName := fmt.Sprintf("k8s/%s/%s_deployment.yaml", dm.Dto.UserID, dm.Dto.MetadataName) // test = id
 	var file *os.File
 
 	if _, err = os.Stat(fileName); os.IsNotExist(err) {
@@ -148,7 +147,7 @@ spec:
 	}
 
 	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", "test")
+	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", dm.Dto.UserID) // , "-n", dm.Dto.UserID
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
