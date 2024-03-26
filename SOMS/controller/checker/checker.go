@@ -1,44 +1,27 @@
 package reqchecker
 
 import (
-	reqchecker "soms/controller/checker/user"
+	"errors"
+	"reflect"
 )
 
-// Checker는 vm, user, container의 타입이 정해지면, 해당 타입에 맞는 Checker를 반환하는 함수를 정의합니다.
-type Checker interface {
-	SetChecker() Checker
-	Check(body interface{}) error
-}
+// Check 함수는 들어온 generic 인자의 구성요소에 빈 값이 있는지 확인하고, 빈 값이 있으면 에러를 반환한다.
+func Check[T any](r T) error {
+	//r은 GENERIC
+	//r의 타입이 struct인지 확인
+	//r의 필드를 순회하면서 빈 값이 있는지 확인
+	//빈 값이 있으면 에러 반환
+	//모든 필드를 순회하고 빈 값이 없으면 nil 반환
 
-// checker는 vm, user, container의 타입에 따라, 해당 타입에 맞는 Checker를 반환합니다.
-type checker struct {
-	CheckerType string
-	Checker     interface{}
-}
-
-// New 함수는 Checker 인터페이스를 반환합니다.
-func New(checkerType string) Checker {
-	return &checker{
-		CheckerType: checkerType,
+	v := reflect.ValueOf(r)
+	if v.Kind() != reflect.Struct {
+		return errors.New("invalid request body")
 	}
-}
 
-// GetChecker 함수는 checkerType에 따라, 해당 타입에 맞는 Checker를 반환합니다.
-func (c *checker) SetChecker() Checker {
-	switch c.CheckerType {
-	case "user":
-		c.Checker = reqchecker.UserRegisterChecker{}
-		return c
-	default:
-		return nil
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Interface() == "" {
+			return errors.New("empty value")
+		}
 	}
-}
-
-func (c *checker) Check(r interface{}) error {
-	switch c.CheckerType {
-	case "user":
-		return c.Checker.(reqchecker.UserRegisterChecker).Check(r.(reqchecker.RequestBody))
-	default:
-		return nil
-	}
+	return nil
 }
