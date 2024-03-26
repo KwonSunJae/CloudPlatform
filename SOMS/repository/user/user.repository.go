@@ -37,11 +37,11 @@ func (r *UserRepository) AssignDB(db *sql.DB) {
 	r.DB = db
 }
 
-func (r *UserRepository) InsertUser(n UserDto) (sql.Result, error) {
+func (r *UserRepository) InsertUser(n UserDto) (string, error) {
 	id, err := uuid.NewRandom()
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	query := `
@@ -49,13 +49,15 @@ func (r *UserRepository) InsertUser(n UserDto) (sql.Result, error) {
     (id, name, userID, encryptedPW, role, spot, priority)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.Name, n.UserID, n.EncryptedPW, n.Role, n.Spot, n.Priority)
+	rslt, err := r.DB.Exec(query, id.String(), n.Name, n.UserID, n.EncryptedPW, n.Role, n.Spot, n.Priority)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-
-	return result, nil
+	if rslt == nil {
+		return "", errors.New("NOT FOUND")
+	}
+	return id.String(), nil
 }
 
 func (r *UserRepository) GetAllUser() (*[]UserRaw, error) {
@@ -97,12 +99,14 @@ func (r *UserRepository) IsUserIDExit(userID string) (bool, error) {
 	var raw UserRaw
 
 	query := `SELECT * FROM user WHERE userID = ?`
-	err := r.DB.QueryRow(query, userID).Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
+	err := r.DB.QueryRow(query, userID).Scan(&raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
+
 			return true, errors.New("NOT FOUND")
 		} else {
+
 			return false, err
 		}
 	} else {

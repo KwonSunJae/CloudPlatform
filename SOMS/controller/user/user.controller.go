@@ -6,33 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	reqchecker "soms/controller/checker"
+	response "soms/controller/response"
 	"soms/service/user"
 	"soms/util/encrypt"
 
 	"github.com/gorilla/mux"
 )
-
-type CommonResponse struct {
-	Data   interface{} `json:"data"`
-	Status int         `json:"status"`
-	Error  interface{} `json:"error"`
-}
-
-func Response(w http.ResponseWriter, data interface{}, status int, err error) {
-	var res CommonResponse
-
-	if status == http.StatusOK {
-		res.Data = data
-		res.Status = status
-	} else {
-		res.Status = status
-		res.Error = err.Error()
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(res)
-}
 
 func UserController(router *mux.Router) error {
 	err := user.Service.InitService()
@@ -41,233 +21,291 @@ func UserController(router *mux.Router) error {
 		return err
 	}
 
-	// GET 특정 id의 User 데이터 반환
-	router.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
+	router.HandleFunc("/user/{id}", getUserByUuid).Methods("GET")
 
-		raw, err := user.Service.GetOneUser(id)
+	router.HandleFunc("/user", getAllUser).Methods("GET")
 
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
+	router.HandleFunc("/user/validate/{userID}", userIDValidate).Methods("GET")
 
-		Response(w, raw, http.StatusOK, nil)
+	router.HandleFunc("/user", userRegister).Methods("POST")
 
-	}).Methods("GET")
+	router.HandleFunc("/user/login", userLogin).Methods("POST")
 
-	// GET 전체 User 데이터 반환
-	router.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		raws, err := user.Service.GetAllUser()
+	router.HandleFunc("/user/{userID}", updateUser).Methods("PATCH")
 
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, raws, http.StatusOK, nil)
-
-	}).Methods("GET")
-
-	router.HandleFunc("/user/validate", func(w http.ResponseWriter, r *http.Request) {
-		QueryParamsUserID := r.URL.Query()
-
-		for key, values := range QueryParamsUserID {
-			for _, value := range values {
-				if key != "userID" {
-					Response(w, nil, http.StatusNotFound, errors.New("not proper queryparams"))
-					return
-				}
-				validation, err := user.Service.UserIDValidate(value)
-				if err != nil {
-					Response(w, validation, http.StatusOK, nil)
-					return
-				}
-				Response(w, nil, http.StatusBadRequest, err)
-			}
-		}
-
-	}).Methods("GET")
-
-	// POST 새로운 User 등록
-	router.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		var body struct {
-			Name     string
-			UserID   string
-			PW       string
-			Role     string
-			Spot     string
-			Priority string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusBadRequest, err)
-		}
-		secretKey := os.Getenv("SECRET")
-		if secretKey == "" {
-			fmt.Println("SECRET key is not set.")
-		}
-		hasher := encrypt.NewPasswordHasher(secretKey)
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-		}
-
-		encryptedPW, HasherError := hasher.HashPassword(body.PW)
-		if HasherError != nil {
-			Response(w, nil, http.StatusInternalServerError, HasherError)
-		}
-
-		dto := struct {
-			Name        string
-			UserID      string
-			EncryptedPW string
-			Role        string
-			Spot        string
-			Priority    string
-		}{
-			Name:        body.Name,
-			UserID:      body.UserID,
-			EncryptedPW: encryptedPW,
-			Role:        body.Role,
-			Spot:        body.Spot,
-			Priority:    body.Priority,
-		}
-
-		//checker 구현
-		// if body.Name == "" || body.FlavorID == "" || body.ExternalIP == "" || body.InternalIP == "" ||
-		// 	body.SelectedOS == "" || body.UnionmountImage == "" || body.Keypair == "" ||
-		// 	body.SelectedSecuritygroup == "" || body.UserID == "" {
-		// 	Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
-		// 	return
-		// }
-
-		err = user.Service.CreateUser(dto)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("POST")
-
-	router.HandleFunc("/user/login", func(w http.ResponseWriter, r *http.Request) {
-		var body struct {
-			UserID string
-			PW     string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusBadRequest, err)
-		}
-
-		//checker 구현
-		// if body.Name == "" || body.FlavorID == "" || body.ExternalIP == "" || body.InternalIP == "" ||
-		// 	body.SelectedOS == "" || body.UnionmountImage == "" || body.Keypair == "" ||
-		// 	body.SelectedSecuritygroup == "" || body.UserID == "" {
-		// 	Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
-		// 	return
-		// }
-
-		rslt, err := user.Service.UserLogin(body.UserID, body.PW)
-
-		if err != nil {
-			Response(w, nil, http.StatusBadRequest, err)
-			return
-		}
-
-		Response(w, rslt, http.StatusOK, nil)
-
-	}).Methods("POST")
-	// PATCH 특정 id의 VM 데이터 수정
-	router.HandleFunc("/user/{userID}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		userID := vars["userID"]
-
-		var body struct {
-			Name     string
-			PW       string
-			Role     string
-			Spot     string
-			Priority string
-		}
-		secretKey := os.Getenv("SECRET")
-		if secretKey == "" {
-			fmt.Println("SECRET key is not set.")
-		}
-		hasher := encrypt.NewPasswordHasher(secretKey)
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-		}
-
-		encryptedPW, HasherError := hasher.HashPassword(body.PW)
-		if HasherError != nil {
-			Response(w, nil, http.StatusInternalServerError, HasherError)
-		}
-
-		dto := struct {
-			Name        string
-			UserID      string
-			EncryptedPW string
-			Role        string
-			Spot        string
-			Priority    string
-		}{
-			Name:        body.Name,
-			UserID:      userID,
-			EncryptedPW: encryptedPW,
-			Role:        body.Role,
-			Spot:        body.Spot,
-			Priority:    body.Priority,
-		}
-
-		err = user.Service.UpdateUser(userID, dto)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("PATCH")
-
-	// DELETE 특정 id의 VM 데이터 삭제
-	router.HandleFunc("/user/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-
-		err = user.Service.DeleteUser(id)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당되는 User이 존재하지 않습니다"))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("DELETE")
+	router.HandleFunc("/user/{id}", deleteUser).Methods("DELETE")
 
 	return nil
+}
+
+// @Summary 사용자 정보 조회
+// @Description 사용자의 정보를 조회합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true  "User uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/{id} [get]
+func getUserByUuid(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	raw, err := user.Service.GetOneUser(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, raw, http.StatusOK, nil)
+
+}
+
+// @Summary 사용자 정보 전체 조회
+// @Description 사용자의 정보를 전체 조회합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.CommonResponse
+// @Router /user [get]
+func getAllUser(w http.ResponseWriter, r *http.Request) {
+	raws, err := user.Service.GetAllUser()
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, raws, http.StatusOK, nil)
+
+}
+
+// @Summary 사용자 ID 유효성 검사
+// @Description 사용자 ID의 유효성을 검사합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   userID	path   string     true  "User ID"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/validate/{userID} [get]
+func userIDValidate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userID := vars["userID"]
+
+	isExist, err := user.Service.UserIDValidate(userID)
+
+	if !isExist {
+		response.Response(w, isExist, http.StatusConflict, errors.New("해당 User가 이미 존재합니다"))
+		return
+	} else {
+		response.Response(w, isExist, http.StatusOK, err)
+		return
+	}
+
+}
+
+type UserRequestBody struct {
+	Name     string
+	UserID   string
+	PW       string
+	Role     string
+	Spot     string
+	Priority string
+}
+
+// @Summary 사용자 가입
+// @Description 사용자 가입을 진행합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   User	 body   UserRequestBody     true  "User Name"
+// @Success 200 {object} response.CommonResponse
+// @Router /user [post]
+func userRegister(w http.ResponseWriter, r *http.Request) {
+	var body UserRequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+		return
+	}
+
+	paramsErr := reqchecker.Check(body)
+	if paramsErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, paramsErr)
+		return
+	}
+	secretKey := os.Getenv("SECRET")
+	if secretKey == "" {
+		fmt.Println("SECRET key is not set.")
+	}
+	hasher := encrypt.NewPasswordHasher(secretKey)
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	encryptedPW, HasherError := hasher.HashPassword(body.PW)
+	if HasherError != nil {
+		response.Response(w, nil, http.StatusInternalServerError, HasherError)
+		return
+	}
+
+	dto := struct {
+		Name        string
+		UserID      string
+		EncryptedPW string
+		Role        string
+		Spot        string
+		Priority    string
+	}{
+		Name:        body.Name,
+		UserID:      body.UserID,
+		EncryptedPW: encryptedPW,
+		Role:        body.Role,
+		Spot:        body.Spot,
+		Priority:    body.Priority,
+	}
+
+	id, err := user.Service.CreateUser(dto)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, id, http.StatusOK, nil)
+
+}
+
+type UserLoginRequestBody struct {
+	UserID string
+	PW     string
+}
+
+// @Summary 사용자 로그인
+// @Description 사용자 로그인을 진행합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   UserLogin	 body    UserLoginRequestBody     true  "User Login Info"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/login [post]
+func userLogin(w http.ResponseWriter, r *http.Request) {
+	var body UserLoginRequestBody
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	paramsErr := reqchecker.Check(body)
+	if paramsErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, paramsErr)
+		return
+	}
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+	}
+
+	rslt, err := user.Service.UserLogin(body.UserID, body.PW)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+		return
+	}
+
+	response.Response(w, rslt, http.StatusOK, nil)
+
+}
+
+// @Summary 사용자 정보 수정
+// @Description 사용자의 정보를 수정합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   UserID	 path    string     true  "User ID"
+// @Param   User    body    UserRequestBody     true  "User Name"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/{userID} [patch]
+func updateUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userID := vars["userID"]
+
+	var body UserRequestBody
+	paramsErr := reqchecker.Check(body)
+	if paramsErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, paramsErr)
+		return
+	}
+	secretKey := os.Getenv("SECRET")
+	if secretKey == "" {
+		fmt.Println("SECRET key is not set.")
+	}
+	hasher := encrypt.NewPasswordHasher(secretKey)
+
+	encryptedPW, HasherError := hasher.HashPassword(body.PW)
+	if HasherError != nil {
+		response.Response(w, nil, http.StatusInternalServerError, HasherError)
+	}
+
+	dto := struct {
+		Name        string
+		UserID      string
+		EncryptedPW string
+		Role        string
+		Spot        string
+		Priority    string
+	}{
+		Name:        body.Name,
+		UserID:      userID,
+		EncryptedPW: encryptedPW,
+		Role:        body.Role,
+		Spot:        body.Spot,
+		Priority:    body.Priority,
+	}
+
+	err := user.Service.UpdateUser(userID, dto)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary 사용자 정보 삭제
+// @Description 사용자의 정보를 삭제합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "User uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/{id} [delete]
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := user.Service.DeleteUser(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당되는 User이 존재하지 않습니다"))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
 }

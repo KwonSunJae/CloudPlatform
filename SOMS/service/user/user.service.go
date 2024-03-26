@@ -39,7 +39,7 @@ func (s *UserService) GetOneUser(userID string) (*user.UserRaw, error) {
 	return raw, err
 }
 
-func (s *UserService) CreateUser(n user.UserDto) error {
+func (s *UserService) CreateUser(n user.UserDto) (string, error) {
 
 	// Generate Openstack Account
 
@@ -47,17 +47,17 @@ func (s *UserService) CreateUser(n user.UserDto) error {
 
 	// Generate K8s Repository
 
-	_, DBSaveErr := s.Repository.InsertUser(n)
+	id, DBSaveErr := s.Repository.InsertUser(n)
 	if DBSaveErr != nil {
-		return DBSaveErr
+		return "", DBSaveErr
 	}
-	return nil
+	return id, nil
 }
 
 func (s *UserService) UserIDValidate(userID string) (bool, error) {
 	isExist, err := s.Repository.IsUserIDExit(userID)
 	if isExist {
-		return true, nil
+		return true, err
 	} else {
 		return false, err
 	}

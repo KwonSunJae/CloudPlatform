@@ -8,13 +8,32 @@ import (
 	"soms/controller/user"
 	"soms/controller/vm"
 
+	_ "soms/docs"
+
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
+// @title SOMS API
+// @version 1.0
+// @description Cloud Platform API Server
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:3000
+// @BasePath /
 func main() {
 	r := mux.NewRouter()
+
 	envLoad()
+
 	err := vm.VmController(r)
 	if err != nil {
 		panic("vm 서버 실행에 실패했습니다.")
@@ -35,6 +54,7 @@ func main() {
 	if err5 != nil {
 		panic("user 실행에 실패했습니다.")
 	}
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	http.ListenAndServe(":3000", corsMiddleware(r))
 }
 
