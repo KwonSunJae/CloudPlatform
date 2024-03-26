@@ -5,6 +5,7 @@ import (
 	"soms/controller/container/deployment"
 	"soms/controller/container/replicaset"
 	service "soms/controller/container/service"
+	"soms/controller/mockup"
 	"soms/controller/user"
 	"soms/controller/vm"
 
@@ -53,6 +54,10 @@ func main() {
 	err5 := user.UserController(r)
 	if err5 != nil {
 		panic("user 실행에 실패했습니다.")
+	}
+	err6 := mockup.MockupController(r)
+	if err6 != nil {
+		panic("mockup 실행에 실패했습니다.")
 	}
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	http.ListenAndServe(":3000", corsMiddleware(r))
