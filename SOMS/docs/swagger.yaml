@@ -64,6 +64,114 @@ info:
   title: SOMS API
   version: "1.0"
 paths:
+  /mockup/200:
+    get:
+      consumes:
+      - application/json
+      description: 200 OK 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 200 OK 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 200 OK 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 200 OK 응답
+      tags:
+      - mockup
+  /mockup/400:
+    get:
+      consumes:
+      - application/json
+      description: 40X 에러 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 40X 에러 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 40X 에러 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 40X 에러 응답
+      tags:
+      - mockup
+  /mockup/500:
+    get:
+      consumes:
+      - application/json
+      description: 50X 에러 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 50X 에러 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 50X 에러 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 50X 에러 응답
+      tags:
+      - mockup
   /user:
     get:
       consumes:
