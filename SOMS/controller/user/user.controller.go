@@ -234,9 +234,10 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	userID := vars["userID"]
 
 	var body UserRequestBody
-	paramsErr := reqchecker.Check(body)
-	if paramsErr != nil {
-		response.Response(w, nil, http.StatusBadRequest, paramsErr)
+	decodeErr := json.NewDecoder(r.Body).Decode(&body)
+
+	if decodeErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, decodeErr)
 		return
 	}
 	secretKey := os.Getenv("SECRET")
