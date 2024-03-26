@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	reqchecker "soms/controller/checker"
 	"soms/service/user"
 	"soms/util/encrypt"
 
@@ -110,6 +111,14 @@ func UserController(router *mux.Router) error {
 
 		if err != nil {
 			Response(w, nil, http.StatusBadRequest, err)
+			return
+		}
+
+		requestBodyChecker := reqchecker.New("user").SetChecker()
+		paramsErr := requestBodyChecker.Check(body)
+		if paramsErr != nil {
+			Response(w, nil, http.StatusBadRequest, paramsErr)
+			return
 		}
 		secretKey := os.Getenv("SECRET")
 		if secretKey == "" {
@@ -118,11 +127,13 @@ func UserController(router *mux.Router) error {
 		hasher := encrypt.NewPasswordHasher(secretKey)
 		if err != nil {
 			Response(w, nil, http.StatusInternalServerError, err)
+			return
 		}
 
 		encryptedPW, HasherError := hasher.HashPassword(body.PW)
 		if HasherError != nil {
 			Response(w, nil, http.StatusInternalServerError, HasherError)
+			return
 		}
 
 		dto := struct {
@@ -140,14 +151,6 @@ func UserController(router *mux.Router) error {
 			Spot:        body.Spot,
 			Priority:    body.Priority,
 		}
-
-		//checker 구현
-		// if body.Name == "" || body.FlavorID == "" || body.ExternalIP == "" || body.InternalIP == "" ||
-		// 	body.SelectedOS == "" || body.UnionmountImage == "" || body.Keypair == "" ||
-		// 	body.SelectedSecuritygroup == "" || body.UserID == "" {
-		// 	Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
-		// 	return
-		// }
 
 		err = user.Service.CreateUser(dto)
 
@@ -201,6 +204,12 @@ func UserController(router *mux.Router) error {
 			Role     string
 			Spot     string
 			Priority string
+		}
+		requestBodyChecker := reqchecker.New("user").SetChecker()
+		paramsErr := requestBodyChecker.Check(body)
+		if paramsErr != nil {
+			Response(w, nil, http.StatusBadRequest, paramsErr)
+			return
 		}
 		secretKey := os.Getenv("SECRET")
 		if secretKey == "" {
