@@ -50,7 +50,7 @@ definitions:
       userID:
         type: string
     type: object
-host: 117.16.136,172:3000
+host: 117.16.136.172:3000
 info:
   contact:
     email: support@swagger.io
