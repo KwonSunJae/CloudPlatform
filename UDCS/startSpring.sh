@@ -19,8 +19,6 @@ echo "> build 파일 복사"
 DEPLOY_PATH=$BASE_PATH/setup
 sudo cp $BUILD_PATH $DEPLOY_PATH
 
-
-
 echo "> 현재 구동중인 Spring Application pid 확인"
 IDLE_PID=$(pgrep -f $JAR_NAME)
 
@@ -31,23 +29,6 @@ else
   echo "> kill -15 $IDLE_PID"
   sudo kill -15 $IDLE_PID
   sleep 5
-fi
-
-if ! nc -z localhost 5601; then
-    echo "ELK is not running on port 5601."
-
-    cd setup
-
-    sudo docker-compose -f $DEPLOY_PATH/docker-compose.yml down
-    sleep 5
-
-    sudo docker-compose -f $DEPLOY_PATH/docker-compose.yml up setup --force-recreate
-    sleep 10
-
-    sudo docker-compose -f $DEPLOY_PATH/docker-compose.yml up -d
-    sleep 20
-else
-    echo "ELK is Running."
 fi
 
 if ! nc -z localhost 8080; then
