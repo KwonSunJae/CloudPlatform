@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +19,9 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Configuration
 public class SwaggerConfig {
+
+    @Value("${udcs.server.url}")
+    private String UDCS_URL;
 
 
     @Bean
@@ -32,8 +36,8 @@ public class SwaggerConfig {
         localServer.setUrl("http://localhost:8080");
         //
         Server testServer = new Server();
-        testServer.setDescription("HTTPS");
-        testServer.setUrl("https://localhost:8080");
+        testServer.setDescription("HTTP");
+        testServer.setUrl(UDCS_URL);
 
 
         return new OpenAPI()
