@@ -4,31 +4,20 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	reqchecker "soms/controller/checker"
+	response "soms/controller/response"
 	"soms/service/container/deployment"
 
 	"github.com/gorilla/mux"
 )
 
-type CommonResponse struct {
-	Data   interface{} `json:"data"`
-	Status int         `json:"status"`
-	Error  interface{} `json:"error"`
-}
-
-func Response(w http.ResponseWriter, data interface{}, status int, err error) {
-	var res CommonResponse
-
-	if status == http.StatusOK {
-		res.Data = data
-		res.Status = status
-	} else {
-		res.Status = status
-		res.Error = err.Error()
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(res)
+type DeploymentUseCase interface {
+	getOneDeployment(id string) (interface{}, error)
+	getAllDeployment() (interface{}, error)
+	getDeploymentsStatus() (interface{}, error)
+	createDeployment(deploymentDto interface{}) error
+	updateDeployment(id string, deploymentDto interface{}) error
+	deleteDeployment(id string) error
 }
 
 func DeploymentController(router *mux.Router) error {
@@ -38,155 +27,246 @@ func DeploymentController(router *mux.Router) error {
 		return err
 	}
 
-	// GET 특정 id의 Deployment 데이터 반환
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
+	router.HandleFunc("/deployment/{id}", getOneDeployment).Methods("GET")
 
-		raw, err := deployment.Service.GetOneDeployment(id)
+	router.HandleFunc("/deployment", getAllDeployment).Methods("GET")
 
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
+	router.HandleFunc("/deploymentstat", getDeploymentsStatus).Methods("GET")
 
-		Response(w, raw, http.StatusOK, nil)
+	router.HandleFunc("/deployment", createDeployment).Methods("POST")
 
-	}).Methods("GET")
+	router.HandleFunc("/deployment/{id}", updateDeployment).Methods("PATCH")
 
-	// GET 전체 Deployment 데이터 반환
-	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
-		raws, err := deployment.Service.GetAllDeployment()
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, raws, http.StatusOK, nil)
-
-	}).Methods("GET")
-
-	// GET Deployment status 반환
-	router.HandleFunc("/deploymentstat", func(w http.ResponseWriter, r *http.Request) {
-		rsp, err := deployment.Service.GetDeploymentsStatus()
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, rsp, http.StatusOK, nil)
-
-	}).Methods("GET")
-
-	// POST 새로운 Deployment 등록
-	router.HandleFunc("/deployment", func(w http.ResponseWriter, r *http.Request) {
-		var body struct {
-			ApiVersion                                   string
-			Kind                                         string
-			MetadataName                                 string
-			MetadataLabelsApp                            string
-			SpecReplicas                                 string
-			SpecSelectorMatchlabelsApp                   string
-			SpecTemplateMetadataLabelsApp                string
-			SpecTemplateSpecContainersName               string
-			SpecTemplateSpecContainersImage              string
-			SpecTemplateSpecContainersPortsContainerport string
-			UserID                                       string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" || body.MetadataLabelsApp == "" ||
-			body.SpecReplicas == "" || body.SpecSelectorMatchlabelsApp == "" || body.SpecTemplateMetadataLabelsApp == "" ||
-			body.SpecTemplateSpecContainersName == "" || body.SpecTemplateSpecContainersImage == "" || body.SpecTemplateSpecContainersPortsContainerport == "" || body.UserID == "" {
-			Response(w, nil, http.StatusBadRequest, errors.New("파라미터가 누락되었습니다."))
-			return
-		}
-
-		err = deployment.Service.CreateDeployment(body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("POST")
-
-	// PATCH 특정 id의 Deployment 데이터 수정
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-
-		var body struct {
-			ApiVersion                                   string
-			Kind                                         string
-			MetadataName                                 string
-			MetadataLabelsApp                            string
-			SpecReplicas                                 string
-			SpecSelectorMatchlabelsApp                   string
-			SpecTemplateMetadataLabelsApp                string
-			SpecTemplateSpecContainersName               string
-			SpecTemplateSpecContainersImage              string
-			SpecTemplateSpecContainersPortsContainerport string
-			UserID                                       string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-		}
-
-		err = deployment.Service.UpdateDeployment(id, body)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("PATCH")
-
-	// DELETE 특정 id의 Deployment 데이터 삭제
-	router.HandleFunc("/deployment/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-
-		err = deployment.Service.DeleteDeployment(id)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당되는 Deployment가 존재하지 않습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("DELETE")
+	router.HandleFunc("/deployment/{id}", deleteDeployment).Methods("DELETE")
 
 	return nil
+}
+
+// @Summary deployment 정보 조회
+// @Description deployment의 정보를 조회합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "deployment uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /deployment/{id} [get]
+func getOneDeployment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	raw, err := deployment.Service.GetOneDeployment(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, raw, http.StatusOK, nil)
+
+}
+
+// @Summary deployment 정보 전체 조회
+// @Description deployment의 정보를 전체 조회합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.CommonResponse
+// @Router /deployment [get]
+func getAllDeployment(w http.ResponseWriter, r *http.Request) {
+	raws, err := deployment.Service.GetAllDeployment()
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, raws, http.StatusOK, nil)
+
+}
+
+// @Summary deployment 상태 조회
+// @Description deployment의 상태를 조회합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.CommonResponse
+// @Router /deploymentstat [get]
+func getDeploymentsStatus(w http.ResponseWriter, r *http.Request) {
+	rsp, err := deployment.Service.GetDeploymentsStatus()
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, rsp, http.StatusOK, nil)
+
+}
+
+type createDeploymentBody struct {
+	ApiVersion                                   string
+	Kind                                         string
+	MetadataName                                 string
+	MetadataLabelsApp                            string
+	SpecReplicas                                 string
+	SpecSelectorMatchlabelsApp                   string
+	SpecTemplateMetadataLabelsApp                string
+	SpecTemplateSpecContainersName               string
+	SpecTemplateSpecContainersImage              string
+	SpecTemplateSpecContainersPortsContainerport string
+}
+
+// @Summary deployment 등록
+// @Description deployment를 등록합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Param   body     body    createDeploymentBody     true  "deployment 정보"
+// @Success 200 {object} response.CommonResponse
+// @Router /deployment [post]
+func createDeployment(w http.ResponseWriter, r *http.Request) {
+	var body createDeploymentBody
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+	}
+
+	prmErr := reqchecker.Check(body)
+	if prmErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, prmErr)
+		return
+	}
+
+	var deploymentDto = struct {
+		ApiVersion                                   string
+		Kind                                         string
+		MetadataName                                 string
+		MetadataLabelsApp                            string
+		SpecReplicas                                 string
+		SpecSelectorMatchlabelsApp                   string
+		SpecTemplateMetadataLabelsApp                string
+		SpecTemplateSpecContainersName               string
+		SpecTemplateSpecContainersImage              string
+		SpecTemplateSpecContainersPortsContainerport string
+		UserID                                       string
+	}{
+		ApiVersion:                      body.ApiVersion,
+		Kind:                            body.Kind,
+		MetadataName:                    body.MetadataName,
+		MetadataLabelsApp:               body.MetadataLabelsApp,
+		SpecReplicas:                    body.SpecReplicas,
+		SpecSelectorMatchlabelsApp:      body.SpecSelectorMatchlabelsApp,
+		SpecTemplateMetadataLabelsApp:   body.SpecTemplateMetadataLabelsApp,
+		SpecTemplateSpecContainersName:  body.SpecTemplateSpecContainersName,
+		SpecTemplateSpecContainersImage: body.SpecTemplateSpecContainersImage,
+		SpecTemplateSpecContainersPortsContainerport: body.SpecTemplateSpecContainersPortsContainerport,
+		UserID: "test",
+	}
+
+	err = deployment.Service.CreateDeployment(deploymentDto)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary deployment 수정
+// @Description deployment를 수정합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "deployment uuid"
+// @Param   body     body    createDeploymentBody     true  "deployment 정보"
+// @Success 200 {object} response.CommonResponse
+// @Router /deployment/{id} [patch]
+func updateDeployment(w http.ResponseWriter, r *http.Request) {
+	var body createDeploymentBody
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var deploymentDto = struct {
+		ApiVersion                                   string
+		Kind                                         string
+		MetadataName                                 string
+		MetadataLabelsApp                            string
+		SpecReplicas                                 string
+		SpecSelectorMatchlabelsApp                   string
+		SpecTemplateMetadataLabelsApp                string
+		SpecTemplateSpecContainersName               string
+		SpecTemplateSpecContainersImage              string
+		SpecTemplateSpecContainersPortsContainerport string
+		UserID                                       string
+	}{
+		ApiVersion:                      body.ApiVersion,
+		Kind:                            body.Kind,
+		MetadataName:                    body.MetadataName,
+		MetadataLabelsApp:               body.MetadataLabelsApp,
+		SpecReplicas:                    body.SpecReplicas,
+		SpecSelectorMatchlabelsApp:      body.SpecSelectorMatchlabelsApp,
+		SpecTemplateMetadataLabelsApp:   body.SpecTemplateMetadataLabelsApp,
+		SpecTemplateSpecContainersName:  body.SpecTemplateSpecContainersName,
+		SpecTemplateSpecContainersImage: body.SpecTemplateSpecContainersImage,
+		SpecTemplateSpecContainersPortsContainerport: body.SpecTemplateSpecContainersPortsContainerport,
+		UserID: "test",
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+	}
+
+	err = deployment.Service.UpdateDeployment(id, deploymentDto)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary deployment 정보 삭제
+// @Description deployment의 정보를 삭제합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "deployment uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /deployment/{id} [delete]
+func deleteDeployment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := deployment.Service.DeleteDeployment(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당되는 Deployment가 존재하지 않습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
 }
