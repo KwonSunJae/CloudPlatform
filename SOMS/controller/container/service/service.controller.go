@@ -4,32 +4,22 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	response "soms/controller/response"
+
 	checker "soms/controller/checker/container/service"
 	"soms/service/container/service"
 
 	"github.com/gorilla/mux"
 )
 
-type CommonResponse struct {
-	Data   interface{} `json:"data"`
-	Status int         `json:"status"`
-	Error  interface{} `json:"error"`
-}
-
-func Response(w http.ResponseWriter, data interface{}, status int, err error) {
-	var res CommonResponse
-
-	if status == http.StatusOK {
-		res.Data = data
-		res.Status = status
-	} else {
-		res.Status = status
-		res.Error = err.Error()
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(res)
+type ServiceUseCase interface {
+	getOneService(id string) (interface{}, error)
+	getAllService() (interface{}, error)
+	getServiceStatus() (interface{}, error)
+	createService(serviceDto interface{}) error
+	updateService(id string, serviceDto interface{}) error
+	deleteService(id string) error
 }
 
 func ServiceController(router *mux.Router) error {
@@ -39,183 +29,236 @@ func ServiceController(router *mux.Router) error {
 		return err
 	}
 
-	// GET 특정 id의 Service 데이터 반환
-	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
+	router.HandleFunc("/service/{id}", getOneService).Methods("GET")
 
-		raw, err := service.Service.GetOneService(id)
+	router.HandleFunc("/service", getAllService).Methods("GET")
 
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
+	router.HandleFunc("/servicestat", getServiceStatus).Methods("GET")
 
-		Response(w, raw, http.StatusOK, nil)
+	router.HandleFunc("/service", createService).Methods("POST")
 
-	}).Methods("GET")
+	router.HandleFunc("/service/{id}", updateService).Methods("PATCH")
 
-	// GET 전체 Service 데이터 반환
-	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
-		raws, err := service.Service.GetAllService()
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, raws, http.StatusOK, nil)
-
-	}).Methods("GET")
-
-	// GET Service status 반환
-	router.HandleFunc("/servicestat", func(w http.ResponseWriter, r *http.Request) {
-		rsp, err := service.Service.GetServiceStatus()
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, rsp, http.StatusOK, nil)
-
-	}).Methods("GET")
-
-	// POST 새로운 Service 등록
-	router.HandleFunc("/service", func(w http.ResponseWriter, r *http.Request) {
-		var body struct {
-			// ClusterIP
-			ApiVersion          string
-			Kind                string
-			MetadataName        string
-			SpecType            string
-			SpecSelectorApp     string
-			SpecPortsProtocol   string
-			SpecPortsPort       string
-			SpecPortsTargetport string
-
-			// NodePort
-			SpecPortsNodeport string
-
-			// LoadBalancer
-			SpecSelectorType string
-			SpecClusterIP    string
-
-			// ExternalName
-			SpecExternalname string
-
-			UserID string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		// 서비스타입별 바디에 파라미터 누락 표시
-		checkerErr := checker.ServiceTypeChecker(body)
-		if checkerErr != nil {
-			Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
-			return
-		}
-
-		err = service.Service.CreateService(body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("POST")
-
-	// PATCH 특정 id의 Service 데이터 수정
-	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-
-		var body struct {
-			// ClusterIP
-			ApiVersion          string
-			Kind                string
-			MetadataName        string
-			SpecType            string
-			SpecSelectorApp     string
-			SpecPortsProtocol   string
-			SpecPortsPort       string
-			SpecPortsTargetport string
-
-			// NodePort
-			SpecPortsNodeport string
-
-			// LoadBalancer
-			SpecSelectorType string
-			SpecClusterIP    string
-
-			// ExternalName
-			SpecExternalname string
-
-			UserID string
-		}
-
-		err := json.NewDecoder(r.Body).Decode(&body)
-
-		if err != nil {
-			Response(w, nil, http.StatusInternalServerError, err)
-			return
-		}
-
-		// 서비스타입별 바디에 파라미터 누락 표시
-		checkerErr := checker.ServiceTypeChecker(body)
-		if checkerErr != nil {
-			Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
-			return
-		}
-
-		err = service.Service.UpdateService(id, body)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("PATCH")
-
-	// DELETE 특정 id의 Service 데이터 삭제
-	router.HandleFunc("/service/{id}", func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-
-		err = service.Service.DeleteService(id)
-
-		if err != nil {
-			switch err.Error() {
-			case "NOT FOUND":
-				Response(w, nil, http.StatusNotFound, errors.New("해당되는 Service가 존재하지 않습니다."))
-			default:
-				Response(w, nil, http.StatusInternalServerError, err)
-			}
-			return
-		}
-
-		Response(w, "OK", http.StatusOK, nil)
-
-	}).Methods("DELETE")
+	router.HandleFunc("/service/{id}", deleteService).Methods("DELETE")
 
 	return nil
+}
+
+// @Summary service 정보 조회
+// @Description service의 정보를 조회합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "service uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /service/{id} [get]
+func getOneService(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	raw, err := service.Service.GetOneService(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, raw, http.StatusOK, nil)
+
+}
+
+// @Summary service 정보 전체 조회
+// @Description service의 정보를 전체 조회합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.CommonResponse
+// @Router /service [get]
+func getAllService(w http.ResponseWriter, r *http.Request) {
+	raws, err := service.Service.GetAllService()
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, raws, http.StatusOK, nil)
+
+}
+
+// @Summary service 상태 조회
+// @Description service의 상태를 조회합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} response.CommonResponse
+// @Router /servicestat [get]
+func getServiceStatus(w http.ResponseWriter, r *http.Request) {
+	rsp, err := service.Service.GetServiceStatus()
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, rsp, http.StatusOK, nil)
+
+}
+
+// @Summary service 생성
+// @Description service를 생성합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param   body     body    struct    true  "service 정보"
+// @Success 200 {object} response.CommonResponse
+// @Router /service [post]
+func createService(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		// ClusterIP
+		ApiVersion          string
+		Kind                string
+		MetadataName        string
+		SpecType            string
+		SpecSelectorApp     string
+		SpecPortsProtocol   string
+		SpecPortsPort       string
+		SpecPortsTargetport string
+
+		// NodePort
+		SpecPortsNodeport string
+
+		// LoadBalancer
+		SpecSelectorType string
+		SpecClusterIP    string
+
+		// ExternalName
+		SpecExternalname string
+
+		UserID string
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	// 서비스타입별 바디에 파라미터 누락 표시
+	checkerErr := checker.ServiceTypeChecker(body)
+	if checkerErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
+		return
+	}
+
+	err = service.Service.CreateService(body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary service 수정
+// @Description service를 수정합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "service uuid"
+// @Param   body     body    struct    true  "service 정보"
+// @Success 200 {object} response.CommonResponse
+// @Router /service/{id} [patch]
+func updateService(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var body struct {
+		// ClusterIP
+		ApiVersion          string
+		Kind                string
+		MetadataName        string
+		SpecType            string
+		SpecSelectorApp     string
+		SpecPortsProtocol   string
+		SpecPortsPort       string
+		SpecPortsTargetport string
+
+		// NodePort
+		SpecPortsNodeport string
+
+		// LoadBalancer
+		SpecSelectorType string
+		SpecClusterIP    string
+
+		// ExternalName
+		SpecExternalname string
+
+		UserID string
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	// 서비스타입별 바디에 파라미터 누락 표시
+	checkerErr := checker.ServiceTypeChecker(body)
+	if checkerErr != nil {
+		response.Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
+		return
+	}
+
+	err = service.Service.UpdateService(id, body)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 Service가 없습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary service 정보 삭제
+// @Description service의 정보를 삭제합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "service uuid"
+// @Success 200 {object} response.CommonResponse
+// @Router /service/{id} [delete]
+func deleteService(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := service.Service.DeleteService(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당되는 Service가 존재하지 않습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
 }
