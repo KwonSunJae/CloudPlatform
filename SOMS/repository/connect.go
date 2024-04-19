@@ -8,7 +8,24 @@ import (
 
 func OpenWithMemory() (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		return nil, err
+	}
 
+	err = db.Ping()
+
+	if err != nil {
+		return nil, err
+	}
+	err = CreateTables(db)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func OpenWithStorage() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "soms.db")
 	if err != nil {
 		return nil, err
 	}
@@ -19,28 +36,43 @@ func OpenWithMemory() (*sql.DB, error) {
 		return nil, err
 	}
 
-	_, err = createVmTable(db)
-
+	err = CreateTables(db)
 	if err != nil {
 		return nil, err
+	}
+
+	return db, nil
+}
+
+func CreateTables(db *sql.DB) error {
+
+	_, err := createVmTable(db)
+
+	if err != nil {
+		return err
 	}
 	_, err = createServiceTable(db)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = createDeploymentTable(db)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = createReplicasetTable(db)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	_, err = createUserTable(db)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return db, nil
+	_, err = createIntegrityTable(db)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createVmTable(db *sql.DB) (sql.Result, error) {
@@ -163,6 +195,27 @@ func createUserTable(db *sql.DB) (sql.Result, error) {
 		role TEXT,
 		spot TEXT,
 		priority TEXT
+	)
+  `
+
+	result, err := db.Exec(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func createIntegrityTable(db *sql.DB) (sql.Result, error) {
+	query := `
+	CREATE TABLE integrity (
+		request_id TEXT PRIMARY KEY,
+		type TEXT,
+		action TEXT,
+		result TEXT,
+		user_id TEXT,
+		FOREIGN KEY(userID) REFERENCES user (userID)
 	)
   `
 
