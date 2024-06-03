@@ -1,6 +1,6 @@
 // DeploymentForm.js
 import React, { useState } from 'react';
-import instance from '../../../../apis';
+import instance from '../../../../apis/instance';
 
 const DeploymentForm = () => {
   const [deploymentName, setDeploymentName] = useState('');

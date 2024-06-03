@@ -1,6 +1,6 @@
 // ServiceForm.js
 import React,{useState,useEffect} from 'react';
-import instance from '../../../../apis';
+import instance from '../../../../apis/instance';
 const ServiceForm = () => {
   const [serviceName,setServiceName] = useState('');
   const [deploymentName, setDeploymentName] = useState('');

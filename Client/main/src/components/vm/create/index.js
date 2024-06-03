@@ -1,7 +1,7 @@
 // VMCreateForm.js
 import React, { useState, useEffect } from 'react';
 import './index.css';
-import instance from '../../../apis/index'
+import instance from '../../../apis/instance'
 const VMCreateForm = () => {
     const [vmName, setVmName] = useState('');
     const [gpu, setGPU] = useState(false);

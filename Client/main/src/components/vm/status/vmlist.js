@@ -1,6 +1,6 @@
 // VmList.js
 import React from 'react';
-import instance from '../../../apis/index'
+import instance from '../../../apis/instance'
 
 const VmList = ({ data }) => {
     const handleDelete = (vmName) => {
