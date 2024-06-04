@@ -32,7 +32,19 @@ nav {
     padding: 8px 16px;
     border: none;
     background-color: #d6fedb;
-    color: #fff;
+    font-weight: bold;
+    color: #008ad4;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .logout-button button {
+    margin-left: 10px;
+    padding: 8px 16px;
+    border: none;
+    font-weight: bold;
+    background-color: #d6fedb;
+    color: #008ad4;
     cursor: pointer;
     border-radius: 5px;
   }

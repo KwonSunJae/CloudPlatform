@@ -1,21 +1,33 @@
 import instance from "./instance";
 
-const login = (username, password) => {
-    instance.post("/auth/login", {
-        dest : "/user/login",
-        method : "POST",
-        data : { "UserID" : username, "Password" : password}
+const Login = (username, password) => {
+    const datas = JSON.stringify({ 
+        
+        "UserID" : username,
+        "PW" : password,
     })
-    .then((response) => {
-        localStorage.setItem("accessToken", response.data.accessToken);
-        localStorage.setItem("refreshToken", response.data.refreshToken);
-
-        return true;
-    })
-    .catch((error) => {
-        console.error(error);
-        return false;
+    const promise = new Promise((resolve, reject) => {
+        instance.post("/auth/login", {
+            dest : "/user/login",
+            method : "POST",
+            data : datas
+        })
+        .then((response) => {
+            if(response.status === 200){
+                localStorage.setItem("accessToken", response.data.accessToken);
+                localStorage.setItem("refreshToken", response.data.refreshToken);
+                resolve(true); 
+            }
+            else{
+                resolve(false)
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            reject(error);
+        });
     });
+    return promise;
 };
 
-export default login;
+export default Login;

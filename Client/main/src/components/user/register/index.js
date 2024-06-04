@@ -11,15 +11,24 @@ const RegisterModal = () => {
     const [spot, setSpot] = useState('');
     const [priority, setPriority] = useState('');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        signup(name, userID, pw, role, spot, priority)
-            .then((response) => {
-                if (response) {
-                    console.log(response);
-                    window.location.href = "/user/";
-                }
-            });
+        try {
+            const response = await signup(name, userID, pw, role, spot, priority);
+            console.log(response);
+            if(response){
+                alert("회원가입 성공");
+                closeRegisterModal();
+                window.location.href = "/";
+            }
+            else {
+                alert("회원가입 실패");
+            }
+        }
+        catch(error) {
+            console.error(error);
+        }
+        
     };
 
     function closeRegisterModal() {

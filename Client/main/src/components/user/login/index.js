@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import './index.css';
-import login from '../../../apis';
+import Login from '../../../apis/login';
 
 
 const LoginModal = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        login(username, password)
-            .then((response) => {
-                if (response) {
-                    console.log(response);
-                    window.location.href = "/user/";
-                }
-            });
+        if(await Login(username, password)) {
+            alert("로그인 성공");
+            closeLoginModal();
+            window.location.href = "/";
+        }
+        else {
+            alert("로그인 실패");
+        }
     };
 
     function closeLoginModal() {

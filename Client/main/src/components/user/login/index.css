@@ -1,68 +1,121 @@
 /* Login Modal CSS */
 
 /* Modal Container */
-#login-modal {
-    display: none; /* Hide the modal by default */
-    position: absolute;
+
+
+/* index.css */
+
+.modal {
+    display: flex;
     justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    position: fixed;
+    z-index: 1050;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    
-    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+    overflow: hidden;
+    outline: 0;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Modal Content */
 .login-modal-content {
-    background-color: #fefefe;
-    position: absolute;
-    top:50%;
-    left:40%;
-    text-align: center;
-
-    padding: 20px;
-    border: 1px solid #888;
-    width: auto;
-    height: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 500px;
+    margin: 1.75rem auto;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    padding: 1.5rem;
 }
 
-/* Modal Close Button */
 .login-modal-close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.login-modal-close:hover,
-.login-modal-close:focus {
-    color: black;
-    text-decoration: none;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: 0.5;
     cursor: pointer;
 }
 
-/* Modal Form */
+.login-modal-close:hover {
+    color: #000;
+    text-decoration: none;
+    opacity: 0.75;
+}
+
 .login-modal-form {
     display: flex;
     flex-direction: column;
 }
 
-.login-modal-form input[type="text"],
-.login-modal-form input[type="password"] {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
+.login-form-group {
+    margin-bottom: 1rem;
 }
 
-.login-modal-form button {
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
+.login-form-group label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: #004085;
+}
+
+.login-form-group input {
+    display: block;
+    width: 95%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.login-form-group input:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
+    width: 99%;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
     cursor: pointer;
+    border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.login-modal-form button:hover {
-    background-color: #45a049;
+.btn-primary:hover {
+    color: #fff;
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+    color: #fff;
+    background-color: #0056b3;
+    border-color: #004085;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
