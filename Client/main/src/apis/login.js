@@ -1,9 +1,9 @@
 import instance from "./instance";
 
-const Login = (username, password) => {
+const Login = (userID, password) => {
     const datas = JSON.stringify({ 
         
-        "UserID" : username,
+        "UserID" : userID,
         "PW" : password,
     })
     const promise = new Promise((resolve, reject) => {
@@ -16,6 +16,7 @@ const Login = (username, password) => {
             if(response.status === 200){
                 localStorage.setItem("accessToken", response.data.accessToken);
                 localStorage.setItem("refreshToken", response.data.refreshToken);
+                localStorage.setItem("userID", userID);
                 resolve(true); 
             }
             else{
