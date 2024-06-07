@@ -21,7 +21,7 @@ func UserController(router *mux.Router) error {
 		return err
 	}
 
-	router.HandleFunc("/user/{id}", getUserByUuid).Methods("GET")
+	router.HandleFunc("/user/{userID}", getUserByUuid).Methods("GET")
 
 	router.HandleFunc("/user", getAllUser).Methods("GET")
 
@@ -43,14 +43,14 @@ func UserController(router *mux.Router) error {
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Param   id     path    int     true  "User uuid"
+// @Param   userID     path    string     true  "User ID"
 // @Success 200 {object} response.CommonResponse
-// @Router /user/{id} [get]
+// @Router /user/{userID} [get]
 func getUserByUuid(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
+	userID := vars["userID"]
 
-	raw, err := user.Service.GetOneUser(id)
+	raw, err := user.Service.GetOneUser(userID)
 
 	if err != nil {
 		switch err.Error() {

@@ -1,5 +1,61 @@
 basePath: /
 definitions:
+  controller.ServiceRequestBody:
+    properties:
+      apiVersion:
+        description: ClusterIP
+        type: string
+      kind:
+        type: string
+      metadataName:
+        type: string
+      specClusterIP:
+        type: string
+      specExternalname:
+        description: ExternalName
+        type: string
+      specPortsNodeport:
+        description: NodePort
+        type: string
+      specPortsPort:
+        type: string
+      specPortsProtocol:
+        type: string
+      specPortsTargetport:
+        type: string
+      specSelectorApp:
+        type: string
+      specSelectorType:
+        description: LoadBalancer
+        type: string
+      specType:
+        type: string
+      userID:
+        type: string
+    type: object
+  deployment.createDeploymentBody:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadataLabelsApp:
+        type: string
+      metadataName:
+        type: string
+      specReplicas:
+        type: string
+      specSelectorMatchlabelsApp:
+        type: string
+      specTemplateMetadataLabelsApp:
+        type: string
+      specTemplateSpecContainersImage:
+        type: string
+      specTemplateSpecContainersName:
+        type: string
+      specTemplateSpecContainersPortsContainerport:
+        type: string
+    type: object
   response.CommonResponse:
     properties:
       data: {}
@@ -64,6 +120,124 @@ info:
   title: SOMS API
   version: "1.0"
 paths:
+  /deployment:
+    get:
+      consumes:
+      - application/json
+      description: deployment의 정보를 전체 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 전체 조회
+      tags:
+      - deployment
+    post:
+      consumes:
+      - application/json
+      description: deployment를 등록합니다.
+      parameters:
+      - description: deployment 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/deployment.createDeploymentBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 등록
+      tags:
+      - deployment
+  /deployment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deployment의 정보를 삭제합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 삭제
+      tags:
+      - deployment
+    get:
+      consumes:
+      - application/json
+      description: deployment의 정보를 조회합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 조회
+      tags:
+      - deployment
+    patch:
+      consumes:
+      - application/json
+      description: deployment를 수정합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: deployment 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/deployment.createDeploymentBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 수정
+      tags:
+      - deployment
+  /deploymentstat:
+    get:
+      consumes:
+      - application/json
+      description: deployment의 상태를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 상태 조회
+      tags:
+      - deployment
   /mockup/200:
     get:
       consumes:
@@ -172,6 +346,124 @@ paths:
       summary: 50X 에러 응답
       tags:
       - mockup
+  /service:
+    get:
+      consumes:
+      - application/json
+      description: service의 정보를 전체 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 전체 조회
+      tags:
+      - service
+    post:
+      consumes:
+      - application/json
+      description: service를 생성합니다.
+      parameters:
+      - description: service 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ServiceRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 생성
+      tags:
+      - service
+  /service/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: service의 정보를 삭제합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 삭제
+      tags:
+      - service
+    get:
+      consumes:
+      - application/json
+      description: service의 정보를 조회합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 조회
+      tags:
+      - service
+    patch:
+      consumes:
+      - application/json
+      description: service를 수정합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: service 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ServiceRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 수정
+      tags:
+      - service
+  /servicestat:
+    get:
+      consumes:
+      - application/json
+      description: service의 상태를 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 상태 조회
+      tags:
+      - service
   /user:
     get:
       consumes:
@@ -229,16 +521,17 @@ paths:
       summary: 사용자 정보 삭제
       tags:
       - user
+  /user/{userID}:
     get:
       consumes:
       - application/json
       description: 사용자의 정보를 조회합니다.
       parameters:
-      - description: User uuid
+      - description: User ID
         in: path
-        name: id
+        name: userID
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -249,7 +542,6 @@ paths:
       summary: 사용자 정보 조회
       tags:
       - user
-  /user/{userID}:
     patch:
       consumes:
       - application/json

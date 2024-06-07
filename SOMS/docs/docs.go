@@ -24,6 +24,185 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/deployment": {
+            "get": {
+                "description": "deployment의 정보를 전체 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 정보 전체 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "deployment를 등록합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 등록",
+                "parameters": [
+                    {
+                        "description": "deployment 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/deployment.createDeploymentBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/deployment/{id}": {
+            "get": {
+                "description": "deployment의 정보를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 정보 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "deployment uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "deployment의 정보를 삭제합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 정보 삭제",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "deployment uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "deployment를 수정합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 수정",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "deployment uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "deployment 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/deployment.createDeploymentBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/deploymentstat": {
+            "get": {
+                "description": "deployment의 상태를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 상태 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/mockup/200": {
             "get": {
                 "description": "200 OK 응답을 반환합니다.",
@@ -189,6 +368,185 @@ const docTemplate = `{
                 }
             }
         },
+        "/service": {
+            "get": {
+                "description": "service의 정보를 전체 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 정보 전체 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "service를 생성합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 생성",
+                "parameters": [
+                    {
+                        "description": "service 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ServiceRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/service/{id}": {
+            "get": {
+                "description": "service의 정보를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 정보 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "service의 정보를 삭제합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 정보 삭제",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "service를 수정합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 수정",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "service 정보",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ServiceRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/servicestat": {
+            "get": {
+                "description": "service의 상태를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 상태 조회",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user": {
             "get": {
                 "description": "사용자의 정보를 전체 조회합니다.",
@@ -311,36 +669,6 @@ const docTemplate = `{
             }
         },
         "/user/{id}": {
-            "get": {
-                "description": "사용자의 정보를 조회합니다.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "사용자 정보 조회",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "User uuid",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CommonResponse"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "사용자의 정보를 삭제합니다.",
                 "consumes": [
@@ -373,6 +701,36 @@ const docTemplate = `{
             }
         },
         "/user/{userID}": {
+            "get": {
+                "description": "사용자의 정보를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "사용자 정보 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "description": "사용자의 정보를 수정합니다.",
                 "consumes": [
@@ -754,6 +1112,89 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.ServiceRequestBody": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "description": "ClusterIP",
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadataName": {
+                    "type": "string"
+                },
+                "specClusterIP": {
+                    "type": "string"
+                },
+                "specExternalname": {
+                    "description": "ExternalName",
+                    "type": "string"
+                },
+                "specPortsNodeport": {
+                    "description": "NodePort",
+                    "type": "string"
+                },
+                "specPortsPort": {
+                    "type": "string"
+                },
+                "specPortsProtocol": {
+                    "type": "string"
+                },
+                "specPortsTargetport": {
+                    "type": "string"
+                },
+                "specSelectorApp": {
+                    "type": "string"
+                },
+                "specSelectorType": {
+                    "description": "LoadBalancer",
+                    "type": "string"
+                },
+                "specType": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "deployment.createDeploymentBody": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "metadataLabelsApp": {
+                    "type": "string"
+                },
+                "metadataName": {
+                    "type": "string"
+                },
+                "specReplicas": {
+                    "type": "string"
+                },
+                "specSelectorMatchlabelsApp": {
+                    "type": "string"
+                },
+                "specTemplateMetadataLabelsApp": {
+                    "type": "string"
+                },
+                "specTemplateSpecContainersImage": {
+                    "type": "string"
+                },
+                "specTemplateSpecContainersName": {
+                    "type": "string"
+                },
+                "specTemplateSpecContainersPortsContainerport": {
+                    "type": "string"
+                }
+            }
+        },
         "response.CommonResponse": {
             "type": "object",
             "properties": {
