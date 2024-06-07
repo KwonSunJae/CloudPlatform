@@ -1,0 +1,31 @@
+/* Mypage 컨테이너 스타일링 */
+.mypage-container {
+    position: relative;
+    padding: 20px;
+    background-color: #f8f9fa; /* Bootstrap의 light gray 배경 색 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    margin-top: 20px; /* 상단 여백 */
+  }
+  
+  /* 폼 제목 스타일링 */
+  .mypage-title {
+    text-align: center;
+    margin-bottom: 20px; /* 제목과 폼 사이의 여백 */
+  }
+  
+  /* 버튼 스타일링 */
+  .btn-primary {
+    display: block; /* 버튼을 블록 요소로 만들어 너비 100% 적용 */
+    width: 97%;
+    padding: 10px; /* 버튼 내부 패딩 */
+    margin-top: 30px;
+    font-size: 16px; /* 폰트 크기 */
+  }
+  .form-control{
+    margin-bottom: 10px; /* 폼 요소 사이의 여백 */
+  }
+  /* 폼 컨트롤 스타일링 - Bootstrap 스타일을 유지하면서 세밀한 조정 */
+  .form-control:disabled {
+    background-color: #e9ecef; /* 비활성화된 폼 요소의 배경 색 */
+    color: #495057; /* 비활성화된 폼 요소의 텍스트 색 */
+  }

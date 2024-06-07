@@ -15,5 +15,3 @@ func NewOpenstackComputeAPI() OpenstackComputeAPI {
 
 type openstackComputeAPI struct {
 }
-
-func (o *openstackComputeAPI) GetServers() (string, error) {

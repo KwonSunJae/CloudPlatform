@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
+	reqchecker "soms/controller/checker"
 	response "soms/controller/response"
 
-	checker "soms/controller/checker/container/service"
 	"soms/service/container/service"
 
 	"github.com/gorilla/mux"
@@ -110,39 +110,40 @@ func getServiceStatus(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type ServiceRequestBody struct {
+	// ClusterIP
+	ApiVersion          string
+	Kind                string
+	MetadataName        string
+	SpecType            string
+	SpecSelectorApp     string
+	SpecPortsProtocol   string
+	SpecPortsPort       string
+	SpecPortsTargetport string
+
+	// NodePort
+	SpecPortsNodeport string
+
+	// LoadBalancer
+	SpecSelectorType string
+	SpecClusterIP    string
+
+	// ExternalName
+	SpecExternalname string
+
+	UserID string
+}
+
 // @Summary service 생성
 // @Description service를 생성합니다.
 // @Tags service
 // @Accept  json
 // @Produce  json
-// @Param   body     body    struct    true  "service 정보"
+// @Param   body     body    ServiceRequestBody    true  "service 정보"
 // @Success 200 {object} response.CommonResponse
 // @Router /service [post]
 func createService(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		// ClusterIP
-		ApiVersion          string
-		Kind                string
-		MetadataName        string
-		SpecType            string
-		SpecSelectorApp     string
-		SpecPortsProtocol   string
-		SpecPortsPort       string
-		SpecPortsTargetport string
-
-		// NodePort
-		SpecPortsNodeport string
-
-		// LoadBalancer
-		SpecSelectorType string
-		SpecClusterIP    string
-
-		// ExternalName
-		SpecExternalname string
-
-		UserID string
-	}
-
+	var body ServiceRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
 	if err != nil {
@@ -151,13 +152,41 @@ func createService(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 서비스타입별 바디에 파라미터 누락 표시
-	checkerErr := checker.ServiceTypeChecker(body)
+	checkerErr := reqchecker.Check(body)
 	if checkerErr != nil {
 		response.Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
 		return
 	}
-
-	err = service.Service.CreateService(body)
+	dto := struct {
+		ApiVersion          string
+		Kind                string
+		MetadataName        string
+		SpecType            string
+		SpecSelectorApp     string
+		SpecPortsProtocol   string
+		SpecPortsPort       string
+		SpecPortsTargetport string
+		SpecPortsNodeport   string
+		SpecSelectorType    string
+		SpecClusterIP       string
+		SpecExternalname    string
+		UserID              string
+	}{
+		ApiVersion:          body.ApiVersion,
+		Kind:                body.Kind,
+		MetadataName:        body.MetadataName,
+		SpecType:            body.SpecType,
+		SpecSelectorApp:     body.SpecSelectorApp,
+		SpecPortsProtocol:   body.SpecPortsProtocol,
+		SpecPortsPort:       body.SpecPortsPort,
+		SpecPortsTargetport: body.SpecPortsTargetport,
+		SpecPortsNodeport:   body.SpecPortsNodeport,
+		SpecSelectorType:    body.SpecSelectorType,
+		SpecClusterIP:       body.SpecClusterIP,
+		SpecExternalname:    body.SpecExternalname,
+		UserID:              body.UserID,
+	}
+	err = service.Service.CreateService(dto)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -174,14 +203,22 @@ func createService(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "service uuid"
-// @Param   body     body    struct    true  "service 정보"
+// @Param   body     body    ServiceRequestBody    true  "service 정보"
 // @Success 200 {object} response.CommonResponse
 // @Router /service/{id} [patch]
 func updateService(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var body struct {
+	var body ServiceRequestBody
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+	dto := struct {
 		// ClusterIP
 		ApiVersion          string
 		Kind                string
@@ -203,23 +240,23 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 		SpecExternalname string
 
 		UserID string
+	}{
+		ApiVersion:          body.ApiVersion,
+		Kind:                body.Kind,
+		MetadataName:        body.MetadataName,
+		SpecType:            body.SpecType,
+		SpecSelectorApp:     body.SpecSelectorApp,
+		SpecPortsProtocol:   body.SpecPortsProtocol,
+		SpecPortsPort:       body.SpecPortsPort,
+		SpecPortsTargetport: body.SpecPortsTargetport,
+		SpecPortsNodeport:   body.SpecPortsNodeport,
+		SpecSelectorType:    body.SpecSelectorType,
+		SpecClusterIP:       body.SpecClusterIP,
+		SpecExternalname:    body.SpecExternalname,
+		UserID:              body.UserID,
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&body)
-
-	if err != nil {
-		response.Response(w, nil, http.StatusInternalServerError, err)
-		return
-	}
-
-	// 서비스타입별 바디에 파라미터 누락 표시
-	checkerErr := checker.ServiceTypeChecker(body)
-	if checkerErr != nil {
-		response.Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
-		return
-	}
-
-	err = service.Service.UpdateService(id, body)
+	err = service.Service.UpdateService(id, dto)
 
 	if err != nil {
 		switch err.Error() {
