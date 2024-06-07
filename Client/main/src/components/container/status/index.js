@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import DeploymentList from './deplist';
 import ServiceList from './svclist'; // Make sure to provide the correct path
-import instance from '../../../apis/index';
+import instance from '../../../apis/instance';
 import './index.css';
 
 const ContainerStatus = () => {

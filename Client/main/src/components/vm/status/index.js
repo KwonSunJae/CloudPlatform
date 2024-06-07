@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
 
 import VmList from './vmlist'; // Make sure to provide the correct path
-import instance from '../../../apis/index';
+import instance from '../../../apis/instance';
 import './index.css';
 
 const VmStatus = () => {
