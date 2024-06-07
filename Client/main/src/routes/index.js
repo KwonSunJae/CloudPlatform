@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Error from './error';
 import Home from './home';
-import Profile from './profile';
+import MyPage from './mypage';
 import Cluster from './createCluster'
 import Machine from './createMachine'
 import Container from './createContainer';
@@ -16,7 +16,7 @@ const Routers = () => {
         <Router>
             <Routes>
                 <Route  path="/" element={<Home />} />
-                <Route  path="/profile" element={<Profile />} />
+                <Route  path="/mypage" element={<MyPage />} />
                 <Route  path="/create/cluster" element={<Cluster />} />
                 <Route path= "/create/container" element={<Container/>}/>
                 <Route  path="/create/machine" element={<Machine />} />

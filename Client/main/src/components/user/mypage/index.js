@@ -1,6 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import instance from '../../../apis/instance';
+import './index.css';
 const Mypage = () => {
     const [name, setName] = useState(''); // [1
     const [userID, setUserID] = useState(''); // [1
@@ -14,7 +15,6 @@ const Mypage = () => {
         console.log('Fetching user data...');
         instance.get("/member", { headers: { "Access-Token" : `${localStorage.getItem("accessToken")}` } })
         .then((response)=>{
-            console.log(response);
             setName(response.data.data.Name);
             setUserID(response.data.data.UserID);
             setRole(response.data.data.Role);
@@ -29,6 +29,14 @@ const Mypage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const datas = JSON.stringify({
+            "Name" : name,
+            "UserID" : userID,
+            "Password" : password,
+            "Role" : role,
+            "Spot" : spot,
+            "Priority" : priority
+        });
         // Add your logic here to update the user data
         instance.patch("/transaction",{
             "dest" : "/user/" + userID,
@@ -36,7 +44,8 @@ const Mypage = () => {
                 "Password" : password,
                 "Role" : role,
                 "Spot" : spot
-            }
+            },
+            "method" : "PATCH"
         })
     };
 
@@ -48,7 +57,7 @@ const Mypage = () => {
                     <Form.Label>Name</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter new name"
+                        placeholder={name}
                         value={name}
                         disabled
                     />
@@ -57,17 +66,25 @@ const Mypage = () => {
                     <Form.Label>User ID</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter new user ID"
+                        placeholder={userID}
                         value={userID}
                         disabled
                     />
                 </Form.Group>
-            
+                <Form.Group controlId="password">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        placeholder="Enter new password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </Form.Group>
                 <Form.Group controlId="role">
                     <Form.Label>Role</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter new role"
+                        placeholder={role}
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                     />
@@ -77,16 +94,16 @@ const Mypage = () => {
                     <Form.Label>Spot</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter new spot"
+                        placeholder= {spot}
                         value={spot}
                         onChange={(e) => setSpot(e.target.value)}
                     />
                 </Form.Group>
                 <Form.Group controlId="priority">
-                    <Form.Label>Priority</Form.Label>
+                    <Form.Label>Your Priority Level is </Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Enter new priority"
+                        placeholder={priority}
                         value={priority}
                         disabled
                     />
