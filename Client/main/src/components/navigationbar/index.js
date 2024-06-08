@@ -41,7 +41,7 @@ const NavigationBar = () => {
       <RegisterModal />
     <LoginModal />
       <div className="logo">
-        <h2>DMS Lab Cloud Platform</h2>
+        <h2><Link to = "/" >DMS Lab Cloud Platform</Link></h2>
       </div>
       <ul>
         <li><Link to="/introduction">소개</Link></li>

@@ -10,6 +10,7 @@ import Container from './createContainer';
 import VM from './createVM'
 import VMStat from './statusVM';
 import ContainerStat from './statusContainer';
+import AdminPage from './admin';
 const Routers = () => {
 
     return (
@@ -23,6 +24,7 @@ const Routers = () => {
                 <Route path='/create/vm' element={<VM/>}/>
                 <Route path='/vm' element={<VMStat/>}/>
                 <Route path='/container' element={<ContainerStat/>}/>
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path = "*" element={<Error/>}/>
             </Routes>
         </Router>

@@ -157,8 +157,8 @@ func createUserTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE user (
 		id TEXT PRIMARY KEY,
-		name TEXT UNIQUE,
-		userID TEXT,
+		name TEXT ,
+		userID TEXT UNIQUE,
 		encryptedPW TEXT,
 		role TEXT,
 		spot TEXT,
