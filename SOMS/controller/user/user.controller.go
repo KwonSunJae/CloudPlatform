@@ -212,7 +212,7 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 	rslt, err := user.Service.UserLogin(body.UserID, body.PW)
 
 	if err != nil {
-		response.Response(w, nil, http.StatusBadRequest, err)
+		response.Response(w, nil, http.StatusUnauthorized, err)
 		return
 	}
 

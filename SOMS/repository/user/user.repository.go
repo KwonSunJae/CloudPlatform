@@ -65,11 +65,15 @@ func (r *UserRepository) GetAllUser() (*[]UserRaw, error) {
 
 	query := `SELECT * FROM user`
 	rows, err := r.DB.Query(query)
+	if rows != nil {
 
-	for rows.Next() {
-		var raw UserRaw
-		rows.Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
-		raws = append(raws, raw)
+		for rows.Next() { //에러 발생
+			var raw UserRaw
+			rows.Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
+			raws = append(raws, raw)
+		}
+	} else {
+		return nil, nil
 	}
 
 	if err != nil {
