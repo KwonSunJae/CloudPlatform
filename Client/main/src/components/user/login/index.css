@@ -119,10 +119,3 @@
     border-color: #004085;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-
-.button-group {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 1em;
-}
