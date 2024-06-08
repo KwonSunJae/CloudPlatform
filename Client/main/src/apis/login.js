@@ -11,20 +11,26 @@ const Login = (userID, password) => {
             dest : "/user/login",
             method : "POST",
             data : datas
-        })
+        }, { withCredentials: true })
         .then((response) => {
             if(response.status === 200){
                 localStorage.setItem("accessToken", response.data.accessToken);
-                localStorage.setItem("refreshToken", response.data.refreshToken);
+
                 localStorage.setItem("userID", userID);
                 resolve(true); 
             }
-            else{
-                resolve(false)
+            else {
+                resolve(false);
             }
+
         })
         .catch((error) => {
-            console.error(error);
+            if(error.response.status === 401){
+                alert("아이디 또는 비밀번호가 잘못되었습니다.");
+            }
+            else{
+                alert("서버 오류입니다. 잠시 후 다시 시도해주세요.");
+            }
             reject(error);
         });
     });
