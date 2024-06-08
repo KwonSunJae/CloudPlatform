@@ -24,16 +24,21 @@ const signup = (name, userID, pw, role,spot,priority) => {
             data : datas
         })
         .then((response) => {
-            const data = response.data
-            console.log(data.status === 200)
-            if(data.status === 200){
-                resolve(true)
-            }
-            else{
-                resolve(false)
+            console.log(response);
+            if(response.status === 200){
+                resolve(true);
+            } 
+            else {
+                resolve(false);
             }
         })
         .catch((error) => {
+            if(error.response.status === 401){
+                alert("아이디 또는 비밀번호가 잘못되었습니다.");
+            }
+            if(error.response.status === 409){
+                alert("이미 존재하는 아이디입니다.");
+            }
             console.error(error);
             resolve(false);
         });
