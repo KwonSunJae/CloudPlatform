@@ -1,8 +1,7 @@
 import instance from "./instance";
 
-const Login = (userID, password) => {
+const Login = (userID, password,isMemorized) => {
     const datas = JSON.stringify({ 
-        
         "UserID" : userID,
         "PW" : password,
     })
@@ -11,10 +10,19 @@ const Login = (userID, password) => {
             dest : "/user/login",
             method : "POST",
             data : datas
-        }, { withCredentials: true })
+        }, {
+            params: {
+                isMemorized: isMemorized
+            },
+            withCredentials: true 
+        })
         .then((response) => {
             if(response.status === 200){
-                localStorage.setItem("accessToken", response.data.accessToken);
+                if(isMemorized){
+                    localStorage.setItem("accessToken", response.data.accessToken);
+                }else{
+                    sessionStorage.setItem("accessToken", response.data.accessToken);
+                }
                 resolve(true); 
             }
             else {

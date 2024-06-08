@@ -172,6 +172,18 @@ func userRegister(w http.ResponseWriter, r *http.Request) {
 		Priority:    body.Priority,
 	}
 
+	isExist, err := user.Service.UserIDValidate(dto.UserID)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	if isExist {
+		response.Response(w, nil, http.StatusConflict, errors.New("해당 User가 이미 존재합니다"))
+		return
+	}
+
 	id, err := user.Service.CreateUser(dto)
 
 	if err != nil {
