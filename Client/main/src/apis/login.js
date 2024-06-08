@@ -15,8 +15,6 @@ const Login = (userID, password) => {
         .then((response) => {
             if(response.status === 200){
                 localStorage.setItem("accessToken", response.data.accessToken);
-
-                localStorage.setItem("userID", userID);
                 resolve(true); 
             }
             else {

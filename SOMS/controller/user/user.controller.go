@@ -31,7 +31,7 @@ func UserController(router *mux.Router) error {
 
 	router.HandleFunc("/user/login", userLogin).Methods("POST")
 
-	router.HandleFunc("/user/{userID}", updateUser).Methods("PATCH")
+	router.HandleFunc("/user/{id}", updateUser).Methods("PATCH")
 
 	router.HandleFunc("/user/{id}", deleteUser).Methods("DELETE")
 
@@ -225,13 +225,13 @@ func userLogin(w http.ResponseWriter, r *http.Request) {
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Param   UserID	 path    string     true  "User ID"
-// @Param   User    body    UserRequestBody     true  "User Name"
+// @Param   id	 path    string     true  "uuid"
+// @Param   User    body    UserRequestBody     true  "User"
 // @Success 200 {object} response.CommonResponse
-// @Router /user/{userID} [patch]
+// @Router /user/{id} [patch]
 func updateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userID := vars["userID"]
+	id := vars["id"]
 
 	var body UserRequestBody
 	decodeErr := json.NewDecoder(r.Body).Decode(&body)
@@ -240,15 +240,20 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 		response.Response(w, nil, http.StatusBadRequest, decodeErr)
 		return
 	}
-	secretKey := os.Getenv("SECRET")
-	if secretKey == "" {
-		fmt.Println("SECRET key is not set.")
-	}
-	hasher := encrypt.NewPasswordHasher(secretKey)
 
-	encryptedPW, HasherError := hasher.HashPassword(body.PW)
-	if HasherError != nil {
-		response.Response(w, nil, http.StatusInternalServerError, HasherError)
+	var encryptedPW string
+
+	if body.PW != "" {
+		secretKey := os.Getenv("SECRET")
+		if secretKey == "" {
+			fmt.Println("SECRET key is not set.")
+		}
+		hasher := encrypt.NewPasswordHasher(secretKey)
+		var HasherError error
+		encryptedPW, HasherError = hasher.HashPassword(body.PW)
+		if HasherError != nil {
+			response.Response(w, nil, http.StatusInternalServerError, HasherError)
+		}
 	}
 
 	dto := struct {
@@ -259,15 +264,15 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 		Spot        string
 		Priority    string
 	}{
-		Name:        body.Name,
-		UserID:      userID,
+		Name:        "",
+		UserID:      "",
 		EncryptedPW: encryptedPW,
 		Role:        body.Role,
 		Spot:        body.Spot,
 		Priority:    body.Priority,
 	}
 
-	err := user.Service.UpdateUser(userID, dto)
+	err := user.Service.UpdateUser(id, dto)
 
 	if err != nil {
 		switch err.Error() {

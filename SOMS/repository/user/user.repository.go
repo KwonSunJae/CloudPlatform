@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -120,7 +121,7 @@ func (r *UserRepository) IsUserIDExit(userID string) (bool, error) {
 
 func (r *UserRepository) DeleteOneUser(id string) (sql.Result, error) {
 	query := `DELETE FROM user WHERE id = ?`
-	result, err := r.DB.Exec(query, id)
+	result, err := r.DB.Exec(query, &id)
 
 	if err != nil {
 		return nil, err
@@ -143,43 +144,43 @@ func (r *UserRepository) UpdateOneUser(id string, n UserDto) (sql.Result, error)
 	query := `
     UPDATE user
     SET
-        name = IFNULL(?, name),
         encryptedPW = IFNULL(?, encryptedPW),
         role = IFNULL(?, role),
         spot = IFNULL(?, spot),
-        priority = IFNULL(?, priority),
+        priority = IFNULL(?, priority)
     WHERE
-        userID = ?
+        id = ?
 	`
-	var name, userID, encryptedPW, role, spot, priority *string
-
-	if n.Name != "" {
-		name = &n.Name
-	}
-
-	if n.UserID != "" {
-		userID = &n.UserID
-	}
+	var encryptedPW, role, spot, priority *string
 
 	if n.EncryptedPW != "" {
 		encryptedPW = &n.EncryptedPW
+	} else {
+		encryptedPW = nil
 	}
 
 	if n.Role != "" {
 		role = &n.Role
+	} else {
+		role = nil
 	}
 
 	if n.Spot != "" {
 		spot = &n.Spot
+	} else {
+		spot = nil
 	}
 
 	if n.Priority != "" {
 		priority = &n.Priority
+	} else {
+		priority = nil
 	}
 
-	result, err := r.DB.Exec(query, name, encryptedPW, role, spot, priority, userID)
+	result, err := r.DB.Exec(query, encryptedPW, role, spot, priority, &id)
 
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

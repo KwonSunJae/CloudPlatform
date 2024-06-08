@@ -63,8 +63,8 @@ func (s *UserService) UserIDValidate(userID string) (bool, error) {
 	}
 
 }
-func (s *UserService) UpdateUser(userID string, n user.UserDto) error {
-	_, err := s.Repository.UpdateOneUser(userID, n)
+func (s *UserService) UpdateUser(id string, n user.UserDto) error {
+	_, err := s.Repository.UpdateOneUser(id, n)
 
 	return err
 }

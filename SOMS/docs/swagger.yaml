@@ -521,6 +521,32 @@ paths:
       summary: 사용자 정보 삭제
       tags:
       - user
+    patch:
+      consumes:
+      - application/json
+      description: 사용자의 정보를 수정합니다.
+      parameters:
+      - description: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 정보 수정
+      tags:
+      - user
   /user/{userID}:
     get:
       consumes:
@@ -540,32 +566,6 @@ paths:
           schema:
             $ref: '#/definitions/response.CommonResponse'
       summary: 사용자 정보 조회
-      tags:
-      - user
-    patch:
-      consumes:
-      - application/json
-      description: 사용자의 정보를 수정합니다.
-      parameters:
-      - description: User ID
-        in: path
-        name: UserID
-        required: true
-        type: string
-      - description: User Name
-        in: body
-        name: User
-        required: true
-        schema:
-          $ref: '#/definitions/user.UserRequestBody'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.CommonResponse'
-      summary: 사용자 정보 수정
       tags:
       - user
   /user/login:
