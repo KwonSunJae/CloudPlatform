@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import './index.css';
 import signup from '../../../apis/signup';
-import { PriorityLevelList, RoleList, SpotList } from '../../../constants';
 
 const RegisterModal = () => {
     const [name, setName] = useState('');
@@ -10,7 +9,7 @@ const RegisterModal = () => {
     const [pw, setPw] = useState('');
     const [role, setRole] = useState('');
     const [spot, setSpot] = useState('');
-    const priority = PriorityLevelList[0]; // Denied
+    const [priority, setPriority] = useState('');
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -62,19 +61,15 @@ const RegisterModal = () => {
                             </div>
                             <div className="form-group">
                                 <label htmlFor="role">Role:</label>
-                                <select className="form-control" id="role" value={role} onChange={(e) => setRole(e.target.value)}>
-                                    {RoleList.map((role, index) => (
-                                        <option key={index} value={role}>{role}</option>
-                                    ))}
-                                </select>
+                                <input type="text" className="form-control" id="role" value={role} onChange={(e) => setRole(e.target.value)} />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="spot">Spot:</label>
-                                <select className="form-control" id="spot" value={spot} onChange={(e) => setSpot(e.target.value)}>
-                                    {SpotList.map((spot, index) => (
-                                        <option key={index} value={spot}>{spot}</option>
-                                    ))}
-                                </select>
+                                <input type="text" className="form-control" id="spot" value={spot} onChange={(e) => setSpot(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="priority">Priority:</label>
+                                <input type="text" className="form-control" id="priority" value={priority} onChange={(e) => setPriority(e.target.value)} />
                             </div>
                         </div>
                     </div>

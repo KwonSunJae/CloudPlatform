@@ -18,7 +18,7 @@
     display: block; /* 버튼을 블록 요소로 만들어 너비 100% 적용 */
     width: 97%;
     padding: 10px; /* 버튼 내부 패딩 */
-    
+    margin-top: 30px;
     font-size: 16px; /* 폰트 크기 */
   }
   .form-control{
