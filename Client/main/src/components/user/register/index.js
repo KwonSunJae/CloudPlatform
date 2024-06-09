@@ -8,12 +8,22 @@ const RegisterModal = () => {
     const [name, setName] = useState('');
     const [userID, setUserID] = useState('');
     const [pw, setPw] = useState('');
-    const [role, setRole] = useState('');
-    const [spot, setSpot] = useState('');
+    const [role, setRole] = useState('선택안함');
+    const [spot, setSpot] = useState('선택안함');
     const priority = PriorityLevelList[0]; // Denied
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if (!name.trim() || !userID.trim() || !pw.trim()) {
+            alert("모든 필드를 채워주세요.");
+            return;
+        }
+        
+        if (role === '선택안함' || spot === '선택안함') {
+            alert("Role 및 Spot은 필수 선택 사항입니다.");
+            return;
+        }
         try {
             const response = await signup(name, userID, pw, role, spot, priority);
             console.log(response);
@@ -63,6 +73,7 @@ const RegisterModal = () => {
                             <div className="form-group">
                                 <label htmlFor="role">Role:</label>
                                 <select className="form-control" id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+                                    <option value="선택안함">선택안함</option>
                                     {RoleList.map((role, index) => (
                                         <option key={index} value={role}>{role}</option>
                                     ))}
@@ -71,6 +82,7 @@ const RegisterModal = () => {
                             <div className="form-group">
                                 <label htmlFor="spot">Spot:</label>
                                 <select className="form-control" id="spot" value={spot} onChange={(e) => setSpot(e.target.value)}>
+                                    <option value="선택안함">선택안함</option>
                                     {SpotList.map((spot, index) => (
                                         <option key={index} value={spot}>{spot}</option>
                                     ))}
