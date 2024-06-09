@@ -143,7 +143,7 @@ func createUser(authToken, name, password, email string) error {
 	json.Unmarshal(body, &userMap)
 
 	newUserID := userMap["user"].(map[string]interface{})["id"].(string)
-	new
+
 	return nil
 }
 
