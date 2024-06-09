@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	reqchecker "soms/controller/checker"
+	"soms/controller/checker/authority"
 	response "soms/controller/response"
 	"soms/service/user"
 	"soms/util/encrypt"
@@ -21,7 +22,7 @@ func UserController(router *mux.Router) error {
 		return err
 	}
 
-	router.HandleFunc("/user/{userID}", getUserByUuid).Methods("GET")
+	router.HandleFunc("/user/{uuid}", getUserByUUID).Methods("GET")
 
 	router.HandleFunc("/user", getAllUser).Methods("GET")
 
@@ -43,14 +44,14 @@ func UserController(router *mux.Router) error {
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Param   userID     path    string     true  "User ID"
+// @Param   UUID     path    string     true  "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /user/{userID} [get]
-func getUserByUuid(w http.ResponseWriter, r *http.Request) {
+// @Router /user/{uuid} [get]
+func getUserByUUID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	userID := vars["userID"]
+	uuid := vars["uuid"]
 
-	raw, err := user.Service.GetOneUser(userID)
+	raw, err := user.Service.GetOneUserByUUID(uuid)
 
 	if err != nil {
 		switch err.Error() {
@@ -74,6 +75,12 @@ func getUserByUuid(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.CommonResponse
 // @Router /user [get]
 func getAllUser(w http.ResponseWriter, r *http.Request) {
+	requestUserUUID := r.Header.Get("X-UUID")
+	if !authority.AuthorityFilterWithRole([]string{"Master", "Admin"}, requestUserUUID) {
+		response.Response(w, nil, http.StatusUnauthorized, errors.New("권한이 없습니다"))
+		return
+	}
+
 	raws, err := user.Service.GetAllUser()
 
 	if err != nil {

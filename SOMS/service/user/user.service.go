@@ -33,8 +33,8 @@ func (s *UserService) GetAllUser() (*[]user.UserRaw, error) {
 	return raws, err
 }
 
-func (s *UserService) GetOneUser(userID string) (*user.UserRaw, error) {
-	raw, err := s.Repository.GetOneUser(userID)
+func (s *UserService) GetOneUserByUUID(uuid string) (*user.UserRaw, error) {
+	raw, err := s.Repository.GetOneUserByUUID(uuid)
 
 	return raw, err
 }
@@ -96,7 +96,7 @@ func (s *UserService) UserLogin(userID string, plainPW string) (string, error) {
 		return "null", rslt
 	}
 
-	raw, err := s.Repository.GetOneUser(userID)
+	raw, err := s.Repository.GetOneUserByUserID(userID)
 
 	if err != nil {
 		return "error", err

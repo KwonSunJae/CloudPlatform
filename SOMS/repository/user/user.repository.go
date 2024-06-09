@@ -84,7 +84,23 @@ func (r *UserRepository) GetAllUser() (*[]UserRaw, error) {
 	}
 }
 
-func (r *UserRepository) GetOneUser(userID string) (*UserRaw, error) {
+func (r *UserRepository) GetOneUserByUUID(uuid string) (*UserRaw, error) {
+	var raw UserRaw
+
+	query := `SELECT * FROM user WHERE id = ?`
+	err := r.DB.QueryRow(query, uuid).Scan(&raw.Id, &raw.Name, &raw.UserID, &raw.EncryptedPW, &raw.Role, &raw.Spot, &raw.Priority)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, errors.New("NOT FOUND")
+		} else {
+			return nil, err
+		}
+	} else {
+		return &raw, nil
+	}
+
+}
+func (r *UserRepository) GetOneUserByUserID(userID string) (*UserRaw, error) {
 	var raw UserRaw
 
 	query := `SELECT * FROM user WHERE userID = ?`
@@ -209,5 +225,20 @@ func (r *UserRepository) GetEncryptedPW(userID string) (string, error) {
 		}
 	} else {
 		return encryptedPW, nil
+	}
+}
+
+func (r *UserRepository) GetRoleByUUID(uuid string) (*UserRaw, error) {
+	var raw UserRaw
+	query := `SELECT role FROM user WHERE id = ?`
+	err := r.DB.QueryRow(query, uuid).Scan(&raw.Role)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return nil, errors.New("NOT FOUND")
+		} else {
+			return nil, err
+		}
+	} else {
+		return &raw, nil
 	}
 }
