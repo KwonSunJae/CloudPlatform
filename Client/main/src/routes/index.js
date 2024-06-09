@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Error from './error';
 import Home from './home';
 import Introduction from './introduction';
+import Monitoring from './monitoring';
 import System from './system';
 import MyPage from './mypage';
 import Cluster from './createCluster'
@@ -22,6 +23,7 @@ const Routers = () => {
                 <Route  path="/mypage" element={<MyPage />} />
                 <Route  path="/introduction" element={<Introduction />} />
                 <Route  path="/system" element={<System />} />
+                <Route  path="/monitoring" element={<Monitoring />} />
                 <Route  path="/create/cluster" element={<Cluster />} />
                 <Route path= "/create/container" element={<Container/>}/>
                 <Route  path="/create/machine" element={<Machine />} />
