@@ -13,7 +13,15 @@ const Mypage = () => {
     useEffect(() => {
         // Add your logic here to fetch user data
         console.log('Fetching user data...');
-        instance.get("/member", { headers: { "Access-Token" : `${localStorage.getItem("accessToken")}` } })
+        instance.post("/member", {
+            dest : "/user",
+            method : "GET",
+        }, {
+            headers: {
+                "Access-Token" : `${localStorage.getItem("accessToken")}`
+            }
+        })
+        // instance.get("/member", { headers: { "Access-Token" : `${localStorage.getItem("accessToken")}` } })
         .then((response)=>{
             setName(response.data.data.Name);
             setUserID(response.data.data.UserID);
