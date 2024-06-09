@@ -14,6 +14,12 @@ const RegisterModal = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if (!name.trim() || !userID.trim() || !pw.trim()) {
+            alert("모든 필드를 채워주세요.");
+            return;
+        }
+        
         if (role === '선택안함' || spot === '선택안함') {
             alert("Role 및 Spot은 필수 선택 사항입니다.");
             return;
