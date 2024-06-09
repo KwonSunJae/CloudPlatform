@@ -739,7 +739,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{userID}": {
+        "/user/{uuid}": {
             "get": {
                 "description": "사용자의 정보를 조회합니다.",
                 "consumes": [
@@ -755,8 +755,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User ID",
-                        "name": "userID",
+                        "description": "UUID",
+                        "name": "UUID",
                         "in": "path",
                         "required": true
                     }

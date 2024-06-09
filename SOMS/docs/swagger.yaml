@@ -547,15 +547,15 @@ paths:
       summary: 사용자 정보 수정
       tags:
       - user
-  /user/{userID}:
+  /user/{uuid}:
     get:
       consumes:
       - application/json
       description: 사용자의 정보를 조회합니다.
       parameters:
-      - description: User ID
+      - description: UUID
         in: path
-        name: userID
+        name: UUID
         required: true
         type: string
       produces:
