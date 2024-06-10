@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	reqchecker "soms/controller/checker"
+	"soms/controller/checker/authority"
 	response "soms/controller/response"
 	"soms/service/vm"
 
@@ -16,7 +17,7 @@ type VMUseCase interface {
 	getVmById(w http.ResponseWriter, r *http.Request)
 	getAllVm(w http.ResponseWriter, r *http.Request)
 	getVmStatus(w http.ResponseWriter, r *http.Request)
-	createVm(w http.ResponseWriter, r *http.Request)
+	enrollVm(w http.ResponseWriter, r *http.Request)
 	updateVm(w http.ResponseWriter, r *http.Request)
 	deleteVm(w http.ResponseWriter, r *http.Request)
 	startVm(w http.ResponseWriter, r *http.Request)
@@ -39,7 +40,7 @@ func VmController(router *mux.Router) error {
 
 	router.HandleFunc("/vmstat", getVmStatus).Methods("GET")
 
-	router.HandleFunc("/vm", createVm).Methods("POST")
+	router.HandleFunc("/vm", enrollVm).Methods("POST")
 
 	router.HandleFunc("/vm/{id}", updateVm).Methods("PATCH")
 
@@ -148,7 +149,12 @@ type CreateVmBody struct {
 // @Param   body     body    CreateVmBody     true  "VM 정보"
 // @Success 200 {object} response.CommonResponse
 // @Router /vm [post]
-func createVm(w http.ResponseWriter, r *http.Request) {
+func enrollVm(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
+	if !authority.AuthorityFilterWithRole([]string{"Admin", "Master", "Student", "Researcher"}, uuid) {
+		response.Response(w, nil, http.StatusUnauthorized, errors.New("권한이 없습니다"))
+		return
+	}
 	var body CreateVmBody
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -171,7 +177,8 @@ func createVm(w http.ResponseWriter, r *http.Request) {
 		UnionmountImage       string
 		Keypair               string
 		SelectedSecuritygroup string
-		UserID                string
+		UUID                  string
+		Status                string
 	}{
 		Name:                  body.Name,
 		FlavorID:              body.FlavorID,
@@ -181,9 +188,10 @@ func createVm(w http.ResponseWriter, r *http.Request) {
 		UnionmountImage:       body.UnionmountImage,
 		Keypair:               body.Keypair,
 		SelectedSecuritygroup: body.SelectedSecuritygroup,
-		UserID:                body.UserID,
+		UUID:                  uuid,
+		Status:                "Pending",
 	}
-	err = vm.Service.CreateVm(vmDto)
+	err = vm.Service.EnrollVm(vmDto)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -204,8 +212,7 @@ func createVm(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.CommonResponse
 // @Router /vm/{id} [patch]
 func updateVm(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
+	id := r.Header.Get("X-UUID")
 
 	var body CreateVmBody
 
@@ -224,7 +231,8 @@ func updateVm(w http.ResponseWriter, r *http.Request) {
 		UnionmountImage       string
 		Keypair               string
 		SelectedSecuritygroup string
-		UserID                string
+		UUID                  string
+		Status                string
 	}{
 		Name:                  body.Name,
 		FlavorID:              body.FlavorID,
@@ -234,7 +242,8 @@ func updateVm(w http.ResponseWriter, r *http.Request) {
 		UnionmountImage:       body.UnionmountImage,
 		Keypair:               body.Keypair,
 		SelectedSecuritygroup: body.SelectedSecuritygroup,
-		UserID:                body.UserID,
+		UUID:                  body.UserID,
+		Status:                "Pending",
 	}
 	err = vm.Service.UpdateVm(id, vmDto)
 
@@ -263,6 +272,12 @@ func updateVm(w http.ResponseWriter, r *http.Request) {
 func deleteVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	uuid := r.Header.Get("X-UUID")
+	if !authority.AuthorityFilterWithRole([]string{"Admin", "Master"}, uuid) {
+		response.Response(w, nil, http.StatusUnauthorized, errors.New("권한이 없습니다"))
+		return
+	}
 
 	err := vm.Service.DeleteVm(id)
 

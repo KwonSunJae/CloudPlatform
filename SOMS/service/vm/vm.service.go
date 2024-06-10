@@ -41,13 +41,16 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 	return raw, err
 }
 
-func (s *VmService) CreateVm(n vm.VmDto) error {
-
+func (s *VmService) CreateVmWithTerrform(id string) error {
+	n, err := s.Repository.GetOneVm(id)
+	if err != nil {
+		return err
+	}
 	// Generate Terraform configuration
 	vmManager := resource.New()
 	TerraformBuildErr := vmManager.
 		Init(n.Name).
-		User("test").
+		User(n.UUID).
 		Flavor(n.FlavorID).
 		Security_groups(n.SelectedSecuritygroup).
 		Keypair(n.Keypair).
@@ -56,6 +59,10 @@ func (s *VmService) CreateVm(n vm.VmDto) error {
 	if TerraformBuildErr != nil {
 		return TerraformBuildErr
 	}
+
+	return nil
+}
+func (s *VmService) EnrollVm(n vm.VmDto) error {
 	_, DBSaveErr := s.Repository.InsertVm(n)
 	if DBSaveErr != nil {
 		return DBSaveErr

@@ -1,4 +1,4 @@
-package main
+package openstack_api
 
 import (
 	"bytes"
@@ -17,6 +17,7 @@ var (
 	domainID  = os.Getenv("OPENSTACK_DOMAIN_ID")      // 기본 도메인 ID
 	adminUser = os.Getenv("OPENSTACK_ADMIN_USERNAME") // 관리자 사용자 이름
 	adminPass = os.Getenv("OPENSTACK_ADMIN_PW")       // 관리자 비밀번호
+	initFlag  = false
 )
 
 type AuthRequest struct {
@@ -51,6 +52,19 @@ type UserRequest struct {
 	} `json:"user"`
 }
 
+func Init() {
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	panic("env file error")
+	// }
+	authURL = os.Getenv("OPENSTACK_CTLR_URL") + "/v3/auth/tokens" // OpenStack 인증 URL
+	projectID = os.Getenv("OPENSTACK_PROJECT_ID")
+	domainID = os.Getenv("OPENSTACK_DOMAIN_ID")       // 기본 도메인 ID
+	adminUser = os.Getenv("OPENSTACK_ADMIN_USERNAME") // 관리자 사용자 이름
+	adminPass = os.Getenv("OPENSTACK_ADMIN_PW")       // 관리자 비밀번호
+	initFlag = true
+}
+
 func getAdminAuthToken() (string, error) {
 	authReq := AuthRequest{}
 	authReq.Auth.Identity.Methods = []string{"password"}
@@ -79,12 +93,15 @@ func getAdminAuthToken() (string, error) {
 }
 
 func GetUserToken(username string, password string) (string, error) {
+	if !initFlag {
+		Init()
+	}
 	authReq := AuthRequest{}
 	authReq.Auth.Identity.Methods = []string{"password"}
 	authReq.Auth.Identity.Password.User.Name = username
 	authReq.Auth.Identity.Password.User.Domain.ID = domainID
 	authReq.Auth.Identity.Password.User.Password = password
-	authReq.Auth.Scope.Project.ID = projectID
+	authReq.Auth.Scope.Project.ID = os.Getenv("OPENSTACK_COMMON_PROJECT_ID")
 
 	requestBody, err := json.Marshal(authReq)
 	if err != nil {
@@ -143,18 +160,15 @@ func createUser(authToken, name, password, email string) error {
 	json.Unmarshal(body, &userMap)
 
 	newUserID := userMap["user"].(map[string]interface{})["id"].(string)
-	new
+	fmt.Println("new user ID: ", newUserID)
+
+	AddUserToProject(newUserID)
+
 	return nil
 }
 
 func CreateUser(username string, password string, userEmail string) (bool, error) {
-
-	authURL = os.Getenv("OPENSTACK_CTLR_URL") + "/v3/auth/tokens" // OpenStack 인증 URL
-	projectID = os.Getenv("OPENSTACK_PROJECT_ID")
-	domainID = os.Getenv("OPENSTACK_DOMAIN_ID")       // 기본 도메인 ID
-	adminUser = os.Getenv("OPENSTACK_ADMIN_USERNAME") // 관리자 사용자 이름
-	adminPass = os.Getenv("OPENSTACK_ADMIN_PW")       // 관리자 비밀번호
-
+	Init()
 	authToken, err := getAdminAuthToken()
 	if err != nil {
 		return false, errors.New("get Admin AuthTOKEN ERROR : " + err.Error())
@@ -166,4 +180,35 @@ func CreateUser(username string, password string, userEmail string) (bool, error
 	}
 
 	return true, nil
+}
+
+func addUserToProject(authToken, endpoint, projectID, userID, roleID string) {
+	url := fmt.Sprintf("%s/v3/projects/%s/users/%s/roles/%s", endpoint, projectID, userID, roleID)
+
+	req, _ := http.NewRequest("PUT", url, nil)
+	req.Header.Set("X-Auth-Token", authToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Response:", string(body))
+}
+
+func AddUserToProject(userID string) {
+	authToken, err := getAdminAuthToken()
+	if err != nil {
+		panic(err)
+	}
+	var roleID = os.Getenv("OPENSTACK_COMMON_ROLE_ID")
+	var commonProjectID = os.Getenv("OPENSTACK_COMMON_PROJECT_ID")
+	var endpoint = os.Getenv("OPENSTACK_CTLR_URL")
+
+	addUserToProject(authToken, endpoint, commonProjectID, userID, roleID)
+
 }

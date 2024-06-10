@@ -54,8 +54,9 @@ func createVmTable(db *sql.DB) (sql.Result, error) {
     unionmountImage TEXT NOT NULL,
     keypair TEXT NOT NULL,
     selectedSecuritygroup TEXT NOT NULL,
-	userID TEXT NOT NULL,
-    FOREIGN KEY(userID) REFERENCES user (userID)
+	uuid TEXT NOT NULL,
+	status TEXT NOT NULL,
+    FOREIGN KEY(uuid) REFERENCES user (id)
 )
   `
 
@@ -84,8 +85,9 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 		specSelectorType TEXT,
 		specClusterIP TEXT,
 		specExternalname TEXT,
-		userID TEXT,
-		FOREIGN KEY(userID) REFERENCES user (userID)
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
 	)
   `
 
@@ -112,8 +114,9 @@ func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 		specTemplateSpecContainersName TEXT,
 		specTemplateSpecContainersImage TEXT,
 		specTemplateSpecContainersPortsContainerport TEXT,
-		userID TEXT,
-		FOREIGN KEY(userID) REFERENCES user (userID)
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
 	)
   `
 
@@ -140,6 +143,9 @@ func createReplicasetTable(db *sql.DB) (sql.Result, error) {
 		specTemplateSpecContainersName TEXT,
 		specTemplateSpecContainersImage TEXT,
 		specTemplateSpecContainersPortsContainerport TEXT
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
 	)
   `
 
