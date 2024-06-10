@@ -52,21 +52,21 @@ func listNetworks(authToken, endpoint string) {
 
 
 
-func CreateNetwork(){
-    authToken,err := GetUserToken("myuser","dmslab1207!")
+func CreateNetwork(userID string, password string, newnetworkName string, networkEndpoint string) {
+    authToken,err := GetUserToken(userID,password)
     if err != nil {
         panic(err)
     }
-    endpoint := "http://117.16.137.241:9696"
+    endpoint := networkEndpoint
     networkName := "test-network"
 
 	createNetwork(authToken, endpoint, networkName)
 }
-func ListNetworks(){
-    authToken,err := GetUserToken("myuser","dmslab1207!")
+func ListNetworks(userID string, password string, networkEndpoint string){
+    authToken,err := GetUserToken(userID,password)
     if err != nil {
         panic(err)
     }
-    endpoint := "http://117.16.137.241:9696"
+    endpoint := networkEndpoint
     listNetworks(authToken, endpoint)
 }

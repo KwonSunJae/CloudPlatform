@@ -101,7 +101,7 @@ func GetUserToken(username string, password string) (string, error) {
 	authReq.Auth.Identity.Password.User.Name = username
 	authReq.Auth.Identity.Password.User.Domain.ID = domainID
 	authReq.Auth.Identity.Password.User.Password = password
-	authReq.Auth.Scope.Project.ID = "474ac5958e2f4cbb8da585e1a7149da6"
+	authReq.Auth.Scope.Project.ID = os.Getenv("OPENSTACK_COMMON_PROJECT_ID")
 
 	requestBody, err := json.Marshal(authReq)
 	if err != nil {
