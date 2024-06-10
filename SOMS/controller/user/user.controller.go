@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	reqchecker "soms/controller/checker"
-	"soms/controller/checker/authority"
 	response "soms/controller/response"
 	"soms/service/user"
 	"soms/util/encrypt"
@@ -75,11 +74,11 @@ func getUserByUUID(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.CommonResponse
 // @Router /user [get]
 func getAllUser(w http.ResponseWriter, r *http.Request) {
-	requestUserUUID := r.Header.Get("X-UUID")
-	if !authority.AuthorityFilterWithRole([]string{"Master", "Admin"}, requestUserUUID) {
-		response.Response(w, nil, http.StatusUnauthorized, errors.New("권한이 없습니다"))
-		return
-	}
+	// requestUserUUID := r.Header.Get("X-UUID")
+	// if !authority.AuthorityFilterWithRole([]string{"Master", "Admin"}, requestUserUUID) {
+	// 	response.Response(w, nil, http.StatusUnauthorized, errors.New("권한이 없습니다"))
+	// 	return
+	// }
 
 	raws, err := user.Service.GetAllUser()
 
