@@ -15,7 +15,7 @@ type ReplicasetService struct {
 var Service ReplicasetService
 
 func (s *ReplicasetService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err

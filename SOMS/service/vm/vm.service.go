@@ -17,7 +17,7 @@ type VmService struct {
 var Service VmService
 
 func (s *VmService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err

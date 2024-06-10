@@ -8,6 +8,7 @@ import (
 	"soms/controller/mockup"
 	"soms/controller/user"
 	"soms/controller/vm"
+	"soms/repository"
 
 	_ "soms/docs"
 
@@ -34,10 +35,10 @@ func main() {
 	r := mux.NewRouter()
 
 	envLoad()
-
+	repository.InitDatabase()
 	err := vm.VmController(r)
 	if err != nil {
-		panic("vm 서버 실행에 실패했습니다.")
+		panic(err)
 	}
 	err2 := deployment.DeploymentController(r)
 	if err2 != nil {

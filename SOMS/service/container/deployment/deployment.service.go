@@ -15,7 +15,7 @@ type DeploymentService struct {
 var Service DeploymentService
 
 func (s *DeploymentService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err

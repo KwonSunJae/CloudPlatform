@@ -6,8 +6,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func OpenWithMemory() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", ":memory:")
+func InitDatabase() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "soms.db")
 
 	if err != nil {
 		return nil, err
@@ -20,23 +20,22 @@ func OpenWithMemory() (*sql.DB, error) {
 	}
 
 	_, err = createVmTable(db)
+	_, err = createServiceTable(db)
+	_, err = createDeploymentTable(db)
+	_, err = createReplicasetTable(db)
+	_, err = createUserTable(db)
+
+	return db, nil
+}
+
+func OpenWithFile() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "soms.db")
 
 	if err != nil {
 		return nil, err
 	}
-	_, err = createServiceTable(db)
-	if err != nil {
-		return nil, err
-	}
-	_, err = createDeploymentTable(db)
-	if err != nil {
-		return nil, err
-	}
-	_, err = createReplicasetTable(db)
-	if err != nil {
-		return nil, err
-	}
-	_, err = createUserTable(db)
+
+	err = db.Ping()
 	if err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ type UserService struct {
 var Service UserService
 
 func (s *UserService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err

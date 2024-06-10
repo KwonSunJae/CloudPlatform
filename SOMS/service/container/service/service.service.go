@@ -15,7 +15,7 @@ type ServiceService struct {
 var Service ServiceService
 
 func (s *ServiceService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err
