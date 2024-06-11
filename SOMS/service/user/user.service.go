@@ -64,7 +64,7 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 	if err != nil {
 		return err
 	}
-	if res {
+	if !res {
 		return fmt.Errorf("openstack account creation failed")
 	}
 	// Generate Terraform Repositroy & Create main.tf, variables.tf

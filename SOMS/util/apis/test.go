@@ -13,12 +13,12 @@ func main() {
 	if errw != nil {
 		panic("env file error")
 	}
-	// openstack_api.CreateUser("test2", "testpw", "test@email.com")
-	res, err := openstack_api.GetUserToken("test", "testpw")
-	fmt.Println("UserToken is " + res)
+	rslt, err := openstack_api.CreateUser("realtest", "testpw", "test@email.com")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+	fmt.Println(rslt)
+
 	// openstack_api.CreateNetwork("test", "testpw", "test-network", os.Getenv("OPENSTACK_NETWORK_ENDPOINT"))
 	// openstack_api.ListNetworks("test", "testpw", os.Getenv("OPENSTACK_NETWORK_ENDPOINT"))
 	// openstack_api.CreateKeyPair("test", "testpw", os.Getenv("OPENSTACK_COMPUTE_ENDPOINT"), "test-keypair")

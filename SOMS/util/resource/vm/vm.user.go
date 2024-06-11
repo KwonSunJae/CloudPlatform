@@ -75,7 +75,7 @@ func CreateMainTerrformFile(userID string) error {
 		os.MkdirAll(dir, os.ModePerm)
 	}
 
-	file, err := os.Create(dir + "main.tf")
+	file, err := os.Create(dir + "/main.tf")
 	if err != nil {
 		return err
 	}

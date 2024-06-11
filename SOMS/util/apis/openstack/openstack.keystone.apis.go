@@ -162,8 +162,10 @@ func createUser(authToken, name, password, email string) error {
 	newUserID := userMap["user"].(map[string]interface{})["id"].(string)
 	fmt.Println("new user ID: ", newUserID)
 
-	AddUserToProject(newUserID)
-
+	err2 := AddUserToProject(newUserID)
+	if err2 != nil {
+		return err
+	}
 	return nil
 }
 
@@ -182,7 +184,7 @@ func CreateUser(username string, password string, userEmail string) (bool, error
 	return true, nil
 }
 
-func addUserToProject(authToken, endpoint, projectID, userID, roleID string) {
+func addUserToProject(authToken, endpoint, projectID, userID, roleID string) error {
 	url := fmt.Sprintf("%s/v3/projects/%s/users/%s/roles/%s", endpoint, projectID, userID, roleID)
 
 	req, _ := http.NewRequest("PUT", url, nil)
@@ -192,23 +194,22 @@ func addUserToProject(authToken, endpoint, projectID, userID, roleID string) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		return errors.New("failed to add user to project: " + err.Error())
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("Response:", string(body))
+	return nil
 }
 
-func AddUserToProject(userID string) {
+func AddUserToProject(userID string) error {
 	authToken, err := getAdminAuthToken()
 	if err != nil {
-		panic(err)
+		return errors.New("get Admin AuthTOKEN ERROR : " + err.Error())
 	}
 	var roleID = os.Getenv("OPENSTACK_COMMON_ROLE_ID")
 	var commonProjectID = os.Getenv("OPENSTACK_COMMON_PROJECT_ID")
 	var endpoint = os.Getenv("OPENSTACK_CTLR_URL")
 
 	addUserToProject(authToken, endpoint, commonProjectID, userID, roleID)
-
+	return nil
 }
