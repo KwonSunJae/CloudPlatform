@@ -35,6 +35,8 @@ func UserController(router *mux.Router) error {
 
 	router.HandleFunc("/user/{id}", deleteUser).Methods("DELETE")
 
+	router.HandleFunc("/user/approve/{id}", approveUser).Methods("POST")
+
 	return nil
 }
 
@@ -312,6 +314,49 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 		switch err.Error() {
 		case "NOT FOUND":
 			response.Response(w, nil, http.StatusNotFound, errors.New("해당되는 User이 존재하지 않습니다"))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
+
+}
+
+// @Summary 사용자 승인
+// @Description 사용자의 승인을 진행합니다.
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "승인대상 유저 uuid"
+// @Param  role	body    string     true  "User Role"
+// @Param  priority	body    string     true  "User Priority"
+// @Param X-UUID header string true "승인자 UUID"
+// @Success 200 {object} response.CommonResponse
+// @Router /user/approve/{id} [post]
+func approveUser(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var body struct {
+		Role     string
+		Priority string
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+		return
+	}
+
+	err = user.Service.ApproveUser(id, body.Role, body.Priority)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
 		default:
 			response.Response(w, nil, http.StatusInternalServerError, err)
 		}

@@ -568,6 +568,44 @@ paths:
       summary: 사용자 정보 조회
       tags:
       - user
+  /user/approve/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 사용자의 승인을 진행합니다.
+      parameters:
+      - description: 승인대상 유저 uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User Role
+        in: body
+        name: role
+        required: true
+        schema:
+          type: string
+      - description: User Priority
+        in: body
+        name: priority
+        required: true
+        schema:
+          type: string
+      - description: 승인자 UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 승인
+      tags:
+      - user
   /user/login:
     post:
       consumes:

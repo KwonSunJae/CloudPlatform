@@ -602,6 +602,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/approve/{id}": {
+            "post": {
+                "description": "사용자의 승인을 진행합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "사용자 승인",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "승인대상 유저 uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "User Role",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "User Priority",
+                        "name": "priority",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "승인자 UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "post": {
                 "description": "사용자 로그인을 진행합니다.",
