@@ -624,21 +624,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "User Role",
-                        "name": "role",
+                        "description": "승인 정보",
+                        "name": "User",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "User Priority",
-                        "name": "priority",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/user.approveUserRequestBody"
                         }
                     },
                     {
@@ -1659,6 +1650,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.approveUserRequestBody": {
+            "type": "object",
+            "properties": {
+                "priority": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 }
             }

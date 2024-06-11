@@ -324,14 +324,18 @@ func deleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type approveUserRequestBody struct {
+	Role     string
+	Priority string
+}
+
 // @Summary 사용자 승인
 // @Description 사용자의 승인을 진행합니다.
 // @Tags user
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "승인대상 유저 uuid"
-// @Param  role	body    string     true  "User Role"
-// @Param  priority	body    string     true  "User Priority"
+// @Param   User    body    approveUserRequestBody     true  "승인 정보"
 // @Param X-UUID header string true "승인자 UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /user/approve/{id} [post]
@@ -339,10 +343,7 @@ func approveUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var body struct {
-		Role     string
-		Priority string
-	}
+	var body approveUserRequestBody
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 

@@ -85,6 +85,13 @@ definitions:
       userID:
         type: string
     type: object
+  user.approveUserRequestBody:
+    properties:
+      priority:
+        type: string
+      role:
+        type: string
+    type: object
   vm.CreateVmBody:
     properties:
       externalIP:
@@ -579,18 +586,12 @@ paths:
         name: id
         required: true
         type: string
-      - description: User Role
+      - description: 승인 정보
         in: body
-        name: role
+        name: User
         required: true
         schema:
-          type: string
-      - description: User Priority
-        in: body
-        name: priority
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/user.approveUserRequestBody'
       - description: 승인자 UUID
         in: header
         name: X-UUID
