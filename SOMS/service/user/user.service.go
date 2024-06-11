@@ -1,11 +1,14 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"soms/repository"
 	"soms/repository/user"
+	openstack_api "soms/util/apis/openstack"
 	"soms/util/encrypt"
+	resource "soms/util/resource/vm"
 )
 
 type UserService struct {
@@ -40,20 +43,64 @@ func (s *UserService) GetOneUserByUUID(uuid string) (*user.UserRaw, error) {
 }
 
 func (s *UserService) CreateUser(n user.UserDto) (string, error) {
-
-	// Generate Openstack Account
-
-	// Generate Terraform Repositroy
-
-	// Generate K8s Repository
-
 	id, DBSaveErr := s.Repository.InsertUser(n)
 	if DBSaveErr != nil {
 		return "", DBSaveErr
 	}
 	return id, nil
 }
+func (s *UserService) ApproveUser(id string, role string, priority string) error {
+	if priority == "Denied" {
+		s.Repository.DeleteOneUser(id)
+		return nil
+	}
+	var approvedUser *user.UserRaw
+	approvedUser, err := s.Repository.GetOneUserByUUID(id)
+	if err != nil {
+		return err
+	}
+	// Generate Openstack Account
+	res, err := openstack_api.CreateUser(approvedUser.UserID, approvedUser.EncryptedPW, approvedUser.Name+"@"+approvedUser.Spot+"."+priority)
+	if err != nil {
+		return err
+	}
+	if res {
+		return fmt.Errorf("openstack account creation failed")
+	}
+	// Generate Terraform Repositroy & Create main.tf, variables.tf
+	dirName := approvedUser.UserID
+	err = os.Mkdir("terraform/"+dirName, 0755)
+	if err != nil {
+		return err
+	}
+	creationVarTFErr := resource.CreateUserTerrformVariableFile(approvedUser.UserID, approvedUser.EncryptedPW)
+	if creationVarTFErr != nil {
+		return errors.New("Failed to create terraform variable file :" + err.Error())
+	}
+	creationMainTFErr := resource.CreateMainTerrformFile(approvedUser.UserID)
+	if creationMainTFErr != nil {
+		return errors.New("Failed to create terraform main file :" + err.Error())
+	}
+	// Generate K8s Repository
+	err = os.Mkdir("k8s/"+dirName, 0755)
+	if err != nil {
+		return err
+	}
+	// Update User Role and Priority
+	var n user.UserDto
+	n.Role = role
+	n.Priority = priority
 
+	rest, err := s.Repository.UpdateOneUser(id, n)
+	if err != nil {
+		return err
+	}
+	if rest == nil {
+		return fmt.Errorf("NOT FOUND")
+	}
+
+	return nil
+}
 func (s *UserService) UserIDValidate(userID string) (bool, error) {
 	isExist, err := s.Repository.IsUserIDExit(userID)
 	if isExist {

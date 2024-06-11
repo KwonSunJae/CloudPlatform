@@ -13,6 +13,8 @@ type VmManager interface {
 	Security_groups(string) VmManager
 	Keypair(string) VmManager
 	Image(string) VmManager
+	PrivateNetwork(string) VmManager
+	ExternalIP(bool) VmManager
 	Build() error
 }
 type vmManager struct {
@@ -22,6 +24,8 @@ type vmManager struct {
 	security_group string
 	imageID        string
 	keypairs       string
+	privateNetwork string
+	externalIP     bool
 }
 
 func New() VmManager {
@@ -43,6 +47,14 @@ func (vb *vmManager) Flavor(f string) VmManager {
 }
 func (vb *vmManager) Keypair(k string) VmManager {
 	vb.keypairs = k
+	return vb
+}
+func (vb *vmManager) PrivateNetwork(s string) VmManager {
+	vb.privateNetwork = s
+	return vb
+}
+func (vb *vmManager) ExternalIP(b bool) VmManager {
+	vb.externalIP = b
 	return vb
 }
 func (vb *vmManager) Security_groups(s string) VmManager {
@@ -77,18 +89,37 @@ func (vb *vmManager) Build() error {
 }
 
 func generateTerraformConfig(vb vmManager) string {
+	if vb.externalIP {
+		return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
+	  name      = "%s"
+	  region    = "RegionOne"
+	  flavor_id = "%s"
+	  key_pair  = "%s"
+	  network {
+		uuid = "2e26d161-5886-4e76-a9af-ad60d41761c5"
+		name = "provider"
+	  }
+
+	  netwrok {
+		uuid = "%s"
+	  }
+	  security_groups = ["%s"]
+	  image_id = "%s"
+	  floating_ip = "true"
+	}`, vb.fileName, vb.fileName, vb.flavorID, vb.keypairs, vb.privateNetwork, vb.security_group, vb.imageID)
+
+	}
 	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
       name      = "%s"
       region    = "RegionOne"
       flavor_id = "%s"
       key_pair  = "%s"
       network {
-        uuid = "2e26d161-5886-4e76-a9af-ad60d41761c5"
-        name = "provider"
+        uuid = "%s"
       }
       security_groups = ["%s"]
       image_id = "%s"
-    }`, vb.fileName, vb.fileName, vb.flavorID, vb.keypairs, vb.security_group, vb.imageID)
+    }`, vb.fileName, vb.fileName, vb.flavorID, vb.keypairs, vb.privateNetwork, vb.security_group, vb.imageID)
 }
 
 func readFileContents(filename string) (string, error) {
