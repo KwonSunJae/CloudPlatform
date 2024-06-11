@@ -7,10 +7,131 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	
+    "os"
 )
+type OpenstackAPIInterface interface {
+    CreateNetwork(userID string, password string, newnetworkName string)(string,error) 
+    ListNetworks(userID string, password string)(string,error)
+    CreateKeyPair(userID string, password string, keyPairName string)(string,error)
+    ListFlavors(userID string, password string)(string,error)
+    ListSecurityGroups(userID string, password string)(string,error)
+    ListKeyPairs(userID string, password string)(string,error)
+    CreateSnapshot(userID string, password string, serverID string, snapshotName string)(bool,error)
+    SoftReboot(userID string, password string, serverID string)(bool,error)
+    HardReboot(userID string, password string, serverID string)(bool,error)
+    PowerOff(userID string, password string, serverID string)(bool,error)
+    PowerOn(userID string, password string, serverID string)(bool,error)
+}
+func sendRequest(method, url, authToken string, payload interface{}) ([]byte, error) {
+    var jsonPayload []byte
+    var err error
+    if payload != nil {
+        jsonPayload, err = json.Marshal(payload)
+        if err != nil {
+            return nil, err
+        }
+    }
 
-func createNetwork(authToken, endpoint, networkName string) {
+    req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonPayload))
+    if err != nil {
+        return nil, err
+    }
+    req.Header.Set("X-Auth-Token", authToken)
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    if resp.StatusCode >= 400 {
+        return body, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
+    }
+
+    return body, nil
+}
+func createSnapshot(authToken, endpoint, serverID, snapshotName string) (bool,error) {
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "createImage": map[string]interface{}{
+            "name": snapshotName,
+        },
+    }
+
+    _, err := sendRequest("POST", url, authToken, payload)
+    if err != nil {
+        return false,err
+    }
+
+    return true,nil
+}
+func softReboot(authToken, endpoint, serverID string) (bool,error) {
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "reboot": map[string]interface{}{
+            "type": "SOFT",
+        },
+    }
+
+    _, err := sendRequest("POST", url, authToken, payload)
+    if err != nil {
+        return false,err
+    }
+
+    return true,nil
+}
+func hardReboot(authToken, endpoint, serverID string)( bool,error) {
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "reboot": map[string]interface{}{
+            "type": "HARD",
+        },
+    }
+
+    _, err := sendRequest("POST", url, authToken, payload)
+    if err != nil {
+        return false,err
+    }
+
+    fmt.Println("Hard reboot initiated successfully")
+    return true,nil
+}
+func powerOff(authToken, endpoint, serverID string)( bool,error ){
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "os-stop": map[string]interface{}{},
+    }
+
+    _, err := sendRequest("POST", url, authToken, payload)
+    if err != nil {
+        return false,err
+    }
+
+    fmt.Println("Power off initiated successfully")
+    return true,nil
+}
+func powerOn(authToken, endpoint, serverID string)( bool,error) {
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "os-start": map[string]interface{}{},
+    }
+
+    _, err := sendRequest("POST", url, authToken, payload)
+    if err != nil {
+        return false,err
+    }
+
+    fmt.Println("Power on initiated successfully")
+    return true,nil
+}
+func createNetwork(authToken, endpoint, networkName string) (string, error){
     url := endpoint + "/v2.0/networks"
     payload := map[string]interface{}{
         "network": map[string]interface{}{
@@ -26,14 +147,14 @@ func createNetwork(authToken, endpoint, networkName string) {
     client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
-        panic(err)
+        return "",err
     }
     defer resp.Body.Close()
 
     body, _ := ioutil.ReadAll(resp.Body)
-    fmt.Println("Response:", string(body))
+    return string(body),nil
 }
-func listNetworks(authToken, endpoint string) {
+func listNetworks(authToken, endpoint string) (string,error) {
     url := endpoint + "/v2.0/networks"
 
     req, _ := http.NewRequest("GET", url, nil)
@@ -42,31 +163,301 @@ func listNetworks(authToken, endpoint string) {
     client := &http.Client{}
     resp, err := client.Do(req)
     if err != nil {
-        panic(err)
+        return "",err
     }
     defer resp.Body.Close()
 
     body, _ := ioutil.ReadAll(resp.Body)
-    fmt.Println("Response:", string(body))
+    return string(body),nil
 }
 
-
-
-func CreateNetwork(userID string, password string, newnetworkName string, networkEndpoint string) {
-    authToken,err := GetUserToken(userID,password)
-    if err != nil {
-        panic(err)
+func createKeyPair(authToken, endpoint, keyPairName string) (string,error) {
+    url := endpoint + "/v2.1/os-keypairs"
+    payload := map[string]interface{}{
+        "keypair": map[string]interface{}{
+            "name": keyPairName,
+        },
     }
-    endpoint := networkEndpoint
-    networkName := "test-network"
+    jsonPayload, _ := json.Marshal(payload)
+    
+    req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+    req.Header.Set("X-Auth-Token", authToken)
+    req.Header.Set("Content-Type", "application/json")
 
-	createNetwork(authToken, endpoint, networkName)
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "",err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    return string(body),nil
 }
-func ListNetworks(userID string, password string, networkEndpoint string){
+
+func listFlavors(authToken, endpoint string)(string,error) {
+    url := endpoint + "/v2.1/flavors/detail"
+
+    req, _ := http.NewRequest("GET", url, nil)
+    req.Header.Set("X-Auth-Token", authToken)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "",err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    return string(body),nil
+}
+func listSecurityGroups(authToken, endpoint string)(string,error) {
+    url := endpoint + "/v2.0/security-groups"
+
+    req, _ := http.NewRequest("GET", url, nil)
+    req.Header.Set("X-Auth-Token", authToken)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "",err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    return string(body),nil
+}
+func listKeyPairs(authToken, endpoint string) (string,error){
+    url := endpoint + "/v2.1/os-keypairs"
+
+    req, _ := http.NewRequest("GET", url, nil)
+    req.Header.Set("X-Auth-Token", authToken)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return "",err
+    }
+    defer resp.Body.Close()
+
+    body, _ := ioutil.ReadAll(resp.Body)
+    return string(body),nil
+}
+func getVNCConsole(authToken, endpoint, serverID string) (string, error) {
+    url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
+    payload := map[string]interface{}{
+        "os-getVNCConsole": map[string]interface{}{
+            "type": "novnc",
+        },
+    }
+
+    payloadBytes, err := json.Marshal(payload)
+    if err != nil {
+        return "", fmt.Errorf("failed to marshal payload: %v", err)
+    }
+
+    req, err := http.NewRequest("POST", url, bytes.NewReader(payloadBytes))
+    if err != nil {
+        return "", fmt.Errorf("failed to create request: %v", err)
+    }
+
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("X-Auth-Token", authToken)
+
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        return "", fmt.Errorf("failed to send request: %v", err)
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        bodyBytes, _ := ioutil.ReadAll(resp.Body)
+        return "", fmt.Errorf("received non-200 response: %s", string(bodyBytes))
+    }
+
+    var responseMap map[string]interface{}
+    if err := json.NewDecoder(resp.Body).Decode(&responseMap); err != nil {
+        return "", fmt.Errorf("failed to decode response: %v", err)
+    }
+
+    console, ok := responseMap["console"].(map[string]interface{})
+    if !ok {
+        return "", fmt.Errorf("unexpected response format")
+    }
+
+    url, ok = console["url"].(string)
+    if !ok {
+        return "", fmt.Errorf("unexpected response format")
+    }
+    return url, nil
+}
+
+func GetVNCConsoleURL(userID string, password string, serverID string) (string, error) {
+    authToken, err := GetUserToken(userID, password)
+    if err != nil {
+        return "", err
+    }
+
+    computeEndpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    return getVNCConsole(authToken, computeEndpoint, serverID)
+}
+
+func CreateNetwork(userID string, password string, newnetworkName string)(string,error) {
     authToken,err := GetUserToken(userID,password)
     if err != nil {
-        panic(err)
+        return "",err
     }
-    endpoint := networkEndpoint
-    listNetworks(authToken, endpoint)
+    networkEndpoint := os.Getenv("OPENSTACK_NETWORK_ENDPOINT")
+
+	data,err:=createNetwork(authToken, networkEndpoint, newnetworkName)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+}
+func ListNetworks(userID string, password string)(string,error) {
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    networkEndpoint := os.Getenv("OPENSTACK_NETWORK_ENDPOINT")
+
+    data,err:=listNetworks(authToken, networkEndpoint)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+}
+
+func CreateKeyPair(userID,password, keyPairName string)(string,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    data,err:=createKeyPair(authToken, computeendpoint, keyPairName)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+
+}
+func ListFlavors(userID,password string)(string,error) {
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    data,err:= listFlavors(authToken, computeendpoint)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+}
+
+func ListSecurityGroups(userID,password string)(string,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    networkendpoint := os.Getenv("OPENSTACK_NETWORK_ENDPOINT")
+    data,err:= listSecurityGroups(authToken, networkendpoint)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+}
+func ListKeyPairs(userID,password string)(string,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    data,err:= listKeyPairs(authToken, computeendpoint)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
+}
+func CreateSnapshot(userID,password, serverID, snapshotName string)(bool,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    rslt,err:=createSnapshot(authToken, computeendpoint, serverID, snapshotName)
+    if err != nil {
+        return false,err
+    }
+    //data 가공
+
+    return rslt,nil
+}
+
+func SoftReboot(userID,password, serverID string)(bool,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    rslt,err:=softReboot(authToken, computeendpoint, serverID)
+    if err != nil {
+        return false,err
+    }   
+    
+    return rslt,nil
+}
+func HardReboot(userID,password, serverID string)(bool,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    rslt,err:=hardReboot(authToken, computeendpoint, serverID)
+    if err != nil {
+        return false,err
+    }
+    //data 가공
+
+    return rslt,nil
+}
+func PowerOff(userID,password, serverID string)(bool,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    rslt,err:=powerOff(authToken, computeendpoint, serverID)
+    if err != nil {
+        return false,err
+    }
+    //data 가공
+
+    return rslt,nil
+    
+}
+func PowerOn(userID,password, serverID string)(bool,error){
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    computeendpoint := os.Getenv("OPENSTACK_COMPUTE_ENDPOINT")
+    rslt,err:=powerOn(authToken, computeendpoint, serverID)
+    if err != nil {
+        return false,err
+    }
+
+    return rslt,nil
 }

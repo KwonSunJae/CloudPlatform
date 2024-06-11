@@ -5,6 +5,7 @@ __pycache__/
 *.tf
 *mod
 *terraform*
+resp.json
 # C extensions
 *.so
 ./soms
@@ -57,6 +58,7 @@ cover/
 # Translations
 *.mo
 *.pot
+
 
 # Django stuff:
 *.log
