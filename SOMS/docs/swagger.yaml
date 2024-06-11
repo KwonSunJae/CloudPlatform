@@ -616,6 +616,12 @@ paths:
       consumes:
       - application/json
       description: VM의 정보를 전체 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -637,6 +643,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/vm.CreateVmBody'
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -653,9 +664,14 @@ paths:
       - application/json
       description: VM의 정보를 삭제합니다.
       parameters:
-      - description: VM uuid
+      - description: VM id
         in: path
         name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -676,6 +692,11 @@ paths:
       - description: VM uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -714,36 +735,20 @@ paths:
       summary: VM 정보 수정
       tags:
       - vm
-  /vm/console/{id}:
-    get:
-      consumes:
-      - application/json
-      description: VM의 콘솔을 조회합니다.
-      parameters:
-      - description: VM uuid
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.CommonResponse'
-      summary: VM 콘솔 조회
-      tags:
-      - vm
-  /vm/reboot/{id}:
+  /vm/approve/{id}:
     post:
       consumes:
       - application/json
-      description: VM을 재부팅합니다.
+      description: VM 생성을 승인합니다.
       parameters:
       - description: VM uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -753,10 +758,177 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.CommonResponse'
-      summary: VM 재부팅
+      summary: VM 생성 승인
       tags:
       - vm
-  /vm/start/{id}:
+  /vm/flavor:
+    get:
+      consumes:
+      - application/json
+      description: VM의 플레이버 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 플레이버 리스트 조회
+      tags:
+      - vm
+  /vm/hardreboot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 하드 리부팅합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 하드 리부팅
+      tags:
+      - vm
+  /vm/keypair:
+    get:
+      consumes:
+      - application/json
+      description: VM의 키페어 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 키페어 리스트 조회
+      tags:
+      - vm
+    post:
+      consumes:
+      - application/json
+      description: VM의 키페어를 생성합니다.
+      parameters:
+      - description: 키페어 이름
+        in: body
+        name: keypairName
+        required: true
+        schema:
+          type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 키페어 생성
+      tags:
+      - vm
+  /vm/network:
+    get:
+      consumes:
+      - application/json
+      description: VM의 네트워크 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 네트워크 리스트 조회
+      tags:
+      - vm
+    post:
+      consumes:
+      - application/json
+      description: VM의 네트워크를 생성합니다.
+      parameters:
+      - description: 네트워크 이름
+        in: body
+        name: networkName
+        required: true
+        schema:
+          type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 네트워크 생성
+      tags:
+      - vm
+  /vm/poweroff/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 종료합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 종료
+      tags:
+      - vm
+  /vm/poweron/{id}:
     post:
       consumes:
       - application/json
@@ -765,6 +937,11 @@ paths:
       - description: VM uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -777,15 +954,15 @@ paths:
       summary: VM 시작
       tags:
       - vm
-  /vm/stop/{id}:
-    post:
+  /vm/securitygroup:
+    get:
       consumes:
       - application/json
-      description: VM을 중지합니다.
+      description: VM의 보안그룹 리스트를 조회합니다.
       parameters:
-      - description: VM uuid
-        in: path
-        name: id
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -795,18 +972,81 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.CommonResponse'
-      summary: VM 중지
+      summary: VM 보안그룹 리스트 조회
+      tags:
+      - vm
+  /vm/snapshot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM의 스냅샷을 생성합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 스냅샷 이름
+        in: body
+        name: snapshotName
+        required: true
+        schema:
+          type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 스냅샷 생성
+      tags:
+      - vm
+  /vm/softreboot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 소프트 리부팅합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 소프트 리부팅
       tags:
       - vm
   /vm/vnc/{id}:
     get:
       consumes:
       - application/json
-      description: VM의 VNC를 조회합니다.
+      description: VM의 VNC URL을 조회합니다.
       parameters:
       - description: VM uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -816,7 +1056,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/response.CommonResponse'
-      summary: VM VNC 조회
+      summary: VM VNC URL 조회
       tags:
       - vm
   /vmstat:
@@ -824,6 +1064,12 @@ paths:
       consumes:
       - application/json
       description: VM의 상태를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:

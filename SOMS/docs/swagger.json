@@ -778,6 +778,15 @@
                     "vm"
                 ],
                 "summary": "VM 정보 전체 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -808,37 +817,12 @@
                         "schema": {
                             "$ref": "#/definitions/vm.CreateVmBody"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CommonResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/vm/console/{id}": {
-            "get": {
-                "description": "VM의 콘솔을 조회합니다.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vm"
-                ],
-                "summary": "VM 콘솔 조회",
-                "parameters": [
+                    },
                     {
                         "type": "string",
-                        "description": "VM uuid",
-                        "name": "id",
-                        "in": "path",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -852,9 +836,9 @@
                 }
             }
         },
-        "/vm/reboot/{id}": {
+        "/vm/approve/{id}": {
             "post": {
-                "description": "VM을 재부팅합니다.",
+                "description": "VM 생성을 승인합니다.",
                 "consumes": [
                     "application/json"
                 ],
@@ -864,13 +848,20 @@
                 "tags": [
                     "vm"
                 ],
-                "summary": "VM 재부팅",
+                "summary": "VM 생성 승인",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "VM uuid",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -884,7 +875,259 @@
                 }
             }
         },
-        "/vm/start/{id}": {
+        "/vm/flavor": {
+            "get": {
+                "description": "VM의 플레이버 리스트를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 플레이버 리스트 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/hardreboot/{id}": {
+            "post": {
+                "description": "VM을 하드 리부팅합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 하드 리부팅",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "VM uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/keypair": {
+            "get": {
+                "description": "VM의 키페어 리스트를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 키페어 리스트 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "VM의 키페어를 생성합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 키페어 생성",
+                "parameters": [
+                    {
+                        "description": "키페어 이름",
+                        "name": "keypairName",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/network": {
+            "get": {
+                "description": "VM의 네트워크 리스트를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 네트워크 리스트 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "VM의 네트워크를 생성합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 네트워크 생성",
+                "parameters": [
+                    {
+                        "description": "네트워크 이름",
+                        "name": "networkName",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/poweroff/{id}": {
+            "post": {
+                "description": "VM을 종료합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 종료",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "VM uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/poweron/{id}": {
             "post": {
                 "description": "VM을 시작합니다.",
                 "consumes": [
@@ -904,6 +1147,13 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -916,9 +1166,9 @@
                 }
             }
         },
-        "/vm/stop/{id}": {
-            "post": {
-                "description": "VM을 중지합니다.",
+        "/vm/securitygroup": {
+            "get": {
+                "description": "VM의 보안그룹 리스트를 조회합니다.",
                 "consumes": [
                     "application/json"
                 ],
@@ -928,13 +1178,100 @@
                 "tags": [
                     "vm"
                 ],
-                "summary": "VM 중지",
+                "summary": "VM 보안그룹 리스트 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/snapshot/{id}": {
+            "post": {
+                "description": "VM의 스냅샷을 생성합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 스냅샷 생성",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "VM uuid",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "스냅샷 이름",
+                        "name": "snapshotName",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vm/softreboot/{id}": {
+            "post": {
+                "description": "VM을 소프트 리부팅합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 소프트 리부팅",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "VM uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -950,7 +1287,7 @@
         },
         "/vm/vnc/{id}": {
             "get": {
-                "description": "VM의 VNC를 조회합니다.",
+                "description": "VM의 VNC URL을 조회합니다.",
                 "consumes": [
                     "application/json"
                 ],
@@ -960,13 +1297,20 @@
                 "tags": [
                     "vm"
                 ],
-                "summary": "VM VNC 조회",
+                "summary": "VM VNC URL 조회",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "VM uuid",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -1000,6 +1344,13 @@
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1026,9 +1377,16 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "VM uuid",
+                        "description": "VM id",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -1094,6 +1452,15 @@
                     "vm"
                 ],
                 "summary": "VM 상태 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
