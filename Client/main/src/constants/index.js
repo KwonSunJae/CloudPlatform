@@ -25,3 +25,8 @@ export const SpotList = Object.freeze([
     "Vision",
     "Others"
 ]);
+
+export const VmStatusList = Object.freeze([
+    "Pending",
+    "Executing"
+]);

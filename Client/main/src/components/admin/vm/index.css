@@ -1,0 +1,131 @@
+/* Admin.css */
+
+/* 컨테이너 전체적인 마진과 패딩 조정 */
+.container.mt-5 {
+    margin-top: 3rem !important;
+}
+
+/* 제목 스타일링 */
+h1 {
+    color: #007bff;
+    /* Bootstrap 'primary' 색상 */
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* 버튼 스타일링 */
+button {
+    margin: 0.5rem 0;
+    /* 버튼 상하 간격 */
+}
+
+/* 리스트 스타일링 */
+.list-group-item {
+    background-color: #f8f9fa;
+    /* Bootstrap 'light' 배경색 */
+    border-color: #f8f9fa;
+    /* 테두리 색상 조정 */
+    color: #495057;
+    /* 내용 색상 */
+}
+
+.list-group-item .form-label {
+    font-weight: bold;
+    /* 라벨 볼드 처리 */
+}
+
+.list-group-item .form-select {
+    margin-right: 1rem;
+    /* 선택 상자 간격 조정 */
+    border-color: #ced4da;
+    /* 테두리 색상 */
+}
+
+.list-group-item button {
+    font-size: 0.9rem;
+    /* 버튼 글꼴 크기 */
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+    /* 버튼 색상 */
+}
+
+/* 반응형 디자인을 위한 추가 스타일 */
+@media (max-width: 768px) {
+
+    .list-group-item .form-label,
+    .list-group-item .form-select,
+    .list-group-item button {
+        display: block;
+        /* 모바일에서는 항목을 블록으로 처리 */
+        margin: 5px 0;
+        /* 간격 조정 */
+    }
+
+    .list-group-item {
+        padding: 20px 10px;
+        /* 모바일에서 패딩 조정 */
+    }
+}
+
+/* Reset some default styles */
+body,
+h2,
+ul,
+li {
+    margin: 0;
+    padding: 0;
+}
+
+/* General styles for the navbar */
+.admin-navbar {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Title styles */
+.admin-navbar-title {
+    margin-bottom: 20px;
+}
+
+.admin-navbar-title a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* List styles */
+.admin-navbar-list {
+    list-style-type: none;
+    display: flex;
+    gap: 15px;
+}
+
+.admin-navbar-item a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.admin-navbar-item a:hover {
+    text-decoration: underline;
+}
+
+/* Table styles */
+.table {
+    margin-top: 20px;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.table tbody td {
+    text-align: center;
+}
