@@ -3,6 +3,7 @@ package resource
 import (
 	"fmt"
 	"os"
+	"os/exec"
 )
 
 func CreateUserTerrformVariableFile(userID string, userPW string) error {
@@ -85,5 +86,17 @@ func CreateMainTerrformFile(userID string) error {
 		return err
 	}
 
+	return nil
+}
+
+func InitTerraform(userID string) error {
+
+	dir := "terraform/" + userID
+	cmd := exec.Command("terraform", "init")
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("terraform init failed: %v, output: %s", err, out)
+	}
 	return nil
 }
