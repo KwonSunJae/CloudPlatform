@@ -81,6 +81,10 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 	if creationMainTFErr != nil {
 		return errors.New("Failed to create terraform main file :" + err.Error())
 	}
+	initTFerr := resource.InitTerraform(approvedUser.UserID)
+	if initTFerr != nil {
+		return errors.New("Failed to init terraform :" + err.Error())
+	}
 	// Generate K8s Repository
 	err = os.Mkdir("k8s/"+dirName, 0755)
 	if err != nil {
