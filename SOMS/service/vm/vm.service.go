@@ -78,6 +78,14 @@ func (s *VmService) ApproveVMCreation(id string, uuid string) error {
 		return TerraformBuildErr
 	}
 
+	// Update the VM status
+	n.Status = "Approved"
+	var an vm.VmDto
+	an.Status = "Approved"
+	_, err = s.Repository.UpdateOneVm(id, an)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 func (s *VmService) EnrollVm(n vm.VmDto) error {
