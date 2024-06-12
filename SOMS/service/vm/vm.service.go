@@ -55,6 +55,13 @@ func (s *VmService) ApproveVMCreation(id string, uuid string) error {
 	if err != nil {
 		return err
 	}
+
+	var floating_ip bool
+	if n.ExternalIP == "true" {
+		floating_ip = true
+	} else {
+		floating_ip = false
+	}
 	// Generate Terraform configuration & Execute `terraform apply -auto-approve`
 	vmManager := resource.New()
 	TerraformBuildErr := vmManager.
@@ -62,6 +69,8 @@ func (s *VmService) ApproveVMCreation(id string, uuid string) error {
 		User(targetUser.UserID).
 		Flavor(n.FlavorID).
 		Security_groups(n.SelectedSecuritygroup).
+		PrivateNetwork(n.InternalIP).
+		ExternalIP(floating_ip).
 		Keypair(n.Keypair).
 		Image(n.SelectedOS).
 		Build()
