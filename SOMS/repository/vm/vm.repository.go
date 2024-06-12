@@ -57,7 +57,7 @@ func (r *VmRepository) InsertVm(n VmDto) (sql.Result, error) {
     (id, name, flavorID, externalIP, internalIP,selectedOS, unionmountImage, keypair,selectedSecuritygroup ,uuid,status)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.Status, n.UUID)
+	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.UUID, n.Status)
 
 	if err != nil {
 		return nil, err
