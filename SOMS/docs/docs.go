@@ -24,6 +24,45 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/action/approve/{id}": {
+            "post": {
+                "description": "VM 생성을 승인합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 생성 승인",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "VM uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/action/hardreboot/{id}": {
             "post": {
                 "description": "VM을 하드 리부팅합니다.",
@@ -1320,45 +1359,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/vm.CreateVmBody"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "UUID",
-                        "name": "X-UUID",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CommonResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/vm/approve/{id}": {
-            "post": {
-                "description": "VM 생성을 승인합니다.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "vm"
-                ],
-                "summary": "VM 생성 승인",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "VM uuid",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
                     },
                     {
                         "type": "string",

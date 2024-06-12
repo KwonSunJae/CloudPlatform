@@ -233,7 +233,7 @@ func enrollVm(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/approve/{id} [post]
+// @Router /action/approve/{id} [post]
 func approveVMCreation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]

@@ -125,6 +125,32 @@ info:
   title: SOMS API
   version: "1.0"
 paths:
+  /action/approve/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM 생성을 승인합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 생성 승인
+      tags:
+      - vm
   /action/hardreboot/{id}:
     post:
       consumes:
@@ -1068,32 +1094,6 @@ paths:
           schema:
             $ref: '#/definitions/response.CommonResponse'
       summary: VM 정보 수정
-      tags:
-      - vm
-  /vm/approve/{id}:
-    post:
-      consumes:
-      - application/json
-      description: VM 생성을 승인합니다.
-      parameters:
-      - description: VM uuid
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: UUID
-        in: header
-        name: X-UUID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/response.CommonResponse'
-      summary: VM 생성 승인
       tags:
       - vm
   /vmstat:
