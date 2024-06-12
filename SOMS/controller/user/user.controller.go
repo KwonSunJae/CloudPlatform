@@ -45,7 +45,7 @@ func UserController(router *mux.Router) error {
 // @Tags user
 // @Accept  json
 // @Produce  json
-// @Param   UUID     path    string     true  "UUID"
+// @Param   uuid     path    string     true  "uuid"
 // @Success 200 {object} response.CommonResponse
 // @Router /user/{uuid} [get]
 func getUserByUUID(w http.ResponseWriter, r *http.Request) {

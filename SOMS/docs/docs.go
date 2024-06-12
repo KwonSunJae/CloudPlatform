@@ -803,8 +803,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "UUID",
-                        "name": "UUID",
+                        "description": "uuid",
+                        "name": "uuid",
                         "in": "path",
                         "required": true
                     }

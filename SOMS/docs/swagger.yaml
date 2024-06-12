@@ -560,9 +560,9 @@ paths:
       - application/json
       description: 사용자의 정보를 조회합니다.
       parameters:
-      - description: UUID
+      - description: uuid
         in: path
-        name: UUID
+        name: uuid
         required: true
         type: string
       produces:
