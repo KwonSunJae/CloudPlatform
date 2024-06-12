@@ -21,6 +21,17 @@ type VMUseCase interface {
 	deleteVm(w http.ResponseWriter, r *http.Request)
 	approveVMCreation(w http.ResponseWriter, r *http.Request)
 	powerOnVm(w http.ResponseWriter, r *http.Request)
+	powerOffVm(w http.ResponseWriter, r *http.Request)
+	softrebootVm(w http.ResponseWriter, r *http.Request)
+	hardrebootVm(w http.ResponseWriter, r *http.Request)
+	snapshotVm(w http.ResponseWriter, r *http.Request)
+	getNetworkList(w http.ResponseWriter, r *http.Request)
+	createNetwork(w http.ResponseWriter, r *http.Request)
+	getFlavorList(w http.ResponseWriter, r *http.Request)
+	createKeypair(w http.ResponseWriter, r *http.Request)
+	getKeypairList(w http.ResponseWriter, r *http.Request)
+	getSecurityGroupList(w http.ResponseWriter, r *http.Request)
+	getVmVnc(w http.ResponseWriter, r *http.Request)
 }
 
 func VmController(router *mux.Router) error {
@@ -42,33 +53,33 @@ func VmController(router *mux.Router) error {
 
 	router.HandleFunc("/vm/{id}", deleteVm).Methods("DELETE")
 
-	router.HandleFunc("/vm/approve/{id}", approveVMCreation).Methods("POST")
+	router.HandleFunc("/action/approve/{id}", approveVMCreation).Methods("POST")
 
-	router.HandleFunc("/vm/poweron/{id}", powerOnVm).Methods("POST")
+	router.HandleFunc("/action/poweron/{id}", powerOnVm).Methods("POST")
 
-	router.HandleFunc("/vm/poweroff/{id}", powerOffVm).Methods("POST")
+	router.HandleFunc("/action/poweroff/{id}", powerOffVm).Methods("POST")
 
-	router.HandleFunc("/vm/softreboot/{id}", softrebootVm).Methods("POST")
+	router.HandleFunc("/action/softreboot/{id}", softrebootVm).Methods("POST")
 
-	router.HandleFunc("/vm/hardreboot/{id}", hardrebootVm).Methods("POST")
+	router.HandleFunc("/action/hardreboot/{id}", hardrebootVm).Methods("POST")
 
-	router.HandleFunc("/vm/snapshot/{id}", snapshotVm).Methods("POST")
+	router.HandleFunc("/action/snapshot/{id}", snapshotVm).Methods("POST")
 
-	router.HandleFunc("/vm/network", getNetworkList).Methods("GET")
+	router.HandleFunc("/resource/network", getNetworkList).Methods("GET")
 
-	router.HandleFunc("/vm/network", createNetwork).Methods("POST")
+	router.HandleFunc("/resource/network", createNetwork).Methods("POST")
 
-	router.HandleFunc("/vm/flavor", getFlavorList).Methods("GET")
+	router.HandleFunc("/resource/flavor", getFlavorList).Methods("GET")
 
-	router.HandleFunc("/vm/keypair", createKeypair).Methods("POST")
+	router.HandleFunc("/resource/keypair", createKeypair).Methods("POST")
 
-	router.HandleFunc("/vm/keypair", getKeypairList).Methods("GET")
+	router.HandleFunc("/resource/keypair", getKeypairList).Methods("GET")
 	//router.HandleFunc("/vm/securitygroup", createSecurityGroup).Methods("POST")
-	router.HandleFunc("/vm/securitygroup", getSecurityGroupList).Methods("GET")
+	router.HandleFunc("/resource/securitygroup", getSecurityGroupList).Methods("GET")
 
-	router.HandleFunc("/vm/status/{id}", getVmStatus).Methods("GET")
+	router.HandleFunc("/status/vm/{id}", getVmStatus).Methods("GET")
 
-	router.HandleFunc("/vm/vnc/{id}", getVmVnc).Methods("GET")
+	router.HandleFunc("/action/vnc/{id}", getVmVnc).Methods("GET")
 
 	return nil
 }
@@ -151,7 +162,6 @@ type CreateVmBody struct {
 	UnionmountImage       string
 	Keypair               string
 	SelectedSecuritygroup string
-	UserID                string
 }
 
 // @Summary VM 등록
@@ -170,7 +180,6 @@ func enrollVm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var body CreateVmBody
-
 	err := json.NewDecoder(r.Body).Decode(&body)
 
 	if err != nil {
@@ -349,7 +358,7 @@ func deleteVm(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/poweron/{id} [post]
+// @Router /action/poweron/{id} [post]
 func powerOnVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -381,7 +390,7 @@ func powerOnVm(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/poweroff/{id} [post]
+// @Router /action/poweroff/{id} [post]
 func powerOffVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -413,7 +422,7 @@ func powerOffVm(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/softreboot/{id} [post]
+// @Router /action/softreboot/{id} [post]
 func softrebootVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -445,7 +454,7 @@ func softrebootVm(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/hardreboot/{id} [post]
+// @Router /action/hardreboot/{id} [post]
 func hardrebootVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -478,7 +487,7 @@ func hardrebootVm(w http.ResponseWriter, r *http.Request) {
 // @Param snapshotName body string true "스냅샷 이름"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/snapshot/{id} [post]
+// @Router /action/snapshot/{id} [post]
 func snapshotVm(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -515,7 +524,7 @@ func snapshotVm(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/network [get]
+// @Router /resource/network [get]
 func getNetworkList(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	rsp, err := vm.Service.ListNetworks(uuid)
@@ -537,7 +546,7 @@ func getNetworkList(w http.ResponseWriter, r *http.Request) {
 // @Param   networkName body string true "네트워크 이름"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/network [post]
+// @Router /resource/network [post]
 func createNetwork(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	var networkCreateBody struct {
@@ -567,7 +576,7 @@ func createNetwork(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/flavor [get]
+// @Router /resource/flavor [get]
 func getFlavorList(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	rsp, err := vm.Service.ListFlavors(uuid)
@@ -588,7 +597,7 @@ func getFlavorList(w http.ResponseWriter, r *http.Request) {
 // @Param   keypairName body string true "키페어 이름"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/keypair [post]
+// @Router /resource/keypair [post]
 func createKeypair(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	var keypairCreateBody struct {
@@ -618,7 +627,7 @@ func createKeypair(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/keypair [get]
+// @Router /resource/keypair [get]
 func getKeypairList(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	rsp, err := vm.Service.ListKeypairs(uuid)
@@ -639,7 +648,7 @@ func getKeypairList(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/securitygroup [get]
+// @Router /resource/securitygroup [get]
 func getSecurityGroupList(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
 	rsp, err := vm.Service.ListSecurityGroups(uuid)
@@ -661,7 +670,7 @@ func getSecurityGroupList(w http.ResponseWriter, r *http.Request) {
 // @Param   id     path    string     true  "VM uuid"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
-// @Router /vm/vnc/{id} [get]
+// @Router /action/vnc/{id} [get]
 func getVmVnc(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
