@@ -68,7 +68,7 @@ func CreateMainTerrformFile(userID string) error {
 			"placement" = "%s/"
 		  }
 		}
-	`, os.Getenv("OPENSTACK_CTRL_URL"), os.Getenv("OPENSTACK_CTRL_URL"), os.Getenv("OPENSTACK_NETWORK_URL"), os.Getenv("OPENSTACK_COMPUTE_URL"), os.Getenv("OPENSTACK_IMAGE_URL"), os.Getenv("OPENSTACK_PLACEMENT_URL"))
+	`, os.Getenv("OPENSTACK_CTLR_URL"), os.Getenv("OPENSTACK_CTLR_URL"), os.Getenv("OPENSTACK_NETWORK_ENDPOINT"), os.Getenv("OPENSTACK_COMPUTE_ENDPOINT"), os.Getenv("OPENSTACK_IMAGE_ENDPOINT"), os.Getenv("OPENSTACK_PLACEMENT_ENDPOINT"))
 
 	dir := "terraform/" + userID
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
