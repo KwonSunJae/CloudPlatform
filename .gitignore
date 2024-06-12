@@ -221,3 +221,6 @@ packages/react-devtools-timeline/dist
 
 # Go workspace file
 go.work
+
+soms.db
+soms

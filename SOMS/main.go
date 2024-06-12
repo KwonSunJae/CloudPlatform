@@ -36,6 +36,7 @@ func main() {
 
 	envLoad()
 	repository.InitDatabase()
+
 	err := vm.VmController(r)
 	if err != nil {
 		panic(err)
