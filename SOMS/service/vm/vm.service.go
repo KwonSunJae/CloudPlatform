@@ -123,9 +123,7 @@ func (s *VmService) UpdateVm(id string, n vm.VmDto) error {
 
 func (s *VmService) DeleteVm(id string, uuid string) error {
 	// Get the User data
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return err
 	}
@@ -159,9 +157,7 @@ func (s *VmService) DeleteVm(id string, uuid string) error {
 
 func (s *VmService) CreateNetwork(uuid string, networkName string) (string, error) {
 	//Openstack API call to create network
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -176,9 +172,7 @@ func (s *VmService) CreateNetwork(uuid string, networkName string) (string, erro
 
 func (s *VmService) ListNetworks(uuid string) (string, error) {
 	//Openstack API call to list networks
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -193,9 +187,7 @@ func (s *VmService) ListNetworks(uuid string) (string, error) {
 
 func (s *VmService) ListFlavors(uuid string) (string, error) {
 	//Openstack API call to list flavors
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -210,9 +202,7 @@ func (s *VmService) ListFlavors(uuid string) (string, error) {
 
 func (s *VmService) ListKeypairs(uuid string) (string, error) {
 	//Openstack API call to list keypairs
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -227,9 +217,7 @@ func (s *VmService) ListKeypairs(uuid string) (string, error) {
 
 func (s *VmService) CreateKeypair(uuid string, keypairName string) (string, error) {
 	//Openstack API call to create keypair
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -244,9 +232,8 @@ func (s *VmService) CreateKeypair(uuid string, keypairName string) (string, erro
 
 func (s *VmService) ListSecurityGroups(uuid string) (string, error) {
 	//Openstack API call to list security groups
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}
@@ -261,9 +248,8 @@ func (s *VmService) ListSecurityGroups(uuid string) (string, error) {
 
 func (s *VmService) CreateSnapshot(uuid string, vmID string, snapshotName string) (bool, error) {
 	//Openstack API call to create snapshot
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return false, err
 	}
@@ -278,9 +264,8 @@ func (s *VmService) CreateSnapshot(uuid string, vmID string, snapshotName string
 
 func (s *VmService) SoftReboot(uuid string, vmID string) (bool, error) {
 	//Openstack API call to soft reboot
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return false, err
 	}
@@ -295,9 +280,8 @@ func (s *VmService) SoftReboot(uuid string, vmID string) (bool, error) {
 
 func (s *VmService) HardReboot(uuid string, vmID string) (bool, error) {
 	//Openstack API call to hard reboot
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return false, err
 	}
@@ -311,9 +295,8 @@ func (s *VmService) HardReboot(uuid string, vmID string) (bool, error) {
 
 func (s *VmService) PowerOff(uuid string, vmID string) (bool, error) {
 	//Openstack API call to power off
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return false, err
 	}
@@ -328,9 +311,8 @@ func (s *VmService) PowerOff(uuid string, vmID string) (bool, error) {
 
 func (s *VmService) PowerOn(uuid string, vmID string) (bool, error) {
 	//Openstack API call to power on
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return false, err
 	}
@@ -345,9 +327,8 @@ func (s *VmService) PowerOn(uuid string, vmID string) (bool, error) {
 
 func (s *VmService) GetVnc(uuid string, vmID string) (string, error) {
 	//Openstack API call to get VNC console
-	var targetUser *user.UserRaw
-	var err error
-	targetUser, err = user.Repository.GetOneUserByUUID(uuid)
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return "", err
 	}

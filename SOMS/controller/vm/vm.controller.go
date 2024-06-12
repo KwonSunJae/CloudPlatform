@@ -578,7 +578,6 @@ func getFlavorList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Response(w, rsp, http.StatusOK, nil)
-
 }
 
 // @Summary VM 키페어 생성
