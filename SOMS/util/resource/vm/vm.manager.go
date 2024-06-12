@@ -105,7 +105,6 @@ func generateTerraformConfig(vb vmManager) string {
 	  }
 	  security_groups = ["%s"]
 	  image_id = "%s"
-	  floating_ip = "true"
 	}`, vb.fileName, vb.fileName, vb.flavorID, vb.keypairs, vb.privateNetwork, vb.security_group, vb.imageID)
 
 	}
