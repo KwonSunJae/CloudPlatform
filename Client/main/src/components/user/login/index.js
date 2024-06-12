@@ -2,20 +2,22 @@ import React, { useState } from 'react';
 import './index.css';
 import Login from '../../../apis/login';
 import RegisterModal from '../register';
-
+import SpinnerOurs from '../../sppinner';
 const LoginModal = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isMemorized, setIsMemorized] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     const handleSubmit = async (event) => {
         event.preventDefault();
         if(await Login(username, password,isMemorized)) {
             alert("로그인 성공");
+            setLoading(true);
             closeLoginModal();
             window.location.href = "/";
         }
         else {
+            setLoading(false);
             alert("로그인 실패");
         }
     };
@@ -29,6 +31,9 @@ const LoginModal = () => {
         document.getElementById("register-modal").style.display = "block";
     }
 
+    if (loading) {
+        return <SpinnerOurs />
+    }
 
     return (
         <div id="login-modal" className="modal">

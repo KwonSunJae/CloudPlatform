@@ -2,195 +2,227 @@
 import React, { useState, useEffect } from 'react';
 import './index.css';
 import instance from '../../../apis/instance'
+import SpinnerOurs from '../../sppinner';
 const VMCreateForm = () => {
     const [vmName, setVmName] = useState('');
-    const [gpu, setGPU] = useState(false);
-    const [cpuCores, setCpuCores] = useState(1);
-    const [ram, setRam] = useState(2);
+
     const [externalIP, setExternalIP] = useState(false);
-    const [internalIP, setInternalIP] = useState('');
-    const [selectedOS, setSelectedOS] = useState('');
-    const [unionMountImage, setUnionMountImage] = useState([]);
+    const [internalIP, setInternalIP] = useState(false);
+    const [image, setImage] = useState('');
+    const [flavor, setFlavor] = useState('');
+    const [unionMountImage, setUnionMountImage] = useState('');
     const [keyPair, setKeyPair] = useState('');
     const [selectedSecurityGroup, setSelectedSecurityGroup] = useState('');
 
-    const [osOptions, setOSOptions] = useState([]);
-    const [internalIPOptions, setInternalIPOptions] = useState([]);
-    const [keyPairOptions, setKeyPairOptions] = useState([]);
+    const [flavorList, setFlavorList] = useState([]);
+    const [imageList, setImageList] = useState([]);
+    const [keypairList, setKeyPairList] = useState([]);
+    const [securityGroups, setSecurityGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    const [step, setStep] = useState(1);
+    const [pemKey, setPemKey] = useState('');
     useEffect(() => {
-        // Fetch OS options from API
-        fetch('osApiUrl')
-            .then(response => response.json())
-            .then(data => setOSOptions(data))
-            .catch(error => console.error('Error fetching OS options:', error));
+        // Fetch Flavor options from API
+        instance.post("/transaction", {
+            "dest": "/resource/flavor",
+            "method": "GET",
+            "data": ""
+        }).then((response) => {
+            var flavors = JSON.parse(response.data.data).flavors;
+            
+            setFlavorList(flavors);
+            setLoading(false);
+            console.log(flavors);
+        }).catch((error) => {
+            setLoading(false);
+            console.error('Error fetching OS options:', error);
+        });
 
-        // Fetch Internal IP options from API
-        fetch('internalIpApiUrl')
-            .then(response => response.json())
-            .then(data => setInternalIPOptions(data))
-            .catch(error => console.error('Error fetching Internal IP options:', error));
+        // Fetch Keypair options from API
+        instance.post("/transaction", {
+            "dest": "/resource/keypair",
+            "method": "GET",
+            "data": ""
+        }).then((response) => {
+            var keypairs = JSON.parse(response.data.data).keypairs;
+            setKeyPairList(keypairs);
+            setLoading(false);
+            console.log(keypairs);
+        }).catch((error) => {
+            setLoading(false);
+            console.error('Error fetching OS options:', error);
+        });
 
-        // Fetch Key Pair options from API
-        fetch('keyPairApiUrl')
-            .then(response => response.json())
-            .then(data => setKeyPairOptions(data))
-            .catch(error => console.error('Error fetching Key Pair options:', error));
+        // Fetch SecurityGroups options from API
+        instance.post("/transaction", {
+            "dest": "/resource/securitygroup",
+            "method": "GET",
+            "data": ""
+        }).then((response) => {
+            var securityGroups = JSON.parse(response.data.data).securityGroups;
+            setSecurityGroups(securityGroups);
+            setLoading(false);
+            console.log(securityGroups);
+        }
+        ).catch((error) => {
+            setLoading(false);
+            console.error('Error fetching OS options:', error);
+        }
+        );
+
+        // Fetch Image options from API
+        instance.post("/transaction", {
+            "dest": "/resource/image",
+            "method": "GET",
+            "data": ""
+        }).then((response) => {
+            var images = JSON.parse(response.data.data).images;
+            setImageList(images);
+            setLoading(false);
+            console.log(response.data.data);
+        }
+        ).catch((error) => {
+            setLoading(false);
+            console.error('Error fetching OS options:', error);
+        }
+        );
     }, []);
-    const handleCreateKeyPair = () => {
-        // Implement logic to create a new key pair
+
+
+
+
+    const handleCreateKeyPair = (event) => {
+        instance.post("/transaction", {
+            "dest": "/resource/keypair",
+            "method": "POST",
+            "data": { keypairName: keyPair }.toString()
+        }).then((response) => {
+            setPemKey(response.data.pemKey);
+            setKeyPairList([...keypairList, response.data]);
+            setLoading(false);
+            console.log(response.data);
+        }).catch((error) => {
+            setLoading(false);
+            console.error('Error creating key pair:', error);
+        });
+    };
+
+    const handleCopyPemKey = () => {
+        navigator.clipboard.writeText(pemKey).then(() => {
+            alert('Pem key copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
     };
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        instance.post("/vm",{
-            Name : vmName,
-            FlavorID : "df2ca4c3-715a-4749-b955-1c73a9aca1a6",
-            ExternalIP : "true",
-            internalIP : "false",
-            SelectedOS : "45adb171-6051-43db-af19-ec62c00a1bf2",
-            unionMountImage: "false",
-            KeyPair : keyPair,
-            SelectedSecurityGroup : "default",
-            UserID : "myuser"
+        setLoading(true);
+        instance.post("/vm", {
+            Name: vmName,
+            FlavorID: flavor,
+            ExternalIP: externalIP ? "true" : "false",
+            internalIP: internalIP ? "e3102f8e-6d1c-41b3-b4ef-3ca5d81b79da" : "false",
+            SelectedOS: image,
+            unionMountImage: unionMountImage,
+            KeyPair: keyPair,
+            SelectedSecurityGroup: selectedSecurityGroup,
         })
-        .then(response => {
-            console.log(response.data);
-            window.location.href="/vm/";
-        })
-        .catch(error => {
-            console.error(error);
-        });
-
-
-        // Implement logic to create the virtual machine
+            .then(response => {
+                console.log(response.data);
+                window.location.href = "/vm/";
+            })
+            .catch(error => {
+                console.error(error);
+            });
     };
+
+    if (loading) {
+        return <SpinnerOurs />;
+    }
 
     return (
         <div className="vm-create-form">
             <h2>Create New Virtual Machine</h2>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    VM Name:
-                    <input
-                        type="text"
-                        value={vmName}
-                        onChange={(e) => setVmName(e.target.value)}
-                    />
-                </label>
-
-                <label>
-                    GPU:
-                    <input
-                        type="checkbox"
-                        checked={gpu}
-                        onChange={() => setGPU(!gpu)}
-                    />
-                </label>
-
-                <label>
-                    CPU Cores:
-                    <input
-                        type="number"
-                        value={cpuCores}
-                        onChange={(e) => setCpuCores(Number(e.target.value))}
-                        min={1}
-                    />
-                </label>
-
-                <label>
-                    RAM (GB):
-                    <input
-                        type="number"
-                        value={ram}
-                        onChange={(e) => setRam(Number(e.target.value))}
-                        min={1}
-                    />
-                </label>
-
-                <label>
-                    External IP:
-                    <input
-                        type="checkbox"
-                        checked={externalIP}
-                        onChange={() => setExternalIP(!externalIP)}
-                    />
-                </label>
-
-                <label>
-                    Internal IP:
-                    <select
-                        value={internalIP}
-                        onChange={(e) => setInternalIP(e.target.value)}
-                    >
-                        <option value="">Select Internal IP</option>
-                        {internalIPOptions.map(option => (
-                            <option key={option.id} value={option.value}>{option.label}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Selected OS:
-                    <select
-                        value={selectedOS}
-                        onChange={(e) => setSelectedOS(e.target.value)}
-                    >
-                        <option value="">Select OS</option>
-                        {osOptions.map(option => (
-                            <option key={option.id} value={option.value}>{option.label}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Union Mount Image:
-                    <div>
-                        <input
-                            type="checkbox"
-                            value="PX4"
-                            checked={unionMountImage.includes('PX4')}
-                            onChange={() => {
-                                if (unionMountImage.includes('PX4')) {
-                                    setUnionMountImage(unionMountImage.filter(item => item !== 'PX4'));
-                                } else {
-                                    setUnionMountImage([...unionMountImage, 'PX4']);
-                                }
-                            }}
-                        />
-                        PX4
-                    </div>
-                    {/* Repeat similar checkboxes for other options */}
-                </label>
-
-                <label>
-                    Key Pair:
-                    <select
-                        value={keyPair}
-                        onChange={(e) => setKeyPair(e.target.value)}
-                    >
-                        <option value="">Select Key Pair</option>
-                        <option value="dmslab">dmslab</option>
-                        <option value="batman">batman</option>
-                    </select>
-                    <button type="button" onClick={handleCreateKeyPair}>Create New Key Pair</button>
-                </label>
-
-                <label>
-                    Security Group:
-                    <select
-                        value={selectedSecurityGroup}
-                        onChange={(e) => setSelectedSecurityGroup(e.target.value)}
-                    >
-                        <option value="">Select Security Group</option>
-                        {keyPairOptions.map(option => (
-                            <option key={option.id} value={option.value}>{option.label}</option>
-                        ))}
-                    </select>
-                </label>
-
-                <button type="submit">Create VM</button>
-            </form>
+            {step === 1 && (
+                <div>
+                    <label>
+                        VM Name:
+                        <input type="text" value={vmName} onChange={(e) => setVmName(e.target.value)} />
+                    </label>
+                    <label>
+                        External IP:
+                        <input type="checkbox" checked={externalIP} onChange={() => setExternalIP(!externalIP)} />
+                    </label>
+                    <label>
+                        Internal IP:
+                        <input type="checkbox" checked={internalIP} onChange={() => setInternalIP(!internalIP)} />
+                    </label>
+                    <label>
+                        Flavor:
+                        <select value={flavor} onChange={(e) => setFlavor(e.target.value)}>
+                            {flavorList.map((f) => (
+                                <option key={f.id} value={f.id}>{f.name}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <button onClick={() => setStep(2)}>Next</button>
+                </div>
+            )}
+            {step === 2 && (
+                <div>
+                    <label>
+                        Image:
+                        <select value={image} onChange={(e) => setImage(e.target.value)}>
+                            {imageList.map((img) => (
+                                <option key={img.id} value={img.id}>{img.name}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <button onClick={() => setStep(1)}>Back</button>
+                    <button onClick={() => setStep(3)}>Next</button>
+                </div>
+            )}
+            {step === 3 && (
+                <div>
+                    <label>
+                        Key Pair:
+                        <select value={keyPair} onChange={(e) => setKeyPair(e.target.value)}>
+                            {keypairList.map((kp) => (
+                                <option key={kp.id} value={kp.id}>{kp.name}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <button onClick={handleCreateKeyPair}>Create Key Pair</button>
+                    {pemKey && (
+                        <div>
+                            <textarea value={pemKey} readOnly />
+                            <button onClick={handleCopyPemKey}>Copy Pem Key</button>
+                        </div>
+                    )}
+                    <button onClick={() => setStep(2)}>Back</button>
+                    <button onClick={() => setStep(4)}>Next</button>
+                </div>
+            )}
+            {step === 4 && (
+                <div>
+                    <label>
+                        Security Group:
+                        <select value={selectedSecurityGroup} onChange={(e) => setSelectedSecurityGroup(e.target.value)}>
+                            {securityGroups.map((sg) => (
+                                <option key={sg.id} value={sg.id}>{sg.name}</option>
+                            ))}
+                        </select>
+                    </label>
+                    <label>
+                        Union Mounted Image:
+                        <span>서비스 준비중입니다.</span>
+                    </label>
+                    <button onClick={() => setStep(3)}>Back</button>
+                    <button onClick={handleSubmit}>Create VM</button>
+                </div>
+            )}
         </div>
     );
 };
