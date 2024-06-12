@@ -100,7 +100,7 @@ func generateTerraformConfig(vb vmManager) string {
 		name = "provider"
 	  }
 
-	  netwrok {
+	  network {
 		uuid = "%s"
 	  }
 	  security_groups = ["%s"]
