@@ -5,14 +5,10 @@ import './index.css'; // CSS 파일을 통해 스타일 적용
 
 const ShowMonitoring = () => {
   return (
-    <div className="monitoring">
-      <div className="monitoring-header">
-        <h1>Grafana Monitoring</h1>
-      </div>
-      
+    <div className="monitoring">    
       <div className="monitoring-webview">
         <iframe 
-          src="http://117.16.136.172:3000/swagger/index.html" 
+          src="http://117.16.137.217:5601/app/home#/" 
           title="Web Monitoring"
           width="100%" 
           height="600px" 
