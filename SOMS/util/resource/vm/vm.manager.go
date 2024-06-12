@@ -102,6 +102,7 @@ func generateTerraformConfig(vb vmManager) string {
 
 	  network {
 		uuid = "%s"
+		name = "dmslab-vpn"
 	  }
 	  security_groups = ["%s"]
 	  image_id = "%s"
@@ -115,6 +116,7 @@ func generateTerraformConfig(vb vmManager) string {
       key_pair  = "%s"
       network {
         uuid = "%s"
+		name = "dmslab-vpn"
       }
       security_groups = ["%s"]
       image_id = "%s"
