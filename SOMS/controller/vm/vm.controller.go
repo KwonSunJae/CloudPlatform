@@ -604,7 +604,7 @@ func getFlavorList(w http.ResponseWriter, r *http.Request) {
 }
 
 type CreateKeypairBody struct {
-	keypairName string
+	KeypairName string
 }
 
 // @Summary VM 키페어 생성
@@ -612,20 +612,20 @@ type CreateKeypairBody struct {
 // @Tags vm
 // @Accept  json
 // @Produce  json
-// @Param   keypairName body CreateKeypairBody true "키페어 이름"
+// @Param   body body CreateKeypairBody true "키페어 이름"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /resource/keypair [post]
 func createKeypair(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
-	var keypairCreateBody CreateKeypairBody
-	err := json.NewDecoder(r.Body).Decode(&keypairCreateBody)
+	var body CreateKeypairBody
+	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		response.Response(w, nil, http.StatusBadRequest, err)
 		return
 	}
 
-	result, err := vm.Service.CreateKeypair(uuid, keypairCreateBody.keypairName)
+	result, err := vm.Service.CreateKeypair(uuid, body.KeypairName)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)

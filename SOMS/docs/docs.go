@@ -760,7 +760,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "키페어 이름",
-                        "name": "keypairName",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -1698,7 +1698,12 @@ const docTemplate = `{
             }
         },
         "vm.CreateKeypairBody": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "keypairName": {
+                    "type": "string"
+                }
+            }
         },
         "vm.CreateVmBody": {
             "type": "object",

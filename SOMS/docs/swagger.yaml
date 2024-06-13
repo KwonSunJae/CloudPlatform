@@ -93,6 +93,9 @@ definitions:
         type: string
     type: object
   vm.CreateKeypairBody:
+    properties:
+      keypairName:
+        type: string
     type: object
   vm.CreateVmBody:
     properties:
@@ -611,7 +614,7 @@ paths:
       parameters:
       - description: 키페어 이름
         in: body
-        name: keypairName
+        name: body
         required: true
         schema:
           $ref: '#/definitions/vm.CreateKeypairBody'
