@@ -35,7 +35,7 @@ func New() DeploymentManager {
 }
 
 func (dm deploymentManager) UserID(i string) DeploymentManager {
-	dm.Dto.UserID = i
+	dm.Dto.UUID = i
 	return dm
 }
 
@@ -121,7 +121,7 @@ spec:
 		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
 	}
 
-	fileName := fmt.Sprintf("k8s/%s/%s_deployment.yaml", dm.Dto.UserID, dm.Dto.MetadataName) // test = id
+	fileName := fmt.Sprintf("k8s/%s/%s_deployment.yaml", dm.Dto.UUID, dm.Dto.MetadataName) // test = id
 	var file *os.File
 
 	if _, err = os.Stat(fileName); os.IsNotExist(err) {
@@ -147,7 +147,7 @@ spec:
 	}
 
 	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", dm.Dto.UserID) // , "-n", dm.Dto.UserID
+	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", dm.Dto.UUID) // , "-n", dm.Dto.UserID
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)
