@@ -15,6 +15,7 @@ body {
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+  
 }
 
 h1 {
@@ -26,17 +27,24 @@ h1 {
 .button-container {
   margin-top: 20px;
   text-align: right;
+  
 }
 
 .add-vm-button,
 .delete-button,
-.manage-button {
+.snapshot-button,
+.poweroff-button,
+.poweron-button,
+.console-button,
+.reboot-button {
   padding: 10px 15px;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   border-radius: 5px;
   margin-top: 5pt;
+  border: none;
+  margin-left: 5px;
 }
 
 .add-vm-button {
@@ -61,15 +69,26 @@ h1 {
   background-color: #bd2130; /* Darker shade for hover */
 }
 
-.manage-button {
+.snapshot-button {
   background-color: #ffc107; /* Bootstrap warning color */
   color: #212529; /* Bootstrap body color */
   border: none;
   margin-left: 5px;
 }
 
-.manage-button:hover {
+.snapshot-button:hover {
   background-color: #e0a800; /* Darker shade for hover */
+}
+
+.reboot-button {
+  background-color: #007bff; /* Bootstrap warning color */
+  color: #212529; /* Bootstrap body color */
+  border: none;
+  margin-left: 5px;
+}
+
+.reboot-button:hover {
+  background-color: #0056b3; /* Darker shade for hover */
 }
 
 .vm-list {
@@ -77,6 +96,9 @@ h1 {
 }
 
 .vm-item {
+
+  width: 80%;
+  vertical-align: middle;
   border: 1px solid rgba(0, 123, 255, 0.125); /* Bootstrap border color */
   margin: 10px 0;
   padding: 15px;
@@ -86,5 +108,7 @@ h1 {
 }
 
 .vm-item strong {
+  margin-left: 20px;
   color: #007bff;
+  display: inline-block;
 }
