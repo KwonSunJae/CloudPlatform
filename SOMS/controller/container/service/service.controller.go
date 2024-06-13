@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	reqchecker "soms/controller/checker"
+	checker "soms/controller/checker/container/service"
 	response "soms/controller/response"
 
 	"soms/service/container/service"
@@ -136,9 +136,6 @@ type ServiceRequestBody struct {
 
 	// ExternalName
 	SpecExternalname string
-
-	UUID   string
-	Status string
 }
 
 // @Summary service 생성
@@ -160,8 +157,21 @@ func createService(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 서비스타입별 바디에 파라미터 누락 표시
-	checkerErr := reqchecker.Check(body)
+	// 서비스타입별 바디에 파라미터 누락 확인
+	checkerErr := checker.ServiceTypeChecker(checker.RequestBody{
+		ApiVersion:          body.ApiVersion,
+		Kind:                body.Kind,
+		MetadataName:        body.MetadataName,
+		SpecType:            body.SpecType,
+		SpecSelectorApp:     body.SpecSelectorApp,
+		SpecPortsProtocol:   body.SpecPortsProtocol,
+		SpecPortsPort:       body.SpecPortsPort,
+		SpecPortsTargetport: body.SpecPortsTargetport,
+		SpecPortsNodeport:   body.SpecPortsNodeport,
+		SpecSelectorType:    body.SpecSelectorType,
+		SpecClusterIP:       body.SpecClusterIP,
+		SpecExternalname:    body.SpecExternalname,
+	})
 	if checkerErr != nil {
 		response.Response(w, nil, http.StatusBadRequest, checkerErr) // checker에서 반환된 에러를 전달
 		return

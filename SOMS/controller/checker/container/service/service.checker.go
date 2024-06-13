@@ -17,7 +17,6 @@ type RequestBody struct {
 	SpecSelectorType    string
 	SpecClusterIP       string
 	SpecExternalname    string
-	UserID              string
 }
 
 func ServiceTypeChecker(body RequestBody) error {
@@ -38,7 +37,7 @@ func ServiceTypeChecker(body RequestBody) error {
 func checkClusterIP(body RequestBody) error {
 	if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" ||
 		body.SpecType == "" || body.SpecSelectorApp == "" || body.SpecPortsProtocol == "" ||
-		body.SpecPortsPort == "" || body.SpecPortsTargetport == "" || body.UserID == "" {
+		body.SpecPortsPort == "" || body.SpecPortsTargetport == "" {
 		return errors.New("파라미터가 누락되었습니다.")
 	}
 
@@ -48,7 +47,7 @@ func checkClusterIP(body RequestBody) error {
 func checkNodePort(body RequestBody) error {
 	if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" ||
 		body.SpecType == "" || body.SpecSelectorApp == "" || body.SpecPortsProtocol == "" ||
-		body.SpecPortsPort == "" || body.SpecPortsTargetport == "" || body.SpecPortsNodeport == "" || body.UserID == "" {
+		body.SpecPortsPort == "" || body.SpecPortsTargetport == "" || body.SpecPortsNodeport == "" {
 		return errors.New("파라미터가 누락되었습니다.")
 	}
 
@@ -59,7 +58,7 @@ func checkLoadBalancer(body RequestBody) error {
 	if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" ||
 		body.SpecType == "" || body.SpecSelectorApp == "" || body.SpecSelectorType == "" ||
 		body.SpecPortsProtocol == "" || body.SpecPortsPort == "" || body.SpecPortsTargetport == "" ||
-		body.SpecClusterIP == "" || body.UserID == "" {
+		body.SpecClusterIP == "" {
 		return errors.New("파라미터가 누락되었습니다.")
 	}
 
@@ -68,7 +67,7 @@ func checkLoadBalancer(body RequestBody) error {
 
 func checkExternalName(body RequestBody) error {
 	if body.ApiVersion == "" || body.Kind == "" || body.MetadataName == "" ||
-		body.SpecType == "" || body.SpecExternalname == "" || body.UserID == "" {
+		body.SpecType == "" || body.SpecExternalname == "" {
 		return errors.New("파라미터가 누락되었습니다.")
 	}
 
