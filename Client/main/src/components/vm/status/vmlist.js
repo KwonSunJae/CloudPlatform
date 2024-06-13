@@ -143,12 +143,12 @@ const VmList = ({ data }) => {
                         <strong>KeyPair:</strong> {vm.instances[0].attributes.key_pair}
                         {/* Delete and Manage buttons */}
                         <div className="vm-buttons">
-                            <button className="delete-button" onClick={() => handleDelete(vm.instances[0].attributes.id)}>Delete</button>
-                            <button className="snapshot-button" onClick={() => handleSnapshot(vm.instances[0].attributes.id)}>Snapshot</button>
-                            <button className="reboot-button" onClick={() => handleReboot(vm.instances[0].attributes.id)}>Reboot</button>
                             <button className="poweroff-button" onClick={() => handlePowerOff(vm.instances[0].attributes.id)}>PowerOff</button>
                             <button className="poweron-button" onClick={() => handlePowerOn(vm.instances[0].attributes.id)}>PowerOn</button>
                             <button className="console-button" onClick={() => handleConsole(vm.instances[0].attributes.id)}>Console</button>
+                            <button className="snapshot-button" onClick={() => handleSnapshot(vm.instances[0].attributes.id)}>Snapshot</button>
+                            <button className="reboot-button" onClick={() => handleReboot(vm.instances[0].attributes.id)}>Reboot</button>
+                            <button className="delete-button" onClick={() => handleDelete(vm.instances[0].attributes.id)}>Delete</button>
                         </div>
                         <br />
                     </li>

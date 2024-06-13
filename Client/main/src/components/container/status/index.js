@@ -18,7 +18,12 @@ const ContainerStatus = () => {
 
     useEffect(() => {
         instance
-            .get('/servicestat')
+            .post('/transaction', {
+                dest: '/servicestat',
+                method: 'GET',
+                data: '',
+            }
+            )
             .then((response) => {
                 var datas = JSON.parse(response.data.data);
                 setServiceData(datas);
@@ -28,7 +33,13 @@ const ContainerStatus = () => {
                 console.log(err);
             });
         instance
-            .get('/deploymentstat')
+            .post('/transaction', {
+                dest: '/deploymentstat',
+                method: 'GET',
+                data: '',
+            }
+
+            )
             .then((response) => {
                 var datas = JSON.parse(response.data.data);
                 console.log(datas);
@@ -41,7 +52,7 @@ const ContainerStatus = () => {
 
 
     }, []); // Empty dependency array to run the effect only once on mount
-
+    
     return (
         <div className="vm-status">
             <h1>Kubernetes Status</h1>
