@@ -9,7 +9,7 @@ const AdminNavbar = () => {
         <Link to="/admin">Admin Page</Link>
       </h2>
       <ul className="admin-navbar-list">
-        <li className="admin-navbar-item"><Link to="/admin/user">유저</Link></li>
+        <li className="admin-navbar-item"><Link to="/admin">유저</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/vm">VM</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/container">Container</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/kluster">Kluster</Link></li>

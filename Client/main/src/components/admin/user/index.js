@@ -133,15 +133,11 @@ export default function Admin() {
                                         <option key={level} value={level}>{level}</option>
                                     ))}
                                 </Form.Select>
-                            </td>
-                            <td>
                                 <Form.Select value={selectedRole[user.Id]} onChange={(e) => handleChangeRole(e, user.Id)}>
                                     {RoleList.map((role) => (
                                         <option key={role} value={role}>{role}</option>
                                     ))}
                                 </Form.Select>
-                            </td>
-                            <td>
                             {user.Priority === 'Denied' && (
                                     <Button variant="secondary" onClick={() => approveUser(user.Id)}>승인</Button>
                                 )}
