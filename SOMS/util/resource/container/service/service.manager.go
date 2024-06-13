@@ -37,7 +37,7 @@ func New() ServiceManager {
 }
 
 func (sb *serviceManager) UserID(i string) ServiceManager {
-	sb.Dto.UserID = i
+	sb.Dto.UUID = i
 	return sb
 }
 
@@ -115,7 +115,7 @@ func (sb *serviceManager) Build() error {
 		return fmt.Errorf("YAML 템플릿 파싱 중 오류 발생: %v", err)
 	}
 
-	fileName := fmt.Sprintf("k8s/%s/%s_service.yaml", sb.Dto.UserID, sb.Dto.MetadataName) // test = id
+	fileName := fmt.Sprintf("k8s/%s/%s_service.yaml", sb.Dto.UUID, sb.Dto.MetadataName) // test = id
 	var file *os.File
 
 	if _, err = os.Stat(fileName); os.IsNotExist(err) {
@@ -141,7 +141,7 @@ func (sb *serviceManager) Build() error {
 	}
 
 	// kubectl apply 실행
-	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", sb.Dto.UserID)
+	cmd := exec.Command("kubectl", "apply", "-f", fileName, "-n", sb.Dto.UUID)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("kubectl apply 명령 실행 중 오류 발생: %v\nOutput: %s", err, output)

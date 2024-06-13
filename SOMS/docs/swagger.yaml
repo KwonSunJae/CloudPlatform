@@ -30,7 +30,9 @@ definitions:
         type: string
       specType:
         type: string
-      userID:
+      status:
+        type: string
+      uuid:
         type: string
     type: object
   deployment.createDeploymentBody:
@@ -92,6 +94,16 @@ definitions:
       role:
         type: string
     type: object
+  vm.ApproveVMRequestBody:
+    properties:
+      approveUserUUID:
+        type: string
+    type: object
+  vm.CreateKeypairBody:
+    properties:
+      keypairName:
+        type: string
+    type: object
   vm.CreateVmBody:
     properties:
       externalIP:
@@ -136,6 +148,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: 승인대상 사용자 UUID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.ApproveVMRequestBody'
       - description: UUID
         in: header
         name: X-UUID
@@ -313,11 +331,69 @@ paths:
       summary: VM VNC URL 조회
       tags:
       - vm
+  /approve/deployment/{id}:
+    post:
+      consumes:
+      - application/json
+      description: deployment를 승인합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 승인
+      tags:
+      - deployment
+  /approve/service/{id}:
+    post:
+      consumes:
+      - application/json
+      description: service를 승인합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 승인
+      tags:
+      - service
   /deployment:
     get:
       consumes:
       - application/json
       description: deployment의 정보를 전체 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -339,6 +415,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/deployment.createDeploymentBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -360,6 +441,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -378,6 +464,11 @@ paths:
       - description: deployment uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -406,6 +497,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/deployment.createDeploymentBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -421,6 +517,12 @@ paths:
       consumes:
       - application/json
       description: deployment의 상태를 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -560,6 +662,27 @@ paths:
       summary: VM 플레이버 리스트 조회
       tags:
       - vm
+  /resource/image:
+    get:
+      consumes:
+      - application/json
+      description: VM의 이미지 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 이미지 리스트 조회
+      tags:
+      - vm
   /resource/keypair:
     get:
       consumes:
@@ -588,10 +711,10 @@ paths:
       parameters:
       - description: 키페어 이름
         in: body
-        name: keypairName
+        name: body
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/vm.CreateKeypairBody'
       - description: UUID
         in: header
         name: X-UUID
@@ -680,6 +803,12 @@ paths:
       consumes:
       - application/json
       description: service의 정보를 전체 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -701,6 +830,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/controller.ServiceRequestBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -722,6 +856,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -740,6 +879,11 @@ paths:
       - description: service uuid
         in: path
         name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
         required: true
         type: string
       produces:
@@ -768,6 +912,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/controller.ServiceRequestBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -783,6 +932,12 @@ paths:
       consumes:
       - application/json
       description: service의 상태를 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
       produces:
       - application/json
       responses:

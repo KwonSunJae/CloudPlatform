@@ -3,10 +3,12 @@ package vm
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	reqchecker "soms/controller/checker"
 	"soms/controller/checker/authority"
 	response "soms/controller/response"
+	"soms/repository/user"
 	"soms/service/vm"
 
 	"github.com/gorilla/mux"
@@ -72,6 +74,8 @@ func VmController(router *mux.Router) error {
 	router.HandleFunc("/resource/flavor", getFlavorList).Methods("GET")
 
 	router.HandleFunc("/resource/keypair", createKeypair).Methods("POST")
+
+	router.HandleFunc("/resource/image", getImageList).Methods("GET")
 
 	router.HandleFunc("/resource/keypair", getKeypairList).Methods("GET")
 	//router.HandleFunc("/vm/securitygroup", createSecurityGroup).Methods("POST")
@@ -142,7 +146,17 @@ func getAllVm(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.CommonResponse
 // @Router /vmstat [get]
 func getVmStatus(w http.ResponseWriter, r *http.Request) {
-	rsp, err := vm.Service.GetStatusVM("test")
+	uuid := r.Header.Get("X-UUID")
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		if err == errors.New("NOT FOUND") {
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
+		} else {
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+	rsp, err := vm.Service.GetStatusVM(targetUser.UserID)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -225,21 +239,32 @@ func enrollVm(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type ApproveVMRequestBody struct {
+	ApproveUserUUID string
+}
+
 // @Summary VM 생성 승인
 // @Description VM 생성을 승인합니다.
 // @Tags vm
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "VM uuid"
+// @Param  body body ApproveVMRequestBody true "승인대상 사용자 UUID"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /action/approve/{id} [post]
 func approveVMCreation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	uuid := r.Header.Get("X-UUID")
-	err := vm.Service.ApproveVMCreation(id, uuid)
+	//
 
+	var body ApproveVMRequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+		return
+	}
+	err = vm.Service.ApproveVMCreation(id, body.ApproveUserUUID)
 	if err != nil {
 		switch err.Error() {
 		case "NOT FOUND":
@@ -589,28 +614,29 @@ func getFlavorList(w http.ResponseWriter, r *http.Request) {
 	response.Response(w, rsp, http.StatusOK, nil)
 }
 
+type CreateKeypairBody struct {
+	KeypairName string
+}
+
 // @Summary VM 키페어 생성
 // @Description VM의 키페어를 생성합니다.
 // @Tags vm
 // @Accept  json
 // @Produce  json
-// @Param   keypairName body string true "키페어 이름"
+// @Param   body body CreateKeypairBody true "키페어 이름"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /resource/keypair [post]
 func createKeypair(w http.ResponseWriter, r *http.Request) {
 	uuid := r.Header.Get("X-UUID")
-	var keypairCreateBody struct {
-		keypairName string
-	}
-
-	err := json.NewDecoder(r.Body).Decode(&keypairCreateBody)
+	var body CreateKeypairBody
+	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		response.Response(w, nil, http.StatusBadRequest, err)
 		return
 	}
 
-	result, err := vm.Service.CreateKeypair(uuid, keypairCreateBody.keypairName)
+	result, err := vm.Service.CreateKeypair(uuid, body.KeypairName)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -683,6 +709,27 @@ func getVmVnc(w http.ResponseWriter, r *http.Request) {
 			response.Response(w, nil, http.StatusNotFound, errors.New("해당 VM이 없습니다."))
 			return
 		}
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, rsp, http.StatusOK, nil)
+}
+
+// @Summary VM 이미지 리스트 조회
+// @Description VM의 이미지 리스트를 조회합니다.
+// @Tags vm
+// @Accept  json
+// @Produce  json
+// @Param X-UUID header string true "UUID"
+// @Success 200 {object} response.CommonResponse
+// @Router /resource/image [get]
+func getImageList(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
+	rsp, err := vm.Service.GetImageList(uuid)
+
+	if err != nil {
+		fmt.Errorf("Get image List error: %v", err)
 		response.Response(w, nil, http.StatusInternalServerError, err)
 		return
 	}
