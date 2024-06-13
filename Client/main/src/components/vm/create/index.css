@@ -1,53 +1,76 @@
 .vm-create-form {
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f7f7f7;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .vm-create-form h2 {
-    margin-bottom: 15px;
-  }
-  
-  .vm-create-form form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    width : 40%;
-  }
-  
-  .vm-create-form form input[type="text"],
-  .vm-create-form form input[type="number"],
-  .vm-create-form form select {
-    width: 40%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    margin-bottom: 15px;
-    margin-left: 10px;
-  }
-  
-  .vm-create-form form button {
-    width: 50%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .vm-create-form form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .vm-create-form form input[type="checkbox"] {
-    margin-right: 5px;
-  }
-  
-  
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  height: 70vh;
+  align-items: center;
+  align-content: center;
+  background-color: #f9f9f9;
+}
+
+.vm-create-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.vm-create-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.vm-create-form input[type="text"],
+.vm-create-form select,
+.vm-create-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.vm-create-form input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.vm-create-form button {
+  display: inline-block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.vm-create-form button:hover {
+  background-color: #0056b3;
+}
+
+.vm-create-form textarea {
+  resize: none;
+  height: 100px;
+}
+
+.vm-create-form .back-button {
+  background-color: #6c757d;
+}
+
+.vm-create-form .back-button:hover {
+  background-color: #5a6268;
+}
+
+.vm-create-form .button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.vm-create-form .button-group button {
+  width: 48%;
+}
