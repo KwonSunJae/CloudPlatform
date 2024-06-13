@@ -10,7 +10,7 @@ const VMCreateForm = () => {
     const [internalIP, setInternalIP] = useState(false);
     const [image, setImage] = useState('');
     const [flavor, setFlavor] = useState('');
-    const [unionMountImage, setUnionMountImage] = useState('');
+    const [unionMountImage, setUnionMountImage] = useState('none');
     const [keyPair, setKeyPair] = useState('');
     const [selectedSecurityGroup, setSelectedSecurityGroup] = useState('');
     const [newKeyPairName, setNewKeyPairName] = useState('');
@@ -30,8 +30,9 @@ const VMCreateForm = () => {
             "data": ""
         }).then((response) => {
             var flavors = JSON.parse(response.data.data).flavors;
-            
+        
             setFlavorList(flavors);
+            setFlavor(flavors[0].id);
             setLoading(false);
             console.log(flavors);
         }).catch((error) => {
@@ -47,6 +48,7 @@ const VMCreateForm = () => {
         }).then((response) => {
             var keypairs = JSON.parse(response.data.data).keypairs;
             setKeyPairList(keypairs);
+            setKeyPair(keypairs[0].keypair.name);
             setLoading(false);
             console.log(keypairs);
         }).catch((error) => {
@@ -60,8 +62,9 @@ const VMCreateForm = () => {
             "method": "GET",
             "data": ""
         }).then((response) => {
-            var securityGroups = JSON.parse(response.data.data).securityGroups;
+            var securityGroups = JSON.parse(response.data.data).security_groups;
             setSecurityGroups(securityGroups);
+            setSelectedSecurityGroup(securityGroups[0].name);
             setLoading(false);
             console.log(securityGroups);
         }
@@ -105,8 +108,8 @@ const VMCreateForm = () => {
             "method": "POST",
             "data": datas
         }).then((response) => {
-            setPemKey(response.data.pemKey);
-            setKeyPairList([...keypairList, response.data]);
+            var keypairs = JSON.parse(response.data.data).keypairs;
+            setKeyPairList(keypairs);
             setLoading(false);
             console.log(response.data);
         }).catch((error) => {
@@ -125,8 +128,7 @@ const VMCreateForm = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setLoading(true);
-        instance.post("/vm", {
+        const vmData = JSON.stringify({
             Name: vmName,
             FlavorID: flavor,
             ExternalIP: externalIP ? "true" : "false",
@@ -135,12 +137,20 @@ const VMCreateForm = () => {
             unionMountImage: unionMountImage,
             KeyPair: keyPair,
             SelectedSecurityGroup: selectedSecurityGroup,
+        });
+        setLoading(true);
+        instance.post("/transaction", {
+            "dest": "/vm",
+            "method": "POST",
+            "data": vmData
         })
             .then(response => {
+                setLoading(false);
                 console.log(response.data);
-                window.location.href = "/vm/";
+                alert('VM created successfully!');
             })
             .catch(error => {
+                setLoading(false);
                 console.error(error);
             });
     };
@@ -197,7 +207,7 @@ const VMCreateForm = () => {
                         Key Pair:
                         <select value={keyPair} onChange={(e) => setKeyPair(e.target.value)}>
                             {keypairList.map((kp) => (
-                                <option key={kp.id} value={kp.id}>{kp.name}</option>
+                                <option key={kp.id} value={kp.keypair.name}>{kp.keypair.name}</option>
                             ))}
                         </select>
                     </label>

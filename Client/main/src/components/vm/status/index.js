@@ -20,7 +20,7 @@ const VmStatus = () => {
       "method": "GET",
       "data": ""
     }).then((response) => {
-      const datas = response.data.data;
+      const datas = JSON.parse(response.data.data);
       setLoading(false);
       setResponseData(datas);
       console.log(datas);
