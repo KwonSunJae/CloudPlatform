@@ -29,7 +29,8 @@ type ServiceDto struct {
 	// ExternalName
 	SpecExternalname string
 
-	UserID string
+	UUID   string
+	Status string
 }
 
 type ServiceRaw struct {
@@ -54,7 +55,8 @@ type ServiceRaw struct {
 	// ExternalName
 	SpecExternalname string
 
-	UserID string
+	UUID   string
+	Status string
 }
 
 type ServiceRepository struct {
@@ -76,10 +78,10 @@ func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 
 	query := `
     INSERT INTO service
-    (id, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, userID)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (id, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.SpecType, n.SpecSelectorApp, n.SpecPortsProtocol, n.SpecPortsPort, n.SpecPortsTargetport, n.SpecPortsNodeport, n.SpecSelectorType, n.SpecClusterIP, n.SpecExternalname, n.UserID)
+	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.SpecType, n.SpecSelectorApp, n.SpecPortsProtocol, n.SpecPortsPort, n.SpecPortsTargetport, n.SpecPortsNodeport, n.SpecSelectorType, n.SpecClusterIP, n.SpecExternalname, n.UUID, n.Status)
 
 	if err != nil {
 		return nil, err
@@ -98,7 +100,7 @@ func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 	}
 	for rows.Next() {
 		var raw ServiceRaw
-		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UserID)
+		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UUID, &raw.Status)
 
 		raws = append(raws, raw)
 	}
@@ -114,7 +116,7 @@ func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 	var raw ServiceRaw
 
 	query := `SELECT * FROM service WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UserID)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UUID, &raw.Status)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -164,12 +166,13 @@ func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Resul
 		specSelectorType = IFNULL(?, specSelectorType),
 		specClusterIP = IFNULL(?, specClusterIP),
 		specExternalname  = IFNULL(?, specExternalname),
-		userID = IFNULL(?, userID)
+		uuid = IFNULL(?, uuid)
+		status = IFNULL(?, status)
         
     WHERE
         id = ?
 	`
-	var apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, userID *string
+	var apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status *string
 
 	if n.ApiVersion != "" {
 		apiVersion = &n.ApiVersion
@@ -219,11 +222,15 @@ func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Resul
 		specExternalname = &n.SpecExternalname
 	}
 
-	if n.UserID != "" {
-		userID = &n.UserID
+	if n.UUID != "" {
+		uuid = &n.UUID
 	}
 
-	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, userID, id)
+	if n.Status != "" {
+		status = &n.Status
+	}
+
+	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status, id)
 
 	if err != nil {
 		return nil, err
