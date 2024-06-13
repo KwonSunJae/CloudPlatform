@@ -682,6 +682,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/resource/image": {
+            "get": {
+                "description": "VM의 이미지 리스트를 조회합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "vm"
+                ],
+                "summary": "VM 이미지 리스트 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/resource/keypair": {
             "get": {
                 "description": "VM의 키페어 리스트를 조회합니다.",

@@ -560,6 +560,27 @@ paths:
       summary: VM 플레이버 리스트 조회
       tags:
       - vm
+  /resource/image:
+    get:
+      consumes:
+      - application/json
+      description: VM의 이미지 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 이미지 리스트 조회
+      tags:
+      - vm
   /resource/keypair:
     get:
       consumes:
