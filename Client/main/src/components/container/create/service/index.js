@@ -10,7 +10,7 @@ const ServiceForm = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    instance.post("/service", {
+    const datas = JSON.stringify({
       ApiVersion : "v1",
       Kind : "Service",
       Metadata_name : serviceName,
@@ -19,6 +19,12 @@ const ServiceForm = () => {
       Spec_ports_protocol: protocol,
       Spec_ports_targetPort: targetPort
     })
+    instance.post("/transaction",{
+      dest: "/service",
+      method: "POST",
+      data: datas
+    }
+    )
       .then(response => {
         console.log(response.data);
         alert("생성완료");
