@@ -37,16 +37,19 @@ export default function Admin() {
         Object.keys(checkedVms).forEach(Id => {
             if (checkedVms[Id]) {
                 console.log("Approving Vm:", Id);
-                approveVm(Id);
+                approveVm(Id,pendingVmList.find(vm => vm.Id === Id).UUID);
             }
         });
     }
 
-    function approveVm(Id) {
+    function approveVm(Id,approveUserUUID) {
+        const datas = JSON.stringify({
+            "approveUserUUID": approveUserUUID
+        });
         instance.post("/transaction", {
             "dest": "/action/approve/" + Id,
             "method": "POST",
-            "data": ""
+            "data": datas
         }).then(() => {
             alert("Vm(s) approved successfully!");
             window.location.reload();
@@ -117,7 +120,7 @@ export default function Admin() {
                             <td>{vm.UnionmountImage}</td>
                             <td>
                                 {vm.Status === 'Pending' && (
-                                    <Button variant="secondary" onClick={() => approveVm(vm.Id)}>승인</Button>
+                                    <Button variant="secondary" onClick={() => approveVm(vm.Id,vm.UUID)}>승인</Button>
                                 )}
                                 <Button variant="secondary" onClick={() => { setVmToDelete(vm.Id); setShowDeleteModal(true); }}>삭제</Button>
                             </td>
