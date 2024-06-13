@@ -25,6 +25,7 @@ h1 {
 }
 
 .button-container {
+  float: right;
   margin-top: 20px;
   text-align: right;
   
@@ -97,8 +98,8 @@ h1 {
 
 .vm-item {
 
-  width: 80%;
-  vertical-align: middle;
+  width: 98%;
+  align-content: center;
   border: 1px solid rgba(0, 123, 255, 0.125); /* Bootstrap border color */
   margin: 10px 0;
   padding: 15px;
@@ -111,4 +112,9 @@ h1 {
   margin-left: 20px;
   color: #007bff;
   display: inline-block;
+}
+
+.vm-buttons {
+  margin-top: 10px;
+  float: right;
 }
