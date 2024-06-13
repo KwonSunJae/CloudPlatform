@@ -239,21 +239,32 @@ func enrollVm(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type ApproveVMRequestBody struct {
+	ApproveUserUUID string
+}
+
 // @Summary VM 생성 승인
 // @Description VM 생성을 승인합니다.
 // @Tags vm
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "VM uuid"
+// @Param  body body ApproveVMRequestBody true "승인대상 사용자 UUID"
 // @Param X-UUID header string true "UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /action/approve/{id} [post]
 func approveVMCreation(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	uuid := r.Header.Get("X-UUID")
-	err := vm.Service.ApproveVMCreation(id, uuid)
+	//
 
+	var body ApproveVMRequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		response.Response(w, nil, http.StatusBadRequest, err)
+		return
+	}
+	err = vm.Service.ApproveVMCreation(id, body.ApproveUserUUID)
 	if err != nil {
 		switch err.Error() {
 		case "NOT FOUND":
