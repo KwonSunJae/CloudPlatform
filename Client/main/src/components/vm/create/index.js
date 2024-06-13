@@ -13,7 +13,7 @@ const VMCreateForm = () => {
     const [unionMountImage, setUnionMountImage] = useState('');
     const [keyPair, setKeyPair] = useState('');
     const [selectedSecurityGroup, setSelectedSecurityGroup] = useState('');
-
+    const [newKeyPairName, setNewKeyPairName] = useState('');
     const [flavorList, setFlavorList] = useState([]);
     const [imageList, setImageList] = useState([]);
     const [keypairList, setKeyPairList] = useState([]);
@@ -80,7 +80,7 @@ const VMCreateForm = () => {
             var images = JSON.parse(response.data.data).images;
             setImageList(images);
             setLoading(false);
-            console.log(response.data.data);
+            console.log(images);
         }
         ).catch((error) => {
             setLoading(false);
@@ -93,10 +93,17 @@ const VMCreateForm = () => {
 
 
     const handleCreateKeyPair = (event) => {
+        if (newKeyPairName === '') {
+            alert('Please enter a key pair name');
+            return;
+        }
+        setLoading(true);
+        const datas = JSON.stringify({ keypairName: newKeyPairName });
+
         instance.post("/transaction", {
             "dest": "/resource/keypair",
             "method": "POST",
-            "data": { keypairName: keyPair }.toString()
+            "data": datas
         }).then((response) => {
             setPemKey(response.data.pemKey);
             setKeyPairList([...keypairList, response.data]);
@@ -193,6 +200,10 @@ const VMCreateForm = () => {
                                 <option key={kp.id} value={kp.id}>{kp.name}</option>
                             ))}
                         </select>
+                    </label>
+                    <label>
+                        New Keypair Name :
+                        <input type="text" value={newKeyPairName} onChange={(e) => setNewKeyPairName(e.target.value)} />
                     </label>
                     <button onClick={handleCreateKeyPair}>Create Key Pair</button>
                     {pemKey && (
