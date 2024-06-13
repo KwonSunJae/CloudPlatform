@@ -39,6 +39,8 @@ func DeploymentController(router *mux.Router) error {
 
 	router.HandleFunc("/deployment/{id}", deleteDeployment).Methods("DELETE")
 
+	router.HandleFunc("/approve/deployment/{id}", approveDeployment).Methods("POST")
+
 	return nil
 }
 
@@ -48,6 +50,7 @@ func DeploymentController(router *mux.Router) error {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "deployment uuid"
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deployment/{id} [get]
 func getOneDeployment(w http.ResponseWriter, r *http.Request) {
@@ -75,9 +78,11 @@ func getOneDeployment(w http.ResponseWriter, r *http.Request) {
 // @Tags deployment
 // @Accept  json
 // @Produce  json
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deployment [get]
 func getAllDeployment(w http.ResponseWriter, r *http.Request) {
+
 	raws, err := deployment.Service.GetAllDeployment()
 
 	if err != nil {
@@ -94,10 +99,13 @@ func getAllDeployment(w http.ResponseWriter, r *http.Request) {
 // @Tags deployment
 // @Accept  json
 // @Produce  json
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deploymentstat [get]
 func getDeploymentsStatus(w http.ResponseWriter, r *http.Request) {
-	rsp, err := deployment.Service.GetDeploymentsStatus()
+	uuid := r.Header.Get("X-UUID")
+
+	rsp, err := deployment.Service.GetDeploymentsStatus(uuid)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -127,9 +135,11 @@ type createDeploymentBody struct {
 // @Accept  json
 // @Produce  json
 // @Param   body     body    createDeploymentBody     true  "deployment 정보"
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deployment [post]
 func createDeployment(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
 	var body createDeploymentBody
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -155,7 +165,8 @@ func createDeployment(w http.ResponseWriter, r *http.Request) {
 		SpecTemplateSpecContainersName               string
 		SpecTemplateSpecContainersImage              string
 		SpecTemplateSpecContainersPortsContainerport string
-		UserID                                       string
+		UUID                                         string
+		Status                                       string
 	}{
 		ApiVersion:                      body.ApiVersion,
 		Kind:                            body.Kind,
@@ -167,10 +178,11 @@ func createDeployment(w http.ResponseWriter, r *http.Request) {
 		SpecTemplateSpecContainersName:  body.SpecTemplateSpecContainersName,
 		SpecTemplateSpecContainersImage: body.SpecTemplateSpecContainersImage,
 		SpecTemplateSpecContainersPortsContainerport: body.SpecTemplateSpecContainersPortsContainerport,
-		UserID: "test",
+		UUID:   uuid,
+		Status: "Pending",
 	}
 
-	err = deployment.Service.CreateDeployment(deploymentDto)
+	err = deployment.Service.EnrollDeployment(deploymentDto)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -188,9 +200,11 @@ func createDeployment(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param   id     path    string     true  "deployment uuid"
 // @Param   body     body    createDeploymentBody     true  "deployment 정보"
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deployment/{id} [patch]
 func updateDeployment(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
 	var body createDeploymentBody
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -206,7 +220,8 @@ func updateDeployment(w http.ResponseWriter, r *http.Request) {
 		SpecTemplateSpecContainersName               string
 		SpecTemplateSpecContainersImage              string
 		SpecTemplateSpecContainersPortsContainerport string
-		UserID                                       string
+		UUID                                         string
+		Status                                       string
 	}{
 		ApiVersion:                      body.ApiVersion,
 		Kind:                            body.Kind,
@@ -218,7 +233,8 @@ func updateDeployment(w http.ResponseWriter, r *http.Request) {
 		SpecTemplateSpecContainersName:  body.SpecTemplateSpecContainersName,
 		SpecTemplateSpecContainersImage: body.SpecTemplateSpecContainersImage,
 		SpecTemplateSpecContainersPortsContainerport: body.SpecTemplateSpecContainersPortsContainerport,
-		UserID: "test",
+		UUID:   uuid,
+		Status: "Pending",
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -249,6 +265,7 @@ func updateDeployment(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "deployment uuid"
+// @Param  X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /deployment/{id} [delete]
 func deleteDeployment(w http.ResponseWriter, r *http.Request) {
@@ -269,4 +286,32 @@ func deleteDeployment(w http.ResponseWriter, r *http.Request) {
 
 	response.Response(w, "OK", http.StatusOK, nil)
 
+}
+
+// @Summary deployment 승인
+// @Description deployment를 승인합니다.
+// @Tags deployment
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "deployment uuid"
+// @Param  X-UUID header  string     true  "User UUID"
+// @Success 200 {object} response.CommonResponse
+// @Router /approve/deployment/{id} [post]
+func approveDeployment(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := deployment.Service.ApproveDeployment(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 Deployment가 없습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
 }

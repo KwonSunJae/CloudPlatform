@@ -315,6 +315,84 @@ const docTemplate = `{
                 }
             }
         },
+        "/approve/deployment/{id}": {
+            "post": {
+                "description": "deployment를 승인합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "deployment"
+                ],
+                "summary": "deployment 승인",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "deployment uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/approve/service/{id}": {
+            "post": {
+                "description": "service를 승인합니다.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "service"
+                ],
+                "summary": "service 승인",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "service uuid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CommonResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/deployment": {
             "get": {
                 "description": "deployment의 정보를 전체 조회합니다.",
@@ -328,6 +406,15 @@ const docTemplate = `{
                     "deployment"
                 ],
                 "summary": "deployment 정보 전체 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -358,6 +445,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/deployment.createDeploymentBody"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -390,6 +484,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -419,6 +520,13 @@ const docTemplate = `{
                         "description": "deployment uuid",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -459,6 +567,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/deployment.createDeploymentBody"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -484,6 +599,15 @@ const docTemplate = `{
                     "deployment"
                 ],
                 "summary": "deployment 상태 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -910,6 +1034,15 @@ const docTemplate = `{
                     "service"
                 ],
                 "summary": "service 정보 전체 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -940,6 +1073,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.ServiceRequestBody"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -972,6 +1112,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1001,6 +1148,13 @@ const docTemplate = `{
                         "description": "service uuid",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -1041,6 +1195,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controller.ServiceRequestBody"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1066,6 +1227,15 @@ const docTemplate = `{
                     "service"
                 ],
                 "summary": "service 상태 조회",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "X-UUID",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1611,7 +1781,10 @@ const docTemplate = `{
                 "specType": {
                     "type": "string"
                 },
-                "userID": {
+                "status": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }

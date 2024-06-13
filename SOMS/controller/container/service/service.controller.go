@@ -41,6 +41,8 @@ func ServiceController(router *mux.Router) error {
 
 	router.HandleFunc("/service/{id}", deleteService).Methods("DELETE")
 
+	router.HandleFunc("/approve/service/{id}", approveService).Methods("POST")
+
 	return nil
 }
 
@@ -50,6 +52,7 @@ func ServiceController(router *mux.Router) error {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "service uuid"
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /service/{id} [get]
 func getOneService(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +80,7 @@ func getOneService(w http.ResponseWriter, r *http.Request) {
 // @Tags service
 // @Accept  json
 // @Produce  json
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /service [get]
 func getAllService(w http.ResponseWriter, r *http.Request) {
@@ -96,10 +100,12 @@ func getAllService(w http.ResponseWriter, r *http.Request) {
 // @Tags service
 // @Accept  json
 // @Produce  json
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /servicestat [get]
 func getServiceStatus(w http.ResponseWriter, r *http.Request) {
-	rsp, err := service.Service.GetServiceStatus()
+	uuid := r.Header.Get("X-UUID")
+	rsp, err := service.Service.GetServiceStatus(uuid)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -131,7 +137,8 @@ type ServiceRequestBody struct {
 	// ExternalName
 	SpecExternalname string
 
-	UserID string
+	UUID   string
+	Status string
 }
 
 // @Summary service 생성
@@ -140,9 +147,11 @@ type ServiceRequestBody struct {
 // @Accept  json
 // @Produce  json
 // @Param   body     body    ServiceRequestBody    true  "service 정보"
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /service [post]
 func createService(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
 	var body ServiceRequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 
@@ -170,7 +179,8 @@ func createService(w http.ResponseWriter, r *http.Request) {
 		SpecSelectorType    string
 		SpecClusterIP       string
 		SpecExternalname    string
-		UserID              string
+		UUID                string
+		Status              string
 	}{
 		ApiVersion:          body.ApiVersion,
 		Kind:                body.Kind,
@@ -184,7 +194,8 @@ func createService(w http.ResponseWriter, r *http.Request) {
 		SpecSelectorType:    body.SpecSelectorType,
 		SpecClusterIP:       body.SpecClusterIP,
 		SpecExternalname:    body.SpecExternalname,
-		UserID:              body.UserID,
+		UUID:                uuid,
+		Status:              "Pending",
 	}
 	err = service.Service.CreateService(dto)
 
@@ -204,11 +215,13 @@ func createService(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param   id     path    string     true  "service uuid"
 // @Param   body     body    ServiceRequestBody    true  "service 정보"
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /service/{id} [patch]
 func updateService(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+	uuid := r.Header.Get("X-UUID")
 
 	var body ServiceRequestBody
 
@@ -239,7 +252,8 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 		// ExternalName
 		SpecExternalname string
 
-		UserID string
+		UUID   string
+		Status string
 	}{
 		ApiVersion:          body.ApiVersion,
 		Kind:                body.Kind,
@@ -253,7 +267,8 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 		SpecSelectorType:    body.SpecSelectorType,
 		SpecClusterIP:       body.SpecClusterIP,
 		SpecExternalname:    body.SpecExternalname,
-		UserID:              body.UserID,
+		UUID:                uuid,
+		Status:              "Pending",
 	}
 
 	err = service.Service.UpdateService(id, dto)
@@ -278,6 +293,7 @@ func updateService(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    string     true  "service uuid"
+// @Param X-UUID header  string     true  "User UUID"
 // @Success 200 {object} response.CommonResponse
 // @Router /service/{id} [delete]
 func deleteService(w http.ResponseWriter, r *http.Request) {
@@ -298,4 +314,32 @@ func deleteService(w http.ResponseWriter, r *http.Request) {
 
 	response.Response(w, "OK", http.StatusOK, nil)
 
+}
+
+// @Summary service 승인
+// @Description service를 승인합니다.
+// @Tags service
+// @Accept  json
+// @Produce  json
+// @Param   id     path    string     true  "service uuid"
+// @Param X-UUID header  string     true  "User UUID"
+// @Success 200 {object} response.CommonResponse
+// @Router /approve/service/{id} [post]
+func approveService(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := service.Service.ApproveService(id)
+
+	if err != nil {
+		switch err.Error() {
+		case "NOT FOUND":
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당되는 Service가 존재하지 않습니다."))
+		default:
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	response.Response(w, "OK", http.StatusOK, nil)
 }
