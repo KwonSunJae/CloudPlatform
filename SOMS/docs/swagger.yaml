@@ -92,6 +92,11 @@ definitions:
       role:
         type: string
     type: object
+  vm.ApproveVMRequestBody:
+    properties:
+      approveUserUUID:
+        type: string
+    type: object
   vm.CreateKeypairBody:
     properties:
       keypairName:
@@ -141,6 +146,12 @@ paths:
         name: id
         required: true
         type: string
+      - description: 승인대상 사용자 UUID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.ApproveVMRequestBody'
       - description: UUID
         in: header
         name: X-UUID

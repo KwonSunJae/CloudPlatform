@@ -46,6 +46,15 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "description": "승인대상 사용자 UUID",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/vm.ApproveVMRequestBody"
+                        }
+                    },
+                    {
                         "type": "string",
                         "description": "UUID",
                         "name": "X-UUID",
@@ -1693,6 +1702,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "vm.ApproveVMRequestBody": {
+            "type": "object",
+            "properties": {
+                "approveUserUUID": {
                     "type": "string"
                 }
             }
