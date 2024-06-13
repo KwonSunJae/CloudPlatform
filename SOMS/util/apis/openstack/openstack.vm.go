@@ -243,6 +243,17 @@ func listKeyPairs(authToken, endpoint string) (string,error){
     body, _ := ioutil.ReadAll(resp.Body)
     return string(body),nil
 }
+// getImageList는 OpenStack Glance API를 사용하여 이미지 목록을 가져옵니다.
+func getImageList(authToken, endpoint string) (string, error) {
+    url := fmt.Sprintf("%s/v2/images", endpoint)
+    body, err := sendRequest("GET", url, authToken, nil)
+    if err != nil {
+        return "", err
+    }
+
+
+    return string(body), nil
+}
 func getVNCConsole(authToken, endpoint, serverID string) (string, error) {
     url := fmt.Sprintf("%s/v2.1/servers/%s/action", endpoint, serverID)
     payload := map[string]interface{}{
@@ -302,6 +313,8 @@ func GetVNCConsoleURL(userID string, password string, serverID string) (string, 
     return getVNCConsole(authToken, computeEndpoint, serverID)
 }
 
+
+
 func CreateNetwork(userID string, password string, newnetworkName string)(string,error) {
     authToken,err := GetUserToken(userID,password)
     if err != nil {
@@ -347,6 +360,20 @@ func CreateKeyPair(userID,password, keyPairName string)(string,error){
 
     return data,nil
 
+}
+func ListImages(userID, password string)(string,error) {
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return "",err
+    }
+    imageEndpoint := os.Getenv("OPENSTACK_IMAGE_ENDPOINT")
+    data,err:=getImageList(authToken, imageEndpoint)
+    if err != nil {
+        return "",err
+    }
+    //data 가공
+
+    return data,nil
 }
 func ListFlavors(userID,password string)(string,error) {
     authToken,err := GetUserToken(userID,password)
@@ -461,3 +488,5 @@ func PowerOn(userID,password, serverID string)(bool,error){
 
     return rslt,nil
 }
+
+

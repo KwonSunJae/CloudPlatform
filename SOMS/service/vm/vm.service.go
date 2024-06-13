@@ -357,3 +357,18 @@ func (s *VmService) GetVnc(uuid string, vmID string) (string, error) {
 
 	return result, nil
 }
+
+func (s *VmService) GetImageList(uuid string) (string, error) {
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListImages(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+
+}

@@ -3,10 +3,12 @@ package vm
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	reqchecker "soms/controller/checker"
 	"soms/controller/checker/authority"
 	response "soms/controller/response"
+	"soms/repository/user"
 	"soms/service/vm"
 
 	"github.com/gorilla/mux"
@@ -72,6 +74,8 @@ func VmController(router *mux.Router) error {
 	router.HandleFunc("/resource/flavor", getFlavorList).Methods("GET")
 
 	router.HandleFunc("/resource/keypair", createKeypair).Methods("POST")
+
+	router.HandleFunc("/resource/image", getImageList).Methods("GET")
 
 	router.HandleFunc("/resource/keypair", getKeypairList).Methods("GET")
 	//router.HandleFunc("/vm/securitygroup", createSecurityGroup).Methods("POST")
@@ -142,7 +146,17 @@ func getAllVm(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} response.CommonResponse
 // @Router /vmstat [get]
 func getVmStatus(w http.ResponseWriter, r *http.Request) {
-	rsp, err := vm.Service.GetStatusVM("test")
+	uuid := r.Header.Get("X-UUID")
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		if err == errors.New("NOT FOUND") {
+			response.Response(w, nil, http.StatusNotFound, errors.New("해당 User가 없습니다"))
+		} else {
+			response.Response(w, nil, http.StatusInternalServerError, err)
+		}
+		return
+	}
+	rsp, err := vm.Service.GetStatusVM(targetUser.UserID)
 
 	if err != nil {
 		response.Response(w, nil, http.StatusInternalServerError, err)
@@ -683,6 +697,27 @@ func getVmVnc(w http.ResponseWriter, r *http.Request) {
 			response.Response(w, nil, http.StatusNotFound, errors.New("해당 VM이 없습니다."))
 			return
 		}
+		response.Response(w, nil, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.Response(w, rsp, http.StatusOK, nil)
+}
+
+// @Summary VM 이미지 리스트 조회
+// @Description VM의 이미지 리스트를 조회합니다.
+// @Tags vm
+// @Accept  json
+// @Produce  json
+// @Param X-UUID header string true "UUID"
+// @Success 200 {object} response.CommonResponse
+// @Router /resource/image [get]
+func getImageList(w http.ResponseWriter, r *http.Request) {
+	uuid := r.Header.Get("X-UUID")
+	rsp, err := vm.Service.GetImageList(uuid)
+
+	if err != nil {
+		fmt.Errorf("Get image List error: %v", err)
 		response.Response(w, nil, http.StatusInternalServerError, err)
 		return
 	}
