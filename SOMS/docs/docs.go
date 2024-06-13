@@ -764,7 +764,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/vm.CreateKeypairBody"
                         }
                     },
                     {
@@ -1696,6 +1696,9 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "vm.CreateKeypairBody": {
+            "type": "object"
         },
         "vm.CreateVmBody": {
             "type": "object",

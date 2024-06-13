@@ -758,7 +758,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/vm.CreateKeypairBody"
                         }
                     },
                     {
@@ -1690,6 +1690,9 @@
                     "type": "string"
                 }
             }
+        },
+        "vm.CreateKeypairBody": {
+            "type": "object"
         },
         "vm.CreateVmBody": {
             "type": "object",

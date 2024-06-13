@@ -92,6 +92,8 @@ definitions:
       role:
         type: string
     type: object
+  vm.CreateKeypairBody:
+    type: object
   vm.CreateVmBody:
     properties:
       externalIP:
@@ -612,7 +614,7 @@ paths:
         name: keypairName
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/vm.CreateKeypairBody'
       - description: UUID
         in: header
         name: X-UUID
