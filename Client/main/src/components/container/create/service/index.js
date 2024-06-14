@@ -10,15 +10,23 @@ const ServiceForm = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const datas = JSON.stringify({
-      ApiVersion : "v1",
-      Kind : "Service",
-      Metadata_name : serviceName,
-      Spec_selector_app : deploymentName,
-      Spec_ports_port  : port,
-      Spec_ports_protocol: protocol,
-      Spec_ports_targetPort: targetPort
-    })
+    
+    const datas = JSON.stringify(
+      {
+        apiVersion: "v1" ,
+        kind: "Service",
+        metadataName: serviceName,
+        specClusterIP: "none",
+        specExternalname: "none",
+        specPortsNodeport: targetPort,
+        specPortsPort: port,
+        specPortsProtocol: protocol ,
+        specPortsTargetport: targetPort ,
+        specSelectorApp: "none",
+        specSelectorType: "none",
+        specType: "NodePort"
+      }
+    )
     instance.post("/transaction",{
       dest: "/service",
       method: "POST",
