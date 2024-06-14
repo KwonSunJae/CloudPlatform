@@ -11,7 +11,8 @@ const AdminNavbar = () => {
       <ul className="admin-navbar-list">
         <li className="admin-navbar-item"><Link to="/admin">유저</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/vm">VM</Link></li>
-        <li className="admin-navbar-item"><Link to="/admin/container">Container</Link></li>
+        <li className="admin-navbar-item"><Link to="/admin/container/service">Container-Service</Link></li>
+        <li className="admin-navbar-item"><Link to="/admin/container/deployment">Container-Deployment</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/kluster">Kluster</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/baremetal">Baremetal</Link></li>
       </ul>

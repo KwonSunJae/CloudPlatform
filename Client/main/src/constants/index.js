@@ -30,3 +30,8 @@ export const VmStatusList = Object.freeze([
     "Pending",
     "Executing"
 ]);
+
+export const ConatinerStatusList = Object.freeze([
+    "Pending",
+    "Executing"
+]);
