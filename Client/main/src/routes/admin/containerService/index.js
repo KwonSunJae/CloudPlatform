@@ -1,20 +1,21 @@
+
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import NavigationBar from "../../../components/navigationbar";
 import Footer from "../../../components/footer";
-import AdminContainer from "../../../components/admin/container";
+import AdminContainerService from "../../../components/admin/containerService";
 import AdminNavbar from "../../../components/admin/navbar";
 
 
 
-export default function AdminPageContainer() {
+export default function AdminPageContainerService() {
   
   return (
     
     <div>
     <NavigationBar />
     <AdminNavbar />
-    <AdminContainer />
+    <AdminContainerService />
     <Footer />
     </div>
     

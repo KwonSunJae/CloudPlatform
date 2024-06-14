@@ -15,7 +15,8 @@ import VMStat from './statusVM';
 import ContainerStat from './statusContainer';
 import AdminPage from './admin';
 import AdminPageVM from './admin/vm';
-import AdminPageContainer from './admin/container';
+import AdminPageContainerService from './admin/containerService';
+import AdminPageContainerDeployment from './admin/containerDeployment';
 const Routers = () => {
 
     return (
@@ -34,7 +35,8 @@ const Routers = () => {
                 <Route path='/container' element={<ContainerStat/>}/>
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/admin/vm" element={<AdminPageVM />} />
-                <Route path="/admin/container" element={<AdminPageContainer />} />
+                <Route path="/admin/container/service" element={<AdminPageContainerService />} />
+                <Route path="/admin/container/deployment" element={<AdminPageContainerDeployment />} />
                 <Route path = "*" element={<Error/>}/>
             </Routes>
         </Router>
