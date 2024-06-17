@@ -43,17 +43,32 @@ public class TransactionService {
     public Response requestSOMS(RequestDto requestDto, Long memberId, String remoteAddr) {
         // 고유한 트랜잭션 ID 생성
         String transactionId = UUID.randomUUID().toString();
+        Member member = getMemberById(memberId);
 
-        Response response = apiServer(requestDto, memberId, transactionId, remoteAddr);
+        Response response = apiServer(requestDto, member, transactionId, remoteAddr);
 
         logEnd(transactionId, UUID.randomUUID().toString());
         return response;
     }
 
-    private Response apiServer(RequestDto requestDto, Long memberId, String transactionId, String remoteAddr){
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public Response getMemberInfo(RequestDto requestDto, Long memberId, String remoteAddr) {
+        log.info("getMemberInfo");
+
+        String transactionId = UUID.randomUUID().toString();
         Member member = getMemberById(memberId);
+
+        requestDto.setDest(requestDto.getDest() + "/" + member.getUuid());
+
+        Response response = apiServer(requestDto, member, transactionId, remoteAddr);
+        log.info(response.toString());
+        logEnd(transactionId, UUID.randomUUID().toString());
+        return response;
+    }
+
+    private Response apiServer(RequestDto requestDto, Member member, String transactionId, String remoteAddr){
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set("ssid", member.getSsid());
+        httpHeaders.set("X-UUID", member.getUuid());
 
         logEnroll(requestDto, transactionId, remoteAddr);
 
