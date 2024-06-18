@@ -47,7 +47,7 @@ const NavigationBar = () => {
         <li><Link to="/introduction">소개</Link></li>
         <li><Link to="/system">시스템</Link></li>
         <li><Link to="/monitoring">모니터링</Link></li>
-        <li><Link to="/member-info">회원정보</Link></li>
+        <li><Link to="/mypage">회원정보</Link></li>
       </ul>
       <div className="auth-buttons">
         <button onClick={openLoginModal}>로그인</button>
