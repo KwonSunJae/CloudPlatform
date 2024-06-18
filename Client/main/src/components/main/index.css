@@ -15,7 +15,7 @@
   
   .slick-slide img {
     width: 100%;
-    opacity: 80%;
+    
     height: 50vh; /* Set the height for your slides */
     object-fit: cover;
   }
