@@ -143,7 +143,7 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
         specTemplateSpecContainersImage = IFNULL(?, specTemplateSpecContainersImage),
         specTemplateSpecContainersPortsContainerport = IFNULL(?, specTemplateSpecContainersPortsContainerport),
 		uuid = IFNULL(?, uuid),
-		staus = IFNULL(?, status)
+		status = IFNULL(?, status)
         
     WHERE
         id = ?
