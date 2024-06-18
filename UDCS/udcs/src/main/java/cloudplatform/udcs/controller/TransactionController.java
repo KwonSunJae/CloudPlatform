@@ -1,8 +1,10 @@
 package cloudplatform.udcs.controller;
 
+import cloudplatform.udcs.domain.Response;
 import cloudplatform.udcs.dto.RequestDto;
 import cloudplatform.udcs.service.TransactionService;
 import cloudplatform.udcs.util.AuthenticationUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,13 +25,12 @@ public class TransactionController {
 
     @PreAuthorize("hasAnyRole('USER')")
     @PostMapping("/transaction")
-    public ResponseEntity<Void> somethingToDo(
+    public ResponseEntity<Response> somethingToDo(
             @RequestBody RequestDto requestDto,
-            @RequestHeader(value = "Access-Token") String access_token
+            @RequestHeader(value = "Access-Token") String access_token,
+            HttpServletRequest request
     ) {
-        transactionService.requestSOMS(requestDto, getMemberId());
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(transactionService.requestSOMS(requestDto, getMemberId(),request.getRemoteAddr()));
     }
-
 
 }

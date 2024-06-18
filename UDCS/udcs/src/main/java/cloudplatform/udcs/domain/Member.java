@@ -19,7 +19,7 @@ public class Member extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private MemberAuthority memberAuthority;
 
-    private String ssid; //uuid
+    private String uuid; //uuid
     private String userId; // user Id ex ehdtndla23
 
     private String refreshToken;

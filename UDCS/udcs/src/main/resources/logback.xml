@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration scan="true" scanPeriod="30 seconds">
-    <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>0.0.0.0:50000</destination>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
 
-        </encoder>
-    </appender>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
 
+    <include resource="logstash-appender.xml"/>
+    <include resource="file-appender.xml"/>
+    <include resource="console-appender.xml"/>
     <root>
         <level value="INFO"/>
-        <appender-ref ref="LOGSTASH"/>
+<!--        <appender-ref ref="LOGSTASH"/>-->
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>
