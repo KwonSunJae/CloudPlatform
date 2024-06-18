@@ -91,6 +91,7 @@ func (s *ServiceService) ApproveService(id string) error {
 
 	_, err2 := s.Repository.UpdateOneService(id, approvedService)
 	if err2 != nil {
+		fmt.Println("db error: %v", err2)
 		return fmt.Errorf("db error: %v", err2)
 	}
 
