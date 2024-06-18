@@ -81,16 +81,16 @@ export default function Admin() {
                     <tr>
                         <th>선택</th>
                         <th>고유ID</th>
-                        <th>이름</th>
-                        <th>External IP</th>
-                        <th>Flavor ID</th>
-                        <th>Internal IP</th>
-                        <th>Keypair</th>
-                        <th>Selected OS</th>
-                        <th>Security Group</th>
+                        <th>MetadataName</th>
+                        <th>MetadataLabelsApp</th>
+                        <th>SpecReplicas</th>
+                        <th>SpecSelectorMatchlabelsApp</th>
+                        <th>SpecTemplateMetadataLabelsApp</th>
+                        <th>SpecTemplateSpecContainersName</th>
+                        <th>SpecTemplateSpecContainersImage</th>
                         <th>Status</th>
                         <th>UUID</th>
-                        <th>Unionmount Image</th>
+                        <th>SpecTemplateSpecContainersPortsContainerport</th>
                         <th>액션</th>
                     </tr>
                 </thead>
