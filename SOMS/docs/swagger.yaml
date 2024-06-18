@@ -1,0 +1,1271 @@
+basePath: /
+definitions:
+  controller.ServiceRequestBody:
+    properties:
+      apiVersion:
+        description: ClusterIP
+        type: string
+      kind:
+        type: string
+      metadataName:
+        type: string
+      specClusterIP:
+        type: string
+      specExternalname:
+        description: ExternalName
+        type: string
+      specPortsNodeport:
+        description: NodePort
+        type: string
+      specPortsPort:
+        type: string
+      specPortsProtocol:
+        type: string
+      specPortsTargetport:
+        type: string
+      specSelectorApp:
+        type: string
+      specSelectorType:
+        description: LoadBalancer
+        type: string
+      specType:
+        type: string
+    type: object
+  deployment.createDeploymentBody:
+    properties:
+      apiVersion:
+        type: string
+      kind:
+        type: string
+      metadataLabelsApp:
+        type: string
+      metadataName:
+        type: string
+      specReplicas:
+        type: string
+      specSelectorMatchlabelsApp:
+        type: string
+      specTemplateMetadataLabelsApp:
+        type: string
+      specTemplateSpecContainersImage:
+        type: string
+      specTemplateSpecContainersName:
+        type: string
+      specTemplateSpecContainersPortsContainerport:
+        type: string
+    type: object
+  response.CommonResponse:
+    properties:
+      data: {}
+      error: {}
+      status:
+        type: integer
+    type: object
+  user.UserLoginRequestBody:
+    properties:
+      pw:
+        type: string
+      userID:
+        type: string
+    type: object
+  user.UserRequestBody:
+    properties:
+      name:
+        type: string
+      priority:
+        type: string
+      pw:
+        type: string
+      role:
+        type: string
+      spot:
+        type: string
+      userID:
+        type: string
+    type: object
+  user.approveUserRequestBody:
+    properties:
+      priority:
+        type: string
+      role:
+        type: string
+    type: object
+  vm.ApproveVMRequestBody:
+    properties:
+      approveUserUUID:
+        type: string
+    type: object
+  vm.CreateKeypairBody:
+    properties:
+      keypairName:
+        type: string
+    type: object
+  vm.CreateVmBody:
+    properties:
+      externalIP:
+        type: string
+      flavorID:
+        type: string
+      internalIP:
+        type: string
+      keypair:
+        type: string
+      name:
+        type: string
+      selectedOS:
+        type: string
+      selectedSecuritygroup:
+        type: string
+      unionmountImage:
+        type: string
+    type: object
+host: 117.16.136.172:3000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Cloud Platform API Server
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: SOMS API
+  version: "1.0"
+paths:
+  /action/approve/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM 생성을 승인합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 승인대상 사용자 UUID
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.ApproveVMRequestBody'
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 생성 승인
+      tags:
+      - vm
+  /action/hardreboot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 하드 리부팅합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 하드 리부팅
+      tags:
+      - vm
+  /action/poweroff/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 종료합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 종료
+      tags:
+      - vm
+  /action/poweron/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 시작합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 시작
+      tags:
+      - vm
+  /action/snapshot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM의 스냅샷을 생성합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 스냅샷 이름
+        in: body
+        name: snapshotName
+        required: true
+        schema:
+          type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 스냅샷 생성
+      tags:
+      - vm
+  /action/softreboot/{id}:
+    post:
+      consumes:
+      - application/json
+      description: VM을 소프트 리부팅합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 소프트 리부팅
+      tags:
+      - vm
+  /action/vnc/{id}:
+    get:
+      consumes:
+      - application/json
+      description: VM의 VNC URL을 조회합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM VNC URL 조회
+      tags:
+      - vm
+  /approve/deployment/{id}:
+    post:
+      consumes:
+      - application/json
+      description: deployment를 승인합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 승인
+      tags:
+      - deployment
+  /approve/service/{id}:
+    post:
+      consumes:
+      - application/json
+      description: service를 승인합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 승인
+      tags:
+      - service
+  /deployment:
+    get:
+      consumes:
+      - application/json
+      description: deployment의 정보를 전체 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 전체 조회
+      tags:
+      - deployment
+    post:
+      consumes:
+      - application/json
+      description: deployment를 등록합니다.
+      parameters:
+      - description: deployment 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/deployment.createDeploymentBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 등록
+      tags:
+      - deployment
+  /deployment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deployment의 정보를 삭제합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 삭제
+      tags:
+      - deployment
+    get:
+      consumes:
+      - application/json
+      description: deployment의 정보를 조회합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 정보 조회
+      tags:
+      - deployment
+    patch:
+      consumes:
+      - application/json
+      description: deployment를 수정합니다.
+      parameters:
+      - description: deployment uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: deployment 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/deployment.createDeploymentBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 수정
+      tags:
+      - deployment
+  /deploymentstat:
+    get:
+      consumes:
+      - application/json
+      description: deployment의 상태를 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: deployment 상태 조회
+      tags:
+      - deployment
+  /mockup/200:
+    get:
+      consumes:
+      - application/json
+      description: 200 OK 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 200 OK 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 200 OK 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 200 OK 응답
+      tags:
+      - mockup
+  /mockup/400:
+    get:
+      consumes:
+      - application/json
+      description: 40X 에러 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 40X 에러 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 40X 에러 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 40X 에러 응답
+      tags:
+      - mockup
+  /mockup/500:
+    get:
+      consumes:
+      - application/json
+      description: 50X 에러 응답을 반환합니다.
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 50X 에러 응답
+      tags:
+      - mockup
+    post:
+      consumes:
+      - application/json
+      description: 50X 에러 응답을 반환합니다.
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 50X 에러 응답
+      tags:
+      - mockup
+  /resource/flavor:
+    get:
+      consumes:
+      - application/json
+      description: VM의 플레이버 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 플레이버 리스트 조회
+      tags:
+      - vm
+  /resource/image:
+    get:
+      consumes:
+      - application/json
+      description: VM의 이미지 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 이미지 리스트 조회
+      tags:
+      - vm
+  /resource/keypair:
+    get:
+      consumes:
+      - application/json
+      description: VM의 키페어 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 키페어 리스트 조회
+      tags:
+      - vm
+    post:
+      consumes:
+      - application/json
+      description: VM의 키페어를 생성합니다.
+      parameters:
+      - description: 키페어 이름
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.CreateKeypairBody'
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 키페어 생성
+      tags:
+      - vm
+  /resource/network:
+    get:
+      consumes:
+      - application/json
+      description: VM의 네트워크 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 네트워크 리스트 조회
+      tags:
+      - vm
+    post:
+      consumes:
+      - application/json
+      description: VM의 네트워크를 생성합니다.
+      parameters:
+      - description: 네트워크 이름
+        in: body
+        name: networkName
+        required: true
+        schema:
+          type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 네트워크 생성
+      tags:
+      - vm
+  /resource/securitygroup:
+    get:
+      consumes:
+      - application/json
+      description: VM의 보안그룹 리스트를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 보안그룹 리스트 조회
+      tags:
+      - vm
+  /service:
+    get:
+      consumes:
+      - application/json
+      description: service의 정보를 전체 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 전체 조회
+      tags:
+      - service
+    post:
+      consumes:
+      - application/json
+      description: service를 생성합니다.
+      parameters:
+      - description: service 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ServiceRequestBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 생성
+      tags:
+      - service
+  /service/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: service의 정보를 삭제합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 삭제
+      tags:
+      - service
+    get:
+      consumes:
+      - application/json
+      description: service의 정보를 조회합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 정보 조회
+      tags:
+      - service
+    patch:
+      consumes:
+      - application/json
+      description: service를 수정합니다.
+      parameters:
+      - description: service uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: service 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ServiceRequestBody'
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 수정
+      tags:
+      - service
+  /servicestat:
+    get:
+      consumes:
+      - application/json
+      description: service의 상태를 조회합니다.
+      parameters:
+      - description: User UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: service 상태 조회
+      tags:
+      - service
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: 사용자의 정보를 전체 조회합니다.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 정보 전체 조회
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: 사용자 가입을 진행합니다.
+      parameters:
+      - description: User Name
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 가입
+      tags:
+      - user
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 사용자의 정보를 삭제합니다.
+      parameters:
+      - description: User uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 정보 삭제
+      tags:
+      - user
+    patch:
+      consumes:
+      - application/json
+      description: 사용자의 정보를 수정합니다.
+      parameters:
+      - description: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 정보 수정
+      tags:
+      - user
+  /user/{uuid}:
+    get:
+      consumes:
+      - application/json
+      description: 사용자의 정보를 조회합니다.
+      parameters:
+      - description: uuid
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 정보 조회
+      tags:
+      - user
+  /user/approve/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 사용자의 승인을 진행합니다.
+      parameters:
+      - description: 승인대상 유저 uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 승인 정보
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.approveUserRequestBody'
+      - description: 승인자 UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 승인
+      tags:
+      - user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 사용자 로그인을 진행합니다.
+      parameters:
+      - description: User Login Info
+        in: body
+        name: UserLogin
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserLoginRequestBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 로그인
+      tags:
+      - user
+  /user/validate/{userID}:
+    get:
+      consumes:
+      - application/json
+      description: 사용자 ID의 유효성을 검사합니다.
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: 사용자 ID 유효성 검사
+      tags:
+      - user
+  /vm:
+    get:
+      consumes:
+      - application/json
+      description: VM의 정보를 전체 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 정보 전체 조회
+      tags:
+      - vm
+    post:
+      consumes:
+      - application/json
+      description: VM을 등록합니다.
+      parameters:
+      - description: VM 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.CreateVmBody'
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 등록
+      tags:
+      - vm
+  /vm/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: VM의 정보를 삭제합니다.
+      parameters:
+      - description: VM id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 정보 삭제
+      tags:
+      - vm
+    get:
+      consumes:
+      - application/json
+      description: VM의 정보를 조회합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 정보 조회
+      tags:
+      - vm
+    patch:
+      consumes:
+      - application/json
+      description: VM의 정보를 수정합니다.
+      parameters:
+      - description: VM uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: VM 정보
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/vm.CreateVmBody'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 정보 수정
+      tags:
+      - vm
+  /vmstat:
+    get:
+      consumes:
+      - application/json
+      description: VM의 상태를 조회합니다.
+      parameters:
+      - description: UUID
+        in: header
+        name: X-UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CommonResponse'
+      summary: VM 상태 조회
+      tags:
+      - vm
+swagger: "2.0"

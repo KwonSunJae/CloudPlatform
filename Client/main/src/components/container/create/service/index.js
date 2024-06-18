@@ -1,6 +1,6 @@
 // ServiceForm.js
 import React,{useState,useEffect} from 'react';
-import instance from '../../../../apis';
+import instance from '../../../../apis/instance';
 const ServiceForm = () => {
   const [serviceName,setServiceName] = useState('');
   const [deploymentName, setDeploymentName] = useState('');
@@ -10,15 +10,29 @@ const ServiceForm = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    instance.post("/service", {
-      ApiVersion : "v1",
-      Kind : "Service",
-      Metadata_name : serviceName,
-      Spec_selector_app : deploymentName,
-      Spec_ports_port  : port,
-      Spec_ports_protocol: protocol,
-      Spec_ports_targetPort: targetPort
-    })
+    
+    const datas = JSON.stringify(
+      {
+        apiVersion: "v1" ,
+        kind: "Service",
+        metadataName: serviceName,
+        specClusterIP: "none",
+        specExternalname: "none",
+        specPortsNodeport: targetPort,
+        specPortsPort: port,
+        specPortsProtocol: protocol ,
+        specPortsTargetport: targetPort ,
+        specSelectorApp: "none",
+        specSelectorType: "none",
+        specType: "NodePort"
+      }
+    )
+    instance.post("/transaction",{
+      dest: "/service",
+      method: "POST",
+      data: datas
+    }
+    )
       .then(response => {
         console.log(response.data);
         alert("생성완료");

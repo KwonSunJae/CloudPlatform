@@ -9,24 +9,54 @@ import (
 )
 
 type ServiceDto struct {
-	ApiVersion            string
-	Kind                  string
-	Metadata_name         string
-	Spec_ports_port       string
-	Spec_ports_protocol   string
-	Spec_ports_targetPort string
-	Spec_selector_app     string
+	// ClusterIP
+	ApiVersion          string
+	Kind                string
+	MetadataName        string
+	SpecType            string
+	SpecSelectorApp     string
+	SpecPortsProtocol   string // 배열로 나중에 바꿔야함
+	SpecPortsPort       string
+	SpecPortsTargetport string
+
+	// NodePort
+	SpecPortsNodeport string
+
+	// LoadBalancer
+	SpecSelectorType string
+	SpecClusterIP    string
+
+	// ExternalName
+	SpecExternalname string
+
+	UUID   string
+	Status string
 }
 
 type ServiceRaw struct {
-	Id                    string
-	ApiVersion            string
-	Kind                  string
-	Metadata_name         string
-	Spec_ports_port       string
-	Spec_ports_protocol   string
-	Spec_ports_targetPort string
-	Spec_selector_app     string
+	// ClusterIP
+	Id                  string
+	ApiVersion          string
+	Kind                string
+	MetadataName        string
+	SpecType            string
+	SpecSelectorApp     string
+	SpecPortsProtocol   string // 배열로 나중에 바꿔야함
+	SpecPortsPort       string
+	SpecPortsTargetport string
+
+	// NodePort
+	SpecPortsNodeport string
+
+	// LoadBalancer
+	SpecSelectorType string
+	SpecClusterIP    string
+
+	// ExternalName
+	SpecExternalname string
+
+	UUID   string
+	Status string
 }
 
 type ServiceRepository struct {
@@ -48,10 +78,10 @@ func (r *ServiceRepository) InsertService(n ServiceDto) (sql.Result, error) {
 
 	query := `
     INSERT INTO service
-    (id, apiVersion, kind, metadata_name, spec_ports_port, spec_ports_protocol, spec_ports_targetPort, spec_selector_app)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (id, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.Metadata_name, n.Spec_ports_port, n.Spec_ports_protocol, n.Spec_ports_targetPort, n.Spec_selector_app)
+	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.SpecType, n.SpecSelectorApp, n.SpecPortsProtocol, n.SpecPortsPort, n.SpecPortsTargetport, n.SpecPortsNodeport, n.SpecSelectorType, n.SpecClusterIP, n.SpecExternalname, n.UUID, n.Status)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +100,7 @@ func (r *ServiceRepository) GetAllService() (*[]ServiceRaw, error) {
 	}
 	for rows.Next() {
 		var raw ServiceRaw
-		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
+		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UUID, &raw.Status)
 
 		raws = append(raws, raw)
 	}
@@ -86,7 +116,7 @@ func (r *ServiceRepository) GetOneService(id string) (*ServiceRaw, error) {
 	var raw ServiceRaw
 
 	query := `SELECT * FROM service WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Spec_ports_port, &raw.Spec_ports_protocol, &raw.Spec_ports_targetPort, &raw.Spec_selector_app)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.SpecType, &raw.SpecSelectorApp, &raw.SpecPortsProtocol, &raw.SpecPortsPort, &raw.SpecPortsTargetport, &raw.SpecPortsNodeport, &raw.SpecSelectorType, &raw.SpecClusterIP, &raw.SpecExternalname, &raw.UUID, &raw.Status)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -126,16 +156,23 @@ func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Resul
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),
-        metadata_name = IFNULL(?, metadata_name),
-        spec_ports_port = IFNULL(?, spec_ports_port),
-        spec_ports_protocol = IFNULL(?, spec_ports_protocol),
-        spec_ports_targetPort = IFNULL(?, spec_ports_targetPort),
-        spec_selector_app = IFNULL(?, spec_selector_app),
+        metadataName = IFNULL(?, metadataName),
+        specType = IFNULL(?, specType),
+        specSelectorApp = IFNULL(?, specSelectorApp),
+        specPortsProtocol = IFNULL(?, specPortsProtocol),
+        specPortsPort = IFNULL(?, specPortsPort),
+		specPortsTargetport = IFNULL(?, specPortsTargetport),
+		specPortsNodeport = IFNULL(?, specPortsNodeport),
+		specSelectorType = IFNULL(?, specSelectorType),
+		specClusterIP = IFNULL(?, specClusterIP),
+		specExternalname  = IFNULL(?, specExternalname),
+		uuid = IFNULL(?, uuid),
+		status = IFNULL(?, status)
         
     WHERE
         id = ?
 	`
-	var apiVersion, kind, metadata_name, spec_ports_port, spec_ports_protocol, spec_ports_targetPort, spec_selector_app *string
+	var apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status *string
 
 	if n.ApiVersion != "" {
 		apiVersion = &n.ApiVersion
@@ -145,27 +182,55 @@ func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Resul
 		kind = &n.Kind
 	}
 
-	if n.Metadata_name != "" {
-		metadata_name = &n.Metadata_name
+	if n.MetadataName != "" {
+		metadataName = &n.MetadataName
 	}
 
-	if n.Spec_ports_port != "" {
-		spec_ports_port = &n.Spec_ports_port
+	if n.SpecType != "" {
+		specType = &n.SpecType
 	}
 
-	if n.Spec_ports_protocol != "" {
-		spec_ports_protocol = &n.Spec_ports_protocol
+	if n.SpecSelectorApp != "" {
+		specSelectorApp = &n.SpecSelectorApp
 	}
 
-	if n.Spec_ports_targetPort != "" {
-		spec_ports_targetPort = &n.Spec_ports_targetPort
+	if n.SpecPortsProtocol != "" {
+		specPortsProtocol = &n.SpecPortsProtocol
 	}
 
-	if n.Spec_selector_app != "" {
-		spec_selector_app = &n.Spec_selector_app
+	if n.SpecPortsPort != "" {
+		specPortsPort = &n.SpecPortsPort
 	}
 
-	result, err := r.DB.Exec(query, apiVersion, kind, metadata_name, spec_ports_port, spec_ports_protocol, spec_ports_targetPort, spec_selector_app, id)
+	if n.SpecPortsTargetport != "" {
+		specPortsTargetport = &n.SpecPortsTargetport
+	}
+
+	if n.SpecPortsNodeport != "" {
+		specPortsNodeport = &n.SpecPortsNodeport
+	}
+
+	if n.SpecSelectorType != "" {
+		specSelectorType = &n.SpecSelectorType
+	}
+
+	if n.SpecClusterIP != "" {
+		specClusterIP = &n.SpecClusterIP
+	}
+
+	if n.SpecExternalname != "" {
+		specExternalname = &n.SpecExternalname
+	}
+
+	if n.UUID != "" {
+		uuid = &n.UUID
+	}
+
+	if n.Status != "" {
+		status = &n.Status
+	}
+
+	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, specType, specSelectorApp, specPortsProtocol, specPortsPort, specPortsTargetport, specPortsNodeport, specSelectorType, specClusterIP, specExternalname, uuid, status, id)
 
 	if err != nil {
 		return nil, err

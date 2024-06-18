@@ -9,34 +9,34 @@ import (
 )
 
 type DeploymentDto struct {
-	ApiVersion                                        string
-	Kind                                              string
-	Metadata_name                                     string
-	Metadata_labels_app                               string
-	Spec_selector_matchLabels_app                     string
-	Spec_template_metadata_labels_app                 string
-	Spec_template_spec_hostname                       string
-	Spec_template_spec_subdomain                      string
-	Spec_template_spec_containers_image               string
-	Spec_template_spec_containers_imagePullPolicy     string
-	Spec_template_spec_containers_name                string
-	Spec_template_spec_containers_ports_containerPort string
+	ApiVersion                                   string
+	Kind                                         string
+	MetadataName                                 string
+	MetadataLabelsApp                            string
+	SpecReplicas                                 string
+	SpecSelectorMatchlabelsApp                   string
+	SpecTemplateMetadataLabelsApp                string
+	SpecTemplateSpecContainersName               string
+	SpecTemplateSpecContainersImage              string
+	SpecTemplateSpecContainersPortsContainerport string
+	UUID                                         string
+	Status                                       string
 }
 
 type DeploymentRaw struct {
-	Id                                                string
-	ApiVersion                                        string
-	Kind                                              string
-	Metadata_name                                     string
-	Metadata_labels_app                               string
-	Spec_selector_matchLabels_app                     string
-	Spec_template_metadata_labels_app                 string
-	Spec_template_spec_hostname                       string
-	Spec_template_spec_subdomain                      string
-	Spec_template_spec_containers_image               string
-	Spec_template_spec_containers_imagePullPolicy     string
-	Spec_template_spec_containers_name                string
-	Spec_template_spec_containers_ports_containerPort string
+	Id                                           string
+	ApiVersion                                   string
+	Kind                                         string
+	MetadataName                                 string
+	MetadataLabelsApp                            string
+	SpecReplicas                                 string
+	SpecSelectorMatchlabelsApp                   string
+	SpecTemplateMetadataLabelsApp                string
+	SpecTemplateSpecContainersName               string
+	SpecTemplateSpecContainersImage              string
+	SpecTemplateSpecContainersPortsContainerport string
+	UUID                                         string
+	Status                                       string
 }
 
 type DeploymentRepository struct {
@@ -58,10 +58,10 @@ func (r *DeploymentRepository) InsertDeployment(n DeploymentDto) (sql.Result, er
 
 	query := `
     INSERT INTO deployment
-    (id, apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (id, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, uuid, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.Metadata_name, n.Metadata_labels_app, n.Spec_selector_matchLabels_app, n.Spec_template_metadata_labels_app, n.Spec_template_spec_hostname, n.Spec_template_spec_subdomain, n.Spec_template_spec_containers_image, n.Spec_template_spec_containers_imagePullPolicy, n.Spec_template_spec_containers_name, n.Spec_template_spec_containers_ports_containerPort)
+	result, err := r.DB.Exec(query, id.String(), n.ApiVersion, n.Kind, n.MetadataName, n.MetadataLabelsApp, n.SpecReplicas, n.SpecSelectorMatchlabelsApp, n.SpecTemplateMetadataLabelsApp, n.SpecTemplateSpecContainersName, n.SpecTemplateSpecContainersImage, n.SpecTemplateSpecContainersPortsContainerport, n.UUID, n.Status)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (r *DeploymentRepository) GetAllDeployment() (*[]DeploymentRaw, error) {
 
 	for rows.Next() {
 		var raw DeploymentRaw
-		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Metadata_labels_app, &raw.Spec_selector_matchLabels_app, &raw.Spec_template_metadata_labels_app, &raw.Spec_template_spec_hostname, &raw.Spec_template_spec_subdomain, &raw.Spec_template_spec_containers_image, &raw.Spec_template_spec_containers_imagePullPolicy, &raw.Spec_template_spec_containers_name, &raw.Spec_template_spec_containers_ports_containerPort)
+		rows.Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport, &raw.UUID, &raw.Status)
 
 		raws = append(raws, raw)
 	}
@@ -94,7 +94,7 @@ func (r *DeploymentRepository) GetOneDeployment(id string) (*DeploymentRaw, erro
 	var raw DeploymentRaw
 
 	query := `SELECT * FROM deployment WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.Metadata_name, &raw.Metadata_labels_app, &raw.Spec_selector_matchLabels_app, &raw.Spec_template_metadata_labels_app, &raw.Spec_template_spec_hostname, &raw.Spec_template_spec_subdomain, &raw.Spec_template_spec_containers_image, &raw.Spec_template_spec_containers_imagePullPolicy, &raw.Spec_template_spec_containers_name, &raw.Spec_template_spec_containers_ports_containerPort)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.ApiVersion, &raw.Kind, &raw.MetadataName, &raw.MetadataLabelsApp, &raw.SpecReplicas, &raw.SpecSelectorMatchlabelsApp, &raw.SpecTemplateMetadataLabelsApp, &raw.SpecTemplateSpecContainersName, &raw.SpecTemplateSpecContainersImage, &raw.SpecTemplateSpecContainersPortsContainerport, &raw.UUID, &raw.Status)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -134,21 +134,21 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
     SET
         apiVersion = IFNULL(?, apiVersion),
     	kind = IFNULL(?, kind),
-        metadata_name = IFNULL(?, metadata_name),
-        metatdata_labels_app = IFNULL(?, metadata_labels_app),
-        spec_selector_matchLabels_app = IFNULL(?, spec_selector_matchLabels_app),
-        spec_template_metadata_labels_app = IFNULL(?, spec_template_metadata_labels_app),
-        spec_template_spec_hostname = IFNULL(?, spec_template_spec_hostname),
-        spec_template_spec_subdomain = IFNULL(?, spec_template_spec_subdomain),
-        spec_template_spec_containers_image = IFNULL(?, spec_template_spec_containers_image),
-        spec_template_spec_containers_imagePullPolicy = IFNULL(?, spec_template_spec_containers_imagePullPolicy),
-        spec_template_spec_containers_name = IFNULL(?, spec_template_spec_containers_name),
-        spec_template_spec_containers_ports_containerPort = IFNULL(?, spec_template_spec_containers_ports_containerPort)
-
+        metadataName = IFNULL(?, metadataName),
+		metadataLabelsApp = IFNULL(?, metadataLabelsApp),
+        specReplicas = IFNULL(?, specReplicas),
+        specSelectorMatchlabelsApp = IFNULL(?, specSelectorMatchlabelsApp),
+        specTemplateMetadataLabelsApp = IFNULL(?, specTemplateMetadataLabelsApp),
+        specTemplateSpecContainersName = IFNULL(?, specTemplateSpecContainersName),
+        specTemplateSpecContainersImage = IFNULL(?, specTemplateSpecContainersImage),
+        specTemplateSpecContainersPortsContainerport = IFNULL(?, specTemplateSpecContainersPortsContainerport),
+		uuid = IFNULL(?, uuid),
+		status = IFNULL(?, status)
+        
     WHERE
         id = ?
 	`
-	var apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort *string
+	var apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, uuid, status *string
 
 	if n.ApiVersion != "" {
 		apiVersion = &n.ApiVersion
@@ -158,47 +158,47 @@ func (r *DeploymentRepository) UpdateOneDeployment(id string, n DeploymentDto) (
 		kind = &n.Kind
 	}
 
-	if n.Metadata_name != "" {
-		metadata_name = &n.Metadata_name
+	if n.MetadataName != "" {
+		metadataName = &n.MetadataName
 	}
 
-	if n.Metadata_labels_app != "" {
-		metadata_labels_app = &n.Metadata_labels_app
+	if n.MetadataLabelsApp != "" {
+		metadataLabelsApp = &n.MetadataLabelsApp
 	}
 
-	if n.Spec_selector_matchLabels_app != "" {
-		spec_selector_matchLabels_app = &n.Spec_selector_matchLabels_app
+	if n.SpecReplicas != "" {
+		specReplicas = &n.SpecReplicas
 	}
 
-	if n.Spec_template_metadata_labels_app != "" {
-		spec_template_metadata_labels_app = &n.Spec_template_metadata_labels_app
+	if n.SpecSelectorMatchlabelsApp != "" {
+		specSelectorMatchlabelsApp = &n.SpecSelectorMatchlabelsApp
 	}
 
-	if n.Spec_template_spec_hostname != "" {
-		spec_template_spec_hostname = &n.Spec_template_spec_hostname
+	if n.SpecTemplateMetadataLabelsApp != "" {
+		specTemplateMetadataLabelsApp = &n.SpecTemplateMetadataLabelsApp
 	}
 
-	if n.Spec_template_spec_subdomain != "" {
-		spec_template_spec_subdomain = &n.Spec_template_spec_subdomain
+	if n.SpecTemplateSpecContainersName != "" {
+		specTemplateSpecContainersName = &n.SpecTemplateSpecContainersName
 	}
 
-	if n.Spec_template_spec_containers_image != "" {
-		spec_template_spec_containers_image = &n.Spec_template_spec_containers_image
+	if n.SpecTemplateSpecContainersImage != "" {
+		specTemplateSpecContainersImage = &n.SpecTemplateSpecContainersImage
 	}
 
-	if n.Spec_template_spec_containers_imagePullPolicy != "" {
-		spec_template_spec_containers_imagePullPolicy = &n.Spec_template_spec_containers_imagePullPolicy
+	if n.SpecTemplateSpecContainersPortsContainerport != "" {
+		specTemplateSpecContainersPortsContainerport = &n.SpecTemplateSpecContainersPortsContainerport
 	}
 
-	if n.Spec_template_spec_containers_name != "" {
-		spec_template_spec_containers_name = &n.Spec_template_spec_containers_name
+	if n.UUID != "" {
+		uuid = &n.UUID
 	}
 
-	if n.Spec_template_spec_containers_ports_containerPort != "" {
-		spec_template_spec_containers_ports_containerPort = &n.Spec_template_spec_containers_ports_containerPort
+	if n.Status != "" {
+		status = &n.Status
 	}
 
-	result, err := r.DB.Exec(query, apiVersion, kind, metadata_name, metadata_labels_app, spec_selector_matchLabels_app, spec_template_metadata_labels_app, spec_template_spec_hostname, spec_template_spec_subdomain, spec_template_spec_containers_image, spec_template_spec_containers_imagePullPolicy, spec_template_spec_containers_name, spec_template_spec_containers_ports_containerPort, id)
+	result, err := r.DB.Exec(query, apiVersion, kind, metadataName, metadataLabelsApp, specReplicas, specSelectorMatchlabelsApp, specTemplateMetadataLabelsApp, specTemplateSpecContainersName, specTemplateSpecContainersImage, specTemplateSpecContainersPortsContainerport, uuid, status, id)
 
 	if err != nil {
 		return nil, err
