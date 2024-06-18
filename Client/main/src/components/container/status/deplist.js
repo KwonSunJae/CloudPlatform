@@ -1,6 +1,6 @@
 // itemList.js
 import React from 'react';
-import instance from '../../../apis/index'
+import instance from '../../../apis/instance'
 
 const DeploymentList = ({ data }) => {
     const handleDelete = (deploymentName) => {

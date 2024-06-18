@@ -6,8 +6,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func OpenWithMemory() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", ":memory:")
+func InitDatabase() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "soms.db")
 
 	if err != nil {
 		return nil, err
@@ -20,15 +20,22 @@ func OpenWithMemory() (*sql.DB, error) {
 	}
 
 	_, err = createVmTable(db)
+	_, err = createServiceTable(db)
+	_, err = createDeploymentTable(db)
+	_, err = createReplicasetTable(db)
+	_, err = createUserTable(db)
+
+	return db, nil
+}
+
+func OpenWithFile() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "soms.db")
 
 	if err != nil {
 		return nil, err
 	}
-	_, err = createServiceTable(db)
-	if err != nil {
-		return nil, err
-	}
-	_, err = createDeploymentTable(db)
+
+	err = db.Ping()
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +54,9 @@ func createVmTable(db *sql.DB) (sql.Result, error) {
     unionmountImage TEXT NOT NULL,
     keypair TEXT NOT NULL,
     selectedSecuritygroup TEXT NOT NULL,
-    userID TEXT NOT NULL
+	uuid TEXT NOT NULL,
+	status TEXT NOT NULL,
+    FOREIGN KEY(uuid) REFERENCES user (id)
 )
   `
 
@@ -66,11 +75,19 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 		id TEXT PRIMARY KEY,
 		apiVersion TEXT,
 		kind TEXT,
-		metadata_name TEXT,
-		spec_ports_port TEXT,
-		spec_ports_protocol TEXT,
-		spec_ports_targetPort TEXT,
-		spec_selector_app TEXT
+		metadataName TEXT,
+		specType TEXT,
+		specSelectorApp TEXT,
+		specPortsProtocol TEXT,
+		specPortsPort TEXT,
+		specPortsTargetport TEXT,
+		specPortsNodeport TEXT,
+		specSelectorType TEXT,
+		specClusterIP TEXT,
+		specExternalname TEXT,
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
 	)
   `
 
@@ -82,22 +99,75 @@ func createServiceTable(db *sql.DB) (sql.Result, error) {
 
 	return result, nil
 }
+
 func createDeploymentTable(db *sql.DB) (sql.Result, error) {
 	query := `
 	CREATE TABLE deployment (
-		id SERIAL PRIMARY KEY,
+		id TEXT PRIMARY KEY,
 		apiVersion TEXT,
 		kind TEXT,
-		metadata_name TEXT,
-		metadata_labels_app TEXT,
-		spec_selector_matchLabels_app TEXT,
-		spec_template_metadata_labels_app TEXT,
-		spec_template_spec_hostname TEXT,
-		spec_template_spec_subdomain TEXT,
-		spec_template_spec_containers_image TEXT,
-		spec_template_spec_containers_imagePullPolicy TEXT,
-		spec_template_spec_containers_name TEXT,
-		spec_template_spec_containers_ports_containerPort TEXT
+		metadataName TEXT,
+		metadataLabelsApp TEXT,
+		specReplicas TEXT,
+		specSelectorMatchlabelsApp TEXT,
+		specTemplateMetadataLabelsApp TEXT,
+		specTemplateSpecContainersName TEXT,
+		specTemplateSpecContainersImage TEXT,
+		specTemplateSpecContainersPortsContainerport TEXT,
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
+	)
+  `
+
+	result, err := db.Exec(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func createReplicasetTable(db *sql.DB) (sql.Result, error) {
+	query := `
+	CREATE TABLE replicaset (
+		id TEXT PRIMARY KEY,
+		apiVersion TEXT,
+		kind TEXT,
+		metadataName TEXT,
+		specReplicas TEXT,
+		specSelectorMatchlabelsApp TEXT,
+		specTemplateMetadataName TEXT,
+		specTemplateMetadataLabelsApp TEXT,
+		specTemplateSpecContainersName TEXT,
+		specTemplateSpecContainersImage TEXT,
+		specTemplateSpecContainersPortsContainerport TEXT
+		uuid TEXT NOT NULL,
+		status TEXT NOT NULL,
+		FOREIGN KEY(uuid) REFERENCES user (id)
+	)
+  `
+
+	result, err := db.Exec(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func createUserTable(db *sql.DB) (sql.Result, error) {
+	query := `
+	CREATE TABLE user (
+		id TEXT PRIMARY KEY,
+		name TEXT ,
+		userID TEXT UNIQUE,
+		encryptedPW TEXT,
+		role TEXT,
+		spot TEXT,
+		priority TEXT
 	)
   `
 
