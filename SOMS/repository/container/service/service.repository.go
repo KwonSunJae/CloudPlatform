@@ -166,7 +166,7 @@ func (r *ServiceRepository) UpdateOneService(id string, n ServiceDto) (sql.Resul
 		specSelectorType = IFNULL(?, specSelectorType),
 		specClusterIP = IFNULL(?, specClusterIP),
 		specExternalname  = IFNULL(?, specExternalname),
-		uuid = IFNULL(?, uuid)
+		uuid = IFNULL(?, uuid),
 		status = IFNULL(?, status)
         
     WHERE
