@@ -73,7 +73,8 @@ func (s *DeploymentService) ApproveDeployment(id string) error {
 
 	_, err4 := s.Repository.UpdateOneDeployment(id, approvedDeployment)
 	if err4 != nil {
-		return fmt.Errorf("db error: %v", err)
+		fmt.Println("db error: %v", err4)
+		return fmt.Errorf("db error: %v", err4)
 	}
 
 	return nil

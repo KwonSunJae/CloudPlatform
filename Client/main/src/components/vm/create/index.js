@@ -90,7 +90,7 @@ const VMCreateForm = () => {
             console.error('Error fetching OS options:', error);
         }
         );
-    }, []);
+    }, [pemKey]);
 
 
 
@@ -108,8 +108,8 @@ const VMCreateForm = () => {
             "method": "POST",
             "data": datas
         }).then((response) => {
-            var keypairs = JSON.parse(response.data.data).keypairs;
-            setKeyPairList(keypairs);
+            var keypairs = JSON.parse(response.data.data).keypair;
+            setPemKey(keypairs.private_key);
             setLoading(false);
             console.log(response.data);
         }).catch((error) => {
@@ -222,6 +222,7 @@ const VMCreateForm = () => {
                             <button onClick={handleCopyPemKey}>Copy Pem Key</button>
                         </div>
                     )}
+                    
                     <button onClick={() => setStep(2)}>Back</button>
                     <button onClick={() => setStep(4)}>Next</button>
                 </div>

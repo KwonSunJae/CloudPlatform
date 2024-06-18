@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"soms/repository"
 	"soms/repository/user"
 	openstack_api "soms/util/apis/openstack"
@@ -90,6 +91,14 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 	if err != nil {
 		return err
 	}
+
+	// kubectl create namespace -n $userID
+	cmd := exec.Command("kubectl", "create", "namespace", "-n", approvedUser.UserID)
+	_, err2 := cmd.CombinedOutput()
+	if err2 != nil {
+		return fmt.Errorf("Failed to create namespace: %v", err2)
+	}
+
 	// Update User Role and Priority
 	var n user.UserDto
 	n.Role = role
