@@ -13,7 +13,7 @@ const AdminNavbar = () => {
         <li className="admin-navbar-item"><Link to="/admin/vm">VM</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/container/service">Container-Service</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/container/deployment">Container-Deployment</Link></li>
-        <li className="admin-navbar-item"><Link to="/admin/cluster">cluster</Link></li>
+        <li className="admin-navbar-item"><Link to="/admin/cluster">Cluster</Link></li>
         <li className="admin-navbar-item"><Link to="/admin/baremetal">Baremetal</Link></li>
       </ul>
     </nav>
