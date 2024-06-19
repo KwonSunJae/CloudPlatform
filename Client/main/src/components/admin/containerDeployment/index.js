@@ -79,18 +79,9 @@ export default function Admin() {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>선택</th>
-                        <th>고유ID</th>
-                        <th>MetadataName</th>
-                        <th>MetadataLabelsApp</th>
-                        <th>SpecReplicas</th>
-                        <th>SpecSelectorMatchlabelsApp</th>
-                        <th>SpecTemplateMetadataLabelsApp</th>
-                        <th>SpecTemplateSpecContainersName</th>
-                        <th>SpecTemplateSpecContainersImage</th>
-                        <th>Status</th>
-                        <th>UUID</th>
-                        <th>SpecTemplateSpecContainersPortsContainerport</th>
+                        <th>선택</th><th>고유ID</th><th>Name</th><th>Labels</th><th>Replicas</th>
+                        <th>Selector</th><th>Template Labels</th><th>Container Name</th>
+                        <th>Container Image</th><th>Status</th><th>UUID</th><th>Container Port</th>
                         <th>액션</th>
                     </tr>
                 </thead>
