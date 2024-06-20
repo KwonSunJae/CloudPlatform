@@ -24,6 +24,7 @@ body {
   }
   
   .button-container {
+    float: right;
     margin-top: 20px;
     text-align: right;
   }
@@ -37,6 +38,8 @@ body {
     transition: background-color 0.3s ease;
     border-radius: 5px;
     margin-top: 5pt;
+    border: none;
+    margin-left: 5px;
   }
   
   .add-ct-button {
@@ -77,6 +80,8 @@ body {
   }
   
   .item-item {
+    width: 98%;
+    align-content: center;
     border: 1px solid rgba(0, 123, 255, 0.125); /* Bootstrap border color */
     margin: 10px 0;
     padding: 15px;
@@ -86,6 +91,12 @@ body {
   }
   
   .item-item strong {
+    margin-left: 20px;
     color: #007bff;
+    display: inline-block;
   }
   
+  .item-buttons {
+    margin-top: 10px;
+    float: right;
+  }

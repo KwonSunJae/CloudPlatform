@@ -43,15 +43,18 @@ const ServiceList = ({ data }) => {
         console.log(`Manage item: ${serviceName}`);
     };
 
+    console.log(data.items)
+
     return (
         <div className="item-list">
             
             <ul>
                 {data.items.map((item, index) => (
                     <li key={index} className="item-item">
-                        <strong>Name:</strong> {item.metadata.name}<br />
-                        <strong>Kind:</strong>{item.kind}<br />
-                        <strong>timestamp:</strong> {item.metadata.creationTimestamp}<br />
+                        <strong>Name:</strong> {item.metadata.name}
+                        <strong>Kind:</strong>{item.kind}
+                        <strong>SpecType:</strong> {item.spec.type}
+                        <strong>Timestamp:</strong> {item.metadata.creationTimestamp}
                         {/* Delete and Manage buttons */}
                         <div className="item-buttons">
                             <button className="delete-button" onClick={() => handleDelete(item.metadata.name)}>Delete</button>

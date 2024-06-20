@@ -1,4 +1,4 @@
-// VmStatus.js
+// ContainerStatus.js
 
 import React, { useEffect, useState } from 'react';
 import DeploymentList from './deplist';
@@ -12,7 +12,7 @@ const ContainerStatus = () => {
     const [serviceData, setServiceData] = useState(null);
 
     const handleAddCtClick = () => {
-        // Redirect to /create/vm
+        // Redirect to /create/container
         window.location.href = '/create/container';
     };
 
@@ -54,10 +54,11 @@ const ContainerStatus = () => {
     }, []); // Empty dependency array to run the effect only once on mount
     
     return (
-        <div className="vm-status">
-            <h1>Kubernetes Status</h1>
+        // <div className="contianer-status">
+        <div class="container">
+            <h1>컨테이너 목록</h1>
             <button className="add-ct-button" onClick={handleAddCtClick}>
-                Add Container
+                컨테이너 추가
             </button>
             <div className="split-layout">
                 {deploymentData? (<DeploymentList data={deploymentData} title="Deployment List" />):(<h1>Server error</h1>)}

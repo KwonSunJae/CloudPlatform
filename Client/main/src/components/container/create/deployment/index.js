@@ -4,10 +4,11 @@ import instance from '../../../../apis/instance';
 
 const DeploymentForm = () => {
   const [deploymentName, setDeploymentName] = useState('');
+  const [Replicas, setReplicas] = useState('');
   const [hostName, setHostName] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [imagePullPolicy, setImagePullPolicy] = useState('');
+  const [containerName, setcontainerName] = useState('');
   const [port, setPort] = useState('');
 
   const handleSubmit = (event) => {
@@ -18,11 +19,11 @@ const DeploymentForm = () => {
         kind: "Deployment",
         metadataLabelsApp: deploymentName,
         metadataName: deploymentName,
-        specReplicas: "1",
+        specReplicas: Replicas,
         specSelectorMatchlabelsApp: deploymentName,
         specTemplateMetadataLabelsApp: deploymentName,
         specTemplateSpecContainersImage: imageUrl ,
-        specTemplateSpecContainersName: imagePullPolicy,
+        specTemplateSpecContainersName: containerName,
         specTemplateSpecContainersPortsContainerport: port
       }
       )
@@ -58,6 +59,15 @@ const DeploymentForm = () => {
         </label>
 
         <label>
+          Replicas:
+          <input
+            type="text"
+            value={Replicas}
+            onChange={(e) => setReplicas(e.target.value)}
+          />
+        </label>
+
+        <label>
           Host Name:
           <input
             type="text"
@@ -85,13 +95,22 @@ const DeploymentForm = () => {
         </label>
 
         <label>
-          Image Pull Policy:
+          Container Name:
           <input
             type="text"
-            checked={imagePullPolicy}
-            onChange={(e) => setImagePullPolicy(e.target.value)}
+            checked={containerName}
+            onChange={(e) => setcontainerName(e.target.value)}
           />
         </label>
+
+        {/* <label>
+          Image Pull Policy:
+          <select value={containerName} onChange={(e) => setcontainerName(e.target.value)}>
+            <option value="always">always</option>
+            <option value="ifNotPresent">ifNotPresent</option>
+            <option value="never">never</option>
+          </select>
+        </label> */}
 
         <label>
           Port :
