@@ -50,8 +50,8 @@ const LoginModal = () => {
                     </div>
                     <div className="login-form-group">
                         <label htmlFor="isMemorized">
-                            <input type="checkbox" id="isMemorized" checked={isMemorized} onChange={(e) => setIsMemorized(e.target.checked)} />
                             자동 로그인
+                            <input type="checkbox" id="isMemorized" checked={isMemorized} onChange={(e) => setIsMemorized(e.target.checked)} value={"자동 로그인"}/>
                         </label>
                     </div>
                     <div className="button-group">

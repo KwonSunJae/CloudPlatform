@@ -63,14 +63,19 @@
 }
 
 .login-form-group label {
-    display: inline-block;
     margin-bottom: 0.5rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
     color: #004085;
 }
 
+.login-form-group input[type="checkbox"] {
+    margin-right: 8px;
+    width: 10%;
+}
+
 .login-form-group input {
-    display: block;
     width: 95%;
     padding: 0.5rem;
     font-size: 1rem;
@@ -113,7 +118,8 @@
     border-color: #004085;
 }
 
-.btn-primary:focus, .btn-primary.focus {
+.btn-primary:focus,
+.btn-primary.focus {
     color: #fff;
     background-color: #0056b3;
     border-color: #004085;
@@ -124,5 +130,4 @@
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 1em;
 }
