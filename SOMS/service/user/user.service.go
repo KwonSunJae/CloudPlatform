@@ -100,7 +100,7 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 	}
 
 	// kubectl create namespace -n $userID
-	cmd := exec.Command("kubectl", "create", "namespace", "-n", approvedUser.UserID)
+	cmd := exec.Command("kubectl", "create", "namespace", approvedUser.UserID)
 	_, err2 := cmd.CombinedOutput()
 	if err2 != nil {
 		fmt.Println(err2)
