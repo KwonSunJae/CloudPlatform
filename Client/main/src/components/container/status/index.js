@@ -54,17 +54,28 @@ const ContainerStatus = () => {
     }, []); // Empty dependency array to run the effect only once on mount
     
     return (
-        // <div className="contianer-status">
-        <div class="container">
+        <div className="container">
             <h1>컨테이너 목록</h1>
             <button className="add-ct-button" onClick={handleAddCtClick}>
                 컨테이너 추가
             </button>
             <div className="split-layout">
-                {deploymentData? (<DeploymentList data={deploymentData} title="Deployment List" />):(<h1>Server error</h1>)}
-                {serviceData ? (
-                    <ServiceList data={serviceData} title="Service List" />
-                ) : (<h1> Server Error</h1>)}
+                <h2>Deployment 목록</h2>
+                <div className="deployment-section">
+                    {deploymentData ? (
+                        <DeploymentList data={deploymentData} />
+                    ) : (
+                        <h1>Server error</h1>
+                    )}
+                </div>
+                <h2>Service 목록</h2>
+                <div className="service-section">
+                    {serviceData ? (
+                        <ServiceList data={serviceData} />
+                    ) : (
+                        <h1>Server Error</h1>
+                    )}
+                </div>
             </div>
         </div>
     );

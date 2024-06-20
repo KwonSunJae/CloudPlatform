@@ -8,10 +8,11 @@ body {
   }
   
   .container {
-    height: 700px;
+    height: 80vh;
     max-width: 90%;
     margin: 20px auto;
     padding: 20px;
+    overflow: scroll;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
@@ -77,6 +78,11 @@ body {
   
   .item-list {
     margin-top: 20px;
+    height: auto;
+  }
+  .item-list ul{
+    display: flex;
+    flex-direction: column;
   }
   
   .item-item {
@@ -89,6 +95,7 @@ body {
     border-radius: 0.25rem; /* Bootstrap border-radius */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.125); /* Bootstrap box-shadow */
   }
+
   
   .item-item strong {
     margin-left: 20px;
@@ -100,3 +107,33 @@ body {
     margin-top: 10px;
     float: right;
   }
+
+  /* ContainerStatus.css */
+
+.container {
+  padding: 20px;
+}
+
+.add-ct-button {
+  margin-bottom: 20px;
+}
+
+.split-layout {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
+
+.deployment-section {
+  flex: 1; /* Equal width distribution */
+}
+
+.service-section {
+  flex: 1; /* Equal width distribution */
+}
+
+.deployment-section h1,
+.service-section h1 {
+  text-align: center;
+  margin-top: 0;
+}
