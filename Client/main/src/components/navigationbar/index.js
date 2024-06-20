@@ -11,7 +11,7 @@ const NavigationBar = () => {
   // - 로그인 버튼 , 클릭시 LoginModal 모달창 오픈
   // - 회원가입 버튼, 클릭시 RegisterModal 모달창 오픈
   useEffect(() => {
-    const accsessToken = localStorage.getItem("accessToken");
+    const accsessToken = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken");
     if (accsessToken) {
       document.getElementsByClassName("auth-buttons")[0].style.display = "none";
       document.getElementById("login-modal").style.display = "none";
@@ -30,8 +30,10 @@ const NavigationBar = () => {
   }
   function logout() {
     localStorage.removeItem("accessToken");
+    sessionStorage.removeItem("accessToken");
     console.log("로그아웃");
     localStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("refreshToken");
     window.location.href = "/";
   }
 
