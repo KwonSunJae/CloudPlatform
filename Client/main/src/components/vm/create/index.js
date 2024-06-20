@@ -148,6 +148,7 @@ const VMCreateForm = () => {
                 setLoading(false);
                 console.log(response.data);
                 alert('VM created successfully!');
+                window.location.replace('/vm');
             })
             .catch(error => {
                 setLoading(false);
