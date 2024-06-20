@@ -7,6 +7,7 @@ const ServiceForm = () => {
   const [protocol, setProtocol] = useState('');
   const [targetPort, setTargetPort] = useState('');
   const [port, setPort] = useState('');
+  const [serviceType, setServiceType] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -24,7 +25,7 @@ const ServiceForm = () => {
         specPortsTargetport: targetPort ,
         specSelectorApp: "none",
         specSelectorType: "none",
-        specType: "NodePort"
+        specType: serviceType
       }
     )
     instance.post("/transaction",{
@@ -56,6 +57,15 @@ const ServiceForm = () => {
             type="text"
             value={serviceName}
             onChange={(e) => setServiceName(e.target.value)}
+          />
+        </label>
+
+        <label>
+          Service Type:
+          <input
+            type="text"
+            checked={serviceType}
+            onChange={(e) => setServiceType(e.target.value)}
           />
         </label>
 
@@ -94,7 +104,6 @@ const ServiceForm = () => {
             onChange={(e) => setTargetPort(e.target.value)}
           />
         </label>
-
 
         <button type="submit">Create Service</button>
       </form>

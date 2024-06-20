@@ -43,15 +43,21 @@ const DeploymentList = ({ data }) => {
         console.log(`Manage item: ${deploymentName}`);
     };
 
+    console.log(data.items)
+
     return (
         <div className="item-list">
             
             <ul>
                 {data.items.map((item, index) => (
                     <li key={index} className="item-item">
-                        <strong>Name:</strong> {item.metadata.name}<br />
-                        <strong>Kind:</strong>{item.kind}<br />
-                        <strong>timestamp:</strong> {item.metadata.creationTimestamp}<br />
+                        <strong>Name:</strong> {item.metadata.name}
+                        <strong>Kind: </strong>{item.kind}
+                        <strong>Replicas:</strong> {item.spec.replicas}
+                        <strong>Image:</strong> {item.spec.template.spec.containers[0].image}
+                        <strong>Status:</strong> {item.status.conditions[0].type}
+                        <strong>Timestamp:</strong> {item.metadata.creationTimestamp}
+
                         {/* Delete and Manage buttons */}
                         <div className="item-buttons">
                             <button className="delete-button" onClick={() => handleDelete(item.metadata.name)}>Delete</button>

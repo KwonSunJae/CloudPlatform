@@ -1,91 +1,102 @@
 /* ContainerCreatePage.css */
 
 .container-create-page {
-    max-width: 90%;
-    height: 60%;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f7f7f7;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .container-create-page h2 {
-    text-align: center;
-  }
-  
-  .container-create-page div {
-    display: block;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .container-create-page label {
-    display: flex;
-    margin: auto;
-    align-items: center;
-  }
-  
-  .container-create-page input[type="radio"] {
-    margin-right: 5px;
-  }
-  
-  .deployment-form {
-    
-    height: 500px;
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f7f7f7;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .deployment-form h2 {
-    margin-bottom: 15px;
-  }
-  
-  
-  .deployment-form form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    width : 40%;
-  }
-  
-  .deployment-form form input[type="text"],
-  .deployment-form form input[type="number"],
-  .deployment-form form select {
-    width: 40%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    margin-bottom: 15px;
-    margin-left: 10px;
-  }
-  
-  .deployment-form form button {
-    display: block;
-    margin: auto;
-    width: 50%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .deployment-form form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .deployment-form form input[type="checkbox"] {
-    margin-right: 5px;
-  }
-  
-  
+  max-width: 90%;
+  height: 60%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f7f7f7;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.container-create-page h2 {
+  text-align: center;
+}
+
+.container-create-page .option-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.container-create-page .option-buttons button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.container-create-page .option-buttons button.selected {
+  background-color: #0056b3;
+}
+
+.deployment-form {
+  height: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f7f7f7;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  text-align: center; /* Center align content */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.deployment-form h2 {
+  margin-bottom: 15px;
+}
+
+.deployment-form form {
+  width: 100%;
+  max-width: 600px;
+}
+
+.deployment-form form label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px; /* Reduced margin */
+  font-weight: bold;
+}
+
+.deployment-form form input[type="text"],
+.deployment-form form input[type="number"],
+.deployment-form form select {
+  width: calc(60% - 10px); /* Adjust width as needed */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.deployment-form form button {
+  width: 100%;
+  max-width: 200px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.deployment-form form button:hover {
+  background-color: #0056b3;
+}
+
+.deployment-form form input[type="checkbox"] {
+  margin-right: 5px;
+}
