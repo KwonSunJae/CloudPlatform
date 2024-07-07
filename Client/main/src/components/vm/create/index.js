@@ -83,6 +83,7 @@ const VMCreateForm = () => {
             var images = JSON.parse(response.data.data).images;
             setImageList(images);
             setLoading(false);
+            setImage(images[0].id);
             console.log(images);
         }
         ).catch((error) => {
@@ -132,9 +133,9 @@ const VMCreateForm = () => {
             Name: vmName,
             FlavorID: flavor,
             ExternalIP: externalIP ? "true" : "false",
-            internalIP: internalIP ? "e3102f8e-6d1c-41b3-b4ef-3ca5d81b79da" : "false",
+            InternalIP: internalIP ? "e3102f8e-6d1c-41b3-b4ef-3ca5d81b79da" : "false",
             SelectedOS: image,
-            unionMountImage: unionMountImage,
+            UnionMountImage: unionMountImage,
             KeyPair: keyPair,
             SelectedSecurityGroup: selectedSecurityGroup,
         });
