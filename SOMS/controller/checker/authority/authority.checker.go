@@ -1,6 +1,6 @@
 package authority
 
-import "soms/repository/user"
+import user "soms/repository/user"
 
 func AuthorityFilterWithRole(authority []string, uuid string) bool { // authority list["Admin","Student","Master","Researcher","Others"]
 	// Get User Role from DB

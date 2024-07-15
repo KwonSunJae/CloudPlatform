@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	model "soms/model/user"
 	"soms/repository"
 	"soms/repository/user"
 	openstack_api "soms/util/apis/openstack"
@@ -13,7 +14,17 @@ import (
 )
 
 type UserService struct {
-	Repository *user.UserRepository
+	Repository model.UserRepository
+}
+
+type USConfig struct {
+	Repository model.UserRepository
+}
+
+func NewUserService(config *USConfig) *UserService {
+	return &UserService{
+		Repository: config.Repository,
+	}
 }
 
 var Service UserService
@@ -24,26 +35,24 @@ func (s *UserService) InitService() error {
 	if err != nil {
 		return err
 	}
-
 	s.Repository = &user.Repository
 	s.Repository.AssignDB(db)
-
 	return nil
 }
 
-func (s *UserService) GetAllUser() (*[]user.UserRaw, error) {
+func (s *UserService) GetAllUser() (*[]model.UserRaw, error) {
 	raws, err := s.Repository.GetAllUser()
 
 	return raws, err
 }
 
-func (s *UserService) GetOneUserByUUID(uuid string) (*user.UserRaw, error) {
+func (s *UserService) GetOneUserByUUID(uuid string) (*model.UserRaw, error) {
 	raw, err := s.Repository.GetOneUserByUUID(uuid)
 
 	return raw, err
 }
 
-func (s *UserService) CreateUser(n user.UserDto) (string, error) {
+func (s *UserService) CreateUser(n model.UserDto) (string, error) {
 	id, DBSaveErr := s.Repository.InsertUser(n)
 	if DBSaveErr != nil {
 		return "", DBSaveErr
@@ -55,7 +64,7 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 		s.Repository.DeleteOneUser(id)
 		return nil
 	}
-	var approvedUser *user.UserRaw
+	var approvedUser *model.UserRaw
 	approvedUser, err := s.Repository.GetOneUserByUUID(id)
 	if err != nil {
 		fmt.Println(err)
@@ -108,7 +117,7 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 	}
 
 	// Update User Role and Priority
-	var n user.UserDto
+	var n model.UserDto
 	n.Role = role
 	n.Priority = priority
 
@@ -117,7 +126,7 @@ func (s *UserService) ApproveUser(id string, role string, priority string) error
 		fmt.Println(err)
 		return err
 	}
-	if rest == nil {
+	if rest == false {
 		return fmt.Errorf("NOT FOUND")
 	}
 
@@ -132,7 +141,7 @@ func (s *UserService) UserIDValidate(userID string) (bool, error) {
 	}
 
 }
-func (s *UserService) UpdateUser(id string, n user.UserDto) error {
+func (s *UserService) UpdateUser(id string, n model.UserDto) error {
 	_, err := s.Repository.UpdateOneUser(id, n)
 
 	return err

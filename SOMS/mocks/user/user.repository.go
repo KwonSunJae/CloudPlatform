@@ -1,6 +1,9 @@
 package mocks
 
 import (
+	"database/sql"
+	model "soms/model/user"
+
 	"github.com/stretchr/testify/mock"
 )
 
@@ -9,26 +12,16 @@ type UserRepository struct {
 	mock.Mock
 }
 
-type UserRaw struct {
-	Id          string
-	Name        string
-	UserID      string
-	EncryptedPW string
-	Role        string
-	Spot        string
-	Priority    string
-}
-
 // GetAllUser provides a mock function with given fields:
-func (_m *UserRepository) GetAllUser() (*[]UserRaw, error) {
+func (_m *UserRepository) GetAllUser() (*[]model.UserRaw, error) {
 	ret := _m.Called()
 
-	var r0 *[]UserRaw
-	if rf, ok := ret.Get(0).(func() *[]UserRaw); ok {
+	var r0 *[]model.UserRaw
+	if rf, ok := ret.Get(0).(func() *[]model.UserRaw); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*[]UserRaw)
+			r0 = ret.Get(0).(*[]model.UserRaw)
 		}
 	}
 
@@ -43,15 +36,15 @@ func (_m *UserRepository) GetAllUser() (*[]UserRaw, error) {
 }
 
 // GetOneUserByUUID provides a mock function with given fields: uuid
-func (_m *UserRepository) GetOneUserByUUID(uuid string) (*UserRaw, error) {
+func (_m *UserRepository) GetOneUserByUUID(uuid string) (*model.UserRaw, error) {
 	ret := _m.Called(uuid)
 
-	var r0 *UserRaw
-	if rf, ok := ret.Get(0).(func(string) *UserRaw); ok {
+	var r0 *model.UserRaw
+	if rf, ok := ret.Get(0).(func(string) *model.UserRaw); ok {
 		r0 = rf(uuid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*UserRaw)
+			r0 = ret.Get(0).(*model.UserRaw)
 		}
 	}
 
@@ -66,15 +59,15 @@ func (_m *UserRepository) GetOneUserByUUID(uuid string) (*UserRaw, error) {
 }
 
 // GetOneUserByUserID provides a mock function with given fields: userID
-func (_m *UserRepository) GetOneUserByUserID(userID string) (*UserRaw, error) {
+func (_m *UserRepository) GetOneUserByUserID(userID string) (*model.UserRaw, error) {
 	ret := _m.Called(userID)
 
-	var r0 *UserRaw
-	if rf, ok := ret.Get(0).(func(string) *UserRaw); ok {
+	var r0 *model.UserRaw
+	if rf, ok := ret.Get(0).(func(string) *model.UserRaw); ok {
 		r0 = rf(userID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*UserRaw)
+			r0 = ret.Get(0).(*model.UserRaw)
 		}
 	}
 
@@ -110,15 +103,15 @@ func (_m *UserRepository) IsUserIDExit(userID string) (bool, error) {
 }
 
 // CreateUser provides a mock function with given fields: name, userID, encryptedPW, role, spot, priority
-func (_m *UserRepository) CreateUser(name string, userID string, encryptedPW string, role string, spot string, priority string) (*UserRaw, error) {
+func (_m *UserRepository) CreateUser(name string, userID string, encryptedPW string, role string, spot string, priority string) (*model.UserRaw, error) {
 	ret := _m.Called(name, userID, encryptedPW, role, spot, priority)
 
-	var r0 *UserRaw
-	if rf, ok := ret.Get(0).(func(string, string, string, string, string) *UserRaw); ok {
+	var r0 *model.UserRaw
+	if rf, ok := ret.Get(0).(func(string, string, string, string, string) *model.UserRaw); ok {
 		r0 = rf(name, userID, encryptedPW, role, spot)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*UserRaw)
+			r0 = ret.Get(0).(*model.UserRaw)
 		}
 	}
 
@@ -175,19 +168,93 @@ func (_m *UserRepository) DeleteOneUser(id string) (bool, error) {
 }
 
 // UpdateOneUser provides a mock function with given fields: id, n
-func (_m *UserRepository) UpdateOneUser(id string, n UserRaw) (bool, error) {
+func (_m *UserRepository) UpdateOneUser(id string, n model.UserDto) (bool, error) {
 	ret := _m.Called(id, n)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string, UserRaw) bool); ok {
+	if rf, ok := ret.Get(0).(func(string, model.UserDto) bool); ok {
 		r0 = rf(id, n)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, UserRaw) error); ok {
+	if rf, ok := ret.Get(1).(func(string, model.UserDto) error); ok {
 		r1 = rf(id, n)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AssignDB provides a mock function with given fields: db
+func (_m *UserRepository) AssignDB(db *sql.DB) {
+
+	_m.Called(db)
+
+}
+
+//GetEncryptedPW provides a mock function with given fields: userID
+
+func (_m *UserRepository) GetEncryptedPW(userID string) (string, error) {
+	ret := _m.Called(userID)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(userID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetRoleByUUID provides a mock function with given fields: uuid
+func (_m *UserRepository) GetRoleByUUID(uuid string) (*model.UserRaw, error) {
+	ret := _m.Called(uuid)
+
+	var r0 *model.UserRaw
+	if rf, ok := ret.Get(0).(func(string) *model.UserRaw); ok {
+		r0 = rf(uuid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.UserRaw)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(uuid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+
+}
+
+// InsertUser provides a mock function with given fields: n
+func (_m *UserRepository) InsertUser(n model.UserDto) (string, error) {
+	ret := _m.Called(n)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(model.UserDto) string); ok {
+		r0 = rf(n)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(model.UserDto) error); ok {
+		r1 = rf(n)
 	} else {
 		r1 = ret.Error(1)
 	}
