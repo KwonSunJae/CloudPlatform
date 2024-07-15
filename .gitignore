@@ -8,7 +8,9 @@ __pycache__/
 resp.json
 # C extensions
 *.so
-./soms
+
+
+
 k8s/
 # Distribution / packaging
 .Python
@@ -211,7 +213,7 @@ packages/react-devtools-timeline/dist
 *.dylib
 
 # Test binary, built with `go test -c`
-*.test
+
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
@@ -224,3 +226,6 @@ go.work
 
 soms.db
 soms
+!soms/
+
+
