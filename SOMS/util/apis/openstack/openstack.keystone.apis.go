@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 // .env 파일에서 가져온 환경변수를 사용하여 OpenStack 인증 URL, 프로젝트 ID, 도메인 ID, 관리자 사용자 이름, 관리자 비밀번호를 설정
@@ -53,10 +55,10 @@ type UserRequest struct {
 }
 
 func Init() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	panic("env file error")
-	// }
+	err := godotenv.Load()
+	if err != nil {
+		panic("env file error")
+	}
 	authURL = os.Getenv("OPENSTACK_CTLR_URL") + "/v3/auth/tokens" // OpenStack 인증 URL
 	projectID = os.Getenv("OPENSTACK_PROJECT_ID")
 	domainID = os.Getenv("OPENSTACK_DOMAIN_ID")       // 기본 도메인 ID
@@ -66,6 +68,9 @@ func Init() {
 }
 
 func getAdminAuthToken() (string, error) {
+	if !initFlag {
+		Init()
+	}
 	authReq := AuthRequest{}
 	authReq.Auth.Identity.Methods = []string{"password"}
 	authReq.Auth.Identity.Password.User.Name = adminUser
@@ -178,7 +183,7 @@ func CreateUser(username string, password string, userEmail string) (bool, error
 
 	err = createUser(authToken, username, password, userEmail)
 	if err != nil { // 에러 발생 시
-		return false, errors.New("creat user ERROR: " + err.Error())
+		return false, errors.New("create user ERROR: " + err.Error())
 	}
 
 	return true, nil
@@ -212,4 +217,74 @@ func AddUserToProject(userID string) error {
 
 	addUserToProject(authToken, endpoint, commonProjectID, userID, roleID)
 	return nil
+}
+
+// Delete User
+func deleteUserFromProject(authToken, endpoint, userID, roleID, projectID string) (bool, error) {
+	url := fmt.Sprintf("%s/v3/users/%s", endpoint, userID)
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req.Header.Set("X-Auth-Token", authToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, errors.New("failed to delete user: " + err.Error())
+	}
+
+	res := http.StatusNoContent == resp.StatusCode
+	fmt.Println(resp.StatusCode)
+	defer resp.Body.Close()
+
+	return res, nil
+}
+func getUserID(authToken, endpoint, username string) (string, error) {
+	url := fmt.Sprintf("%s/v3/users?name=%s", endpoint, username)
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("X-Auth-Token", authToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", errors.New("failed to get user ID: " + err.Error())
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	var userMap map[string]interface{}
+	json.Unmarshal(body, &userMap)
+
+	userList := userMap["users"].([]interface{})
+	if len(userList) == 0 {
+		return "", errors.New("user not found")
+	}
+	userID := userList[0].(map[string]interface{})["id"].(string)
+
+	return userID, nil
+}
+func GetUserID(username string) (string, error) {
+	authToken, err := getAdminAuthToken()
+	if err != nil {
+		return "", errors.New("get Admin AuthTOKEN ERROR : " + err.Error())
+	}
+	var endpoint = os.Getenv("OPENSTACK_CTLR_URL")
+
+	return getUserID(authToken, endpoint, username)
+}
+
+func DeleteUser(userName string) (bool, error) {
+	authToken, err := getAdminAuthToken()
+	if err != nil {
+		return false, errors.New("get Admin AuthTOKEN ERROR : " + err.Error())
+	}
+	var userID, err404 = GetUserID(userName)
+	if err404 != nil {
+		return false, errors.New("get User ID ERROR : " + err404.Error())
+	}
+	var endpoint = os.Getenv("OPENSTACK_CTLR_URL")
+	var roleID = os.Getenv("OPENSTACK_COMMON_ROLE_ID")
+	var commonProjectID = os.Getenv("OPENSTACK_COMMON_PROJECT_ID")
+
+	return deleteUserFromProject(authToken, endpoint, userID, roleID, commonProjectID)
 }
