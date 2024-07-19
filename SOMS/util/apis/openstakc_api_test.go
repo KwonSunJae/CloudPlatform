@@ -24,6 +24,66 @@ func (kts *KeystoneTestSuite) SetupSuite() {
 	apis.CreateUser("testDuplicate", "test", "test")
 }
 
+func (vts *VMTestSuite) SetupSuite() {
+	apis.Init()
+	apis.CreateUser("testVM", "test", "test")
+}
+
+func (vts *VMTestSuite) TestCreateNetowrk() {
+	res, err := apis.CreateNetwork("testVM", "test", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+
+	apis.DeleteNetwork("testVM", "test", res)
+}
+
+func (vts *VMTestSuite) TestListNetworks() {
+	res, err := apis.ListNetworks("testVM", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+}
+
+func (vts *VMTestSuite) TestDeleteNetwork() {
+	networkID, err := apis.CreateNetwork("testVM", "test", "test")
+	assert.Nil(vts.T(), err)
+
+	res, delerr := apis.DeleteNetwork("testVM", "test", networkID)
+
+	assert.Equal(vts.T(), true, res)
+	assert.Nil(vts.T(), delerr)
+}
+
+func (vts *VMTestSuite) TestListFlavors() {
+	res, err := apis.ListFlavors("testVM", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+}
+
+func (vts *VMTestSuite) TestListSecurityGroups() {
+	res, err := apis.ListSecurityGroups("testVM", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+
+}
+
+func (vts *VMTestSuite) TestListKeyPairs() {
+	res, err := apis.ListKeyPairs("testVM", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+}
+
+func (vts *VMTestSuite) TestListImages() {
+	res, err := apis.ListImages("testVM", "test")
+	fmt.Println(res)
+	assert.NotNil(vts.T(), res)
+	assert.Nil(vts.T(), err)
+}
+
 func (kts *KeystoneTestSuite) TestCreateDeleteUser() {
 	t := kts.T()
 	t.Log("TestCreateUser")
@@ -68,6 +128,12 @@ func (kts *KeystoneTestSuite) TearDownSuite() {
 	apis.DeleteUser("testS")
 	apis.DeleteUser("testDuplicate")
 }
+func (kts *VMTestSuite) AfterTest(suiteName, testName string) {
+	fmt.Printf(":::::::::::::::::::::::EndTest :: suiteName:%s :: testName:%s::::::::::::::::::::::::::::\n", suiteName, testName)
+}
+func (vts *VMTestSuite) TearDownSuite() {
+	apis.DeleteUser("testVM")
+}
 func isSkip() bool {
 	return false
 }
@@ -77,4 +143,11 @@ func TestKeystoneSuite(t *testing.T) {
 		t.SkipNow()
 	}
 	suite.Run(t, new(KeystoneTestSuite))
+}
+
+func TestVMSuite(t *testing.T) {
+	if isSkip() {
+		t.SkipNow()
+	}
+	suite.Run(t, new(VMTestSuite))
 }

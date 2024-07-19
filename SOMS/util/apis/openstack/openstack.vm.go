@@ -150,9 +150,51 @@ func createNetwork(authToken, endpoint, networkName string) (string, error){
         return "",err
     }
     defer resp.Body.Close()
+    var networkData struct {
+        Network struct {
+            ID string `json:"id"`
+        } `json:"network"`
+    }
 
-    body, _ := ioutil.ReadAll(resp.Body)
-    return string(body),nil
+    err = json.NewDecoder(resp.Body).Decode(&networkData)
+    if err != nil {
+        return "",err
+    }
+    return networkData.Network.ID ,nil
+}
+func deleteNetwork(authToken, endpoint, networkID string) (bool,error) {
+    url := fmt.Sprintf("%s/v2.0/networks/%s", endpoint, networkID)
+
+    req, _ := http.NewRequest("DELETE", url, nil)
+    req.Header.Set("X-Auth-Token", authToken)
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return false,err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusNoContent {
+        return false,fmt.Errorf("failed to delete network: %d", resp.StatusCode)
+    }
+
+    return true,nil
+}
+
+func DeleteNetwork(userID, password, networkID string) (bool,error) {
+    authToken,err := GetUserToken(userID,password)
+    if err != nil {
+        return false,err
+    }
+    networkEndpoint := os.Getenv("OPENSTACK_NETWORK_ENDPOINT")
+    rslt,err:=deleteNetwork(authToken, networkEndpoint, networkID)
+    if err != nil {
+        return false,err
+    }
+    //data 가공
+
+    return rslt,nil
 }
 func listNetworks(authToken, endpoint string) (string,error) {
     url := endpoint + "/v2.0/networks"
@@ -326,7 +368,9 @@ func CreateNetwork(userID string, password string, newnetworkName string)(string
     if err != nil {
         return "",err
     }
-    //data 가공
+    //string data 가공 return data.netwrok.id
+
+    
 
     return data,nil
 }
