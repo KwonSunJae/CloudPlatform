@@ -16,15 +16,11 @@
  
  **[API Trasaction](https://regular-parsnip-82d.notion.site/Openstack-CloudPlatform-User-API-d31a59a9dd734f2484dbd734c5465b8d?pvs=4)**
  
- ---
- 
  수탁/위탁 구조를 기반으로 시스템을 설계하였습니다. 상위 계층으로 부터 받은 요청을 수탁하고 하위 계층으로 다시 위탁하는 구조입니다. 우리나라 정부사업과제가 진행되는 모습을 모방하여 설계하였습니다. 위탁되는 과정이 많아질 수록 Consistency, Integrity, Durability를 확보하기 힘들어집니다. 이를 위해 API를 Transaction으로 관리할 수 있도록 설계하였습니다.
  
  ---
  
  **Autonomic Provisioning**
- 
- ---
  
  수요에 따라 자원을 Up 또는 Down Scailing 하는 것을 Auto Provisioning이라고 합니다. 현재 Openstack,K8s,MaaS 세가지 플랫폼을 통해 자원을 제공하고 있어 세 플랫폼을 한정된 물리적 서버에서 상태를 변경해가며 서로 다른 성격의 플랫폼의 노예 자원으로 제공되는 것을 Autonomic Provisionging이라고 표현하였습니다.
  
