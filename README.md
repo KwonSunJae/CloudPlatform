@@ -2,7 +2,7 @@
 
 ## 목차
 1. [소개](#소개)
-    - [keywords](#keywords)
+    - [Keywords](#keywords)
     - [Abstract](#abstract)
     - [Components](#components)
     - [Installation Guide](#installation-guide)
