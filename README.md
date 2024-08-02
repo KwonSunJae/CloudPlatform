@@ -57,7 +57,7 @@
 ![logical-view System](https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-logical.png)
 **Logical View Cloudplatform**
 
-![physical-view System] (https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-physical-view%20(2).png)
+![physical-view System](https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-physical-view%20(2).png)
 
 **Left: Multiplized Deployment , Right: Minimalized Deployment Physical Architecture**
 
