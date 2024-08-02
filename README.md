@@ -59,7 +59,7 @@
 
 ![physical-view System](https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-physical-view%20(2).png)
 
-**Left: Multiplized Deployment , Right: Minimalized Deployment Physical Architecture**
+**Left: Multiplized Deployment , Right: Minimalized Deployment Physical View Cloudplatform**
 
 
 ## 개발자 소개
