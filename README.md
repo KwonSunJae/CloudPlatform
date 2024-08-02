@@ -60,4 +60,4 @@
 ## 개발자 소개
 - **권순재**: PM, PL, 아키텍처 및 시스템 설계, 전체 개발 
 - **장동수**: Blood(구 UDCS) 개발
-- **강민희**: Heart(구 SOMS) 개발
+- **강민희**: Heart(구 SOMS) Container Service 일부 개발
