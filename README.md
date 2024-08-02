@@ -56,8 +56,12 @@
 ## 설계
 ![logical-view System](https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-logical.png)
 **Logical View Cloudplatform**
+
 ![physical-view System] (https://github.com/KwonSunJae/CloudPlatform/blob/docs/docs/cloudplatform-physical-view%20(2).png)
-**Left: Multiplized Deployment , Right: Minimalized Deployment Physical Architecture
+
+**Left: Multiplized Deployment , Right: Minimalized Deployment Physical Architecture**
+
+
 ## 개발자 소개
 - **권순재**: PM, PL, 아키텍처 및 시스템 설계, 전체 개발 
 - **장동수**: Blood(구 UDCS) 개발
