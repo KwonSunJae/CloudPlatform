@@ -9,7 +9,7 @@
     <include resource="console-appender.xml"/>
     <root>
         <level value="INFO"/>
-<!--        <appender-ref ref="LOGSTASH"/>-->
+        <appender-ref ref="LOGSTASH"/>
         <appender-ref ref="FILE"/>
         <appender-ref ref="CONSOLE"/>
     </root>
