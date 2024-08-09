@@ -17,7 +17,8 @@ type VmDto struct {
 	UnionmountImage       string
 	Keypair               string
 	SelectedSecuritygroup string
-	UserID                string
+	UUID                  string
+	Status                string
 }
 
 type VmRaw struct {
@@ -30,7 +31,8 @@ type VmRaw struct {
 	UnionmountImage       string
 	Keypair               string
 	SelectedSecuritygroup string
-	UserID                string
+	UUID                  string
+	Status                string
 }
 
 type VmRepository struct {
@@ -52,10 +54,10 @@ func (r *VmRepository) InsertVm(n VmDto) (sql.Result, error) {
 
 	query := `
     INSERT INTO vm
-    (id, name, flavorID, externalIP, internalIP,selectedOS, unionmountImage, keypair,selectedSecuritygroup,userID)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (id, name, flavorID, externalIP, internalIP,selectedOS, unionmountImage, keypair,selectedSecuritygroup ,uuid,status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
   `
-	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.UserID)
+	result, err := r.DB.Exec(query, id.String(), n.Name, n.FlavorID, n.ExternalIP, n.InternalIP, n.SelectedOS, n.UnionmountImage, n.Keypair, n.SelectedSecuritygroup, n.UUID, n.Status)
 
 	if err != nil {
 		return nil, err
@@ -72,7 +74,7 @@ func (r *VmRepository) GetAllVm() (*[]VmRaw, error) {
 
 	for rows.Next() {
 		var raw VmRaw
-		rows.Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
+		rows.Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UUID, &raw.Status)
 		raws = append(raws, raw)
 	}
 
@@ -87,7 +89,7 @@ func (r *VmRepository) GetOneVm(id string) (*VmRaw, error) {
 	var raw VmRaw
 
 	query := `SELECT * FROM vm WHERE id = ?`
-	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UserID)
+	err := r.DB.QueryRow(query, id).Scan(&raw.Id, &raw.Name, &raw.FlavorID, &raw.ExternalIP, &raw.InternalIP, &raw.SelectedOS, &raw.UnionmountImage, &raw.Keypair, &raw.SelectedSecuritygroup, &raw.UUID, &raw.Status)
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -133,11 +135,12 @@ func (r *VmRepository) UpdateOneVm(id string, n VmDto) (sql.Result, error) {
         unionmountImage = IFNULL(?, unionmountImage),
         keypair = IFNULL(?, keypair),
         selectedSecuritygroup = IFNULL(?, selectedSecuritygroup),
-        userID = IFNULL(?, userID)
+        uuid = IFNULL(?, uuid),
+		status = IFNULL(?, status)
     WHERE
         id = ?
 	`
-	var name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, userID *string
+	var name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, uuid, status *string
 
 	if n.Name != "" {
 		name = &n.Name
@@ -171,11 +174,15 @@ func (r *VmRepository) UpdateOneVm(id string, n VmDto) (sql.Result, error) {
 		selectedSecuritygroup = &n.SelectedSecuritygroup
 	}
 
-	if n.UserID != "" {
-		userID = &n.UserID
+	if n.UUID != "" {
+		uuid = &n.UUID
 	}
 
-	result, err := r.DB.Exec(query, name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, userID, id)
+	if n.Status != "" {
+		status = &n.Status
+	}
+
+	result, err := r.DB.Exec(query, name, flavorID, externalIP, internalIP, selectedOS, unionmountImage, keypair, selectedSecuritygroup, uuid, status, &id)
 
 	if err != nil {
 		return nil, err

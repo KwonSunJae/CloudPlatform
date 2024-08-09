@@ -5,6 +5,7 @@ __pycache__/
 *.tf
 *mod
 *terraform*
+resp.json
 # C extensions
 *.so
 ./soms
@@ -58,15 +59,12 @@ cover/
 *.mo
 *.pot
 
+
 # Django stuff:
 *.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
 
 # Scrapy stuff:
 .scrapy
@@ -223,3 +221,6 @@ packages/react-devtools-timeline/dist
 
 # Go workspace file
 go.work
+
+soms.db
+soms

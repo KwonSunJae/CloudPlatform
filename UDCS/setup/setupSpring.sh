@@ -10,10 +10,6 @@ echo "OpenJDK 17 설치 중..."
 sudo apt install -y openjdk-17-jdk
 echo "OpenJDK 17 설치 완료."
 
-#echo "Gradle 설치 중..."
-#sudo apt install -y gradle
-#echo "Gradle 설치 완료."
-
 echo "MySQL root 계정 비밀번호 변경 중..."
 sudo mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '1234';"
 sudo mysql -u root -e "FLUSH PRIVILEGES;"

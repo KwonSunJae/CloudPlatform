@@ -6,7 +6,11 @@ import (
 	"os/exec"
 
 	"soms/repository"
+
 	"soms/repository/vm"
+
+	user "soms/repository/user"
+	openstack_api "soms/util/apis/openstack"
 	resource "soms/util/resource/vm"
 )
 
@@ -17,7 +21,7 @@ type VmService struct {
 var Service VmService
 
 func (s *VmService) InitService() error {
-	db, err := repository.OpenWithMemory()
+	db, err := repository.OpenWithFile()
 
 	if err != nil {
 		return err
@@ -41,80 +45,55 @@ func (s *VmService) GetOneVm(id string) (*vm.VmRaw, error) {
 	return raw, err
 }
 
-func (s *VmService) CreateVm(n vm.VmDto) error {
-
-	// Generate Terraform configuration
-	vmBuilder := resource.New()
-	err := vmBuilder.Init(n.Name).User("test").Flavor(n.FlavorID).Security_groups(n.SelectedSecuritygroup).Keypair(n.Keypair).Image(n.SelectedOS).Build()
+func (s *VmService) ApproveVMCreation(id string, uuid string) error {
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
 	if err != nil {
 		return err
 	}
-	_, err2 := s.Repository.InsertVm(n)
-	if err2 != nil {
-		return err
-	}
+	n, err := s.Repository.GetOneVm(id)
 
-	return nil
-}
-func (s *VmService) GetStatusVM() (string, error) {
-	// 고정된 파일 경로
-	filePath := "terraform/test/terraform.tfstate"
-
-	// 파일 읽기
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", fmt.Errorf("파일을 읽는 중 오류 발생: %v", err)
-	}
-
-	return string(fileContent), nil
-}
-
-func (s *VmService) UpdateVm(id string, n vm.VmDto) error {
-	_, err := s.Repository.UpdateOneVm(id, n)
-
-	return err
-}
-
-func (s *VmService) DeleteVm(id string) error {
-	vmData, err := s.Repository.GetOneVm(id)
 	if err != nil {
 		return err
 	}
 
-	// Generate the filename based on the VM's name
-	fileName := fmt.Sprintf("terraform/test/%s.tf", vmData.Name)
-	fmt.Print(fileName)
-	// Delete the Terraform file
-	if err := os.Remove(fileName); err != nil {
-		return err
+	var floating_ip bool
+	if n.ExternalIP == "true" {
+		floating_ip = true
+	} else {
+		floating_ip = false
 	}
-	// Run `terraform apply -auto-approve`
-	cmd := exec.Command("terraform", "apply", "-auto-approve")
-	cmd.Dir = "terraform/test/"
-	out, err := cmd.CombinedOutput()
+	// Generate Terraform configuration & Execute `terraform apply -auto-approve`
+	vmManager := resource.New()
+	TerraformBuildErr := vmManager.
+		Init(n.Name).
+		User(targetUser.UserID).
+		Flavor(n.FlavorID).
+		Security_groups(n.SelectedSecuritygroup).
+		PrivateNetwork(n.InternalIP).
+		ExternalIP(floating_ip).
+		Keypair(n.Keypair).
+		Image(n.SelectedOS).
+		Build()
+	if TerraformBuildErr != nil {
+		return TerraformBuildErr
+	}
+
+	// Update the VM status
+	n.Status = "Approved"
+	var an vm.VmDto
+	an.Status = "Approved"
+	_, err = s.Repository.UpdateOneVm(id, an)
 	if err != nil {
-		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
-	}
-	_, err2 := s.Repository.DeleteOneVm(id)
-	if err2 != nil {
 		return err
 	}
 	return nil
 }
-
-func generateTerraformConfig(vmDto vm.VmDto) string {
-	return fmt.Sprintf(`resource "openstack_compute_instance_v2" "%s" {
-      name      = "%s"
-      region    = "RegionOne"
-      flavor_id = "%s"
-      key_pair  = "%s"
-      network {
-        uuid = "2e26d161-5886-4e76-a9af-ad60d41761c5"
-        name = "provider"
-      }
-      security_groups = ["default"]
-      image_id = "%s"
-    }`, vmDto.Name, vmDto.Name, vmDto.FlavorID, vmDto.Keypair, vmDto.SelectedOS)
+func (s *VmService) EnrollVm(n vm.VmDto) error {
+	_, DBSaveErr := s.Repository.InsertVm(n)
+	if DBSaveErr != nil {
+		return DBSaveErr
+	}
+	return nil
 }
 
 func readFileContents(filename string) (string, error) {
@@ -139,4 +118,257 @@ func readFileContents(filename string) (string, error) {
 	}
 
 	return string(content), nil
+}
+func (s *VmService) GetStatusVM(userID string) (string, error) {
+	// 고정된 파일 경로
+	filePath := "terraform/" + userID + "/terraform.tfstate"
+
+	// 파일 읽기
+	fileContent, err := readFileContents(filePath)
+	if err != nil {
+		return "", fmt.Errorf("파일을 읽는 중 오류 발생: %v", err)
+	}
+
+	return string(fileContent), nil
+}
+
+func (s *VmService) UpdateVm(id string, n vm.VmDto) error {
+	_, err := s.Repository.UpdateOneVm(id, n)
+
+	return err
+}
+
+func (s *VmService) DeleteVm(id string, uuid string) error {
+	// Get the User data
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return err
+	}
+
+	// Get the VM data
+	vmData, err := s.Repository.GetOneVm(id)
+	if err != nil {
+		return err
+	}
+
+	// Generate the filename based on the VM's name
+	fileName := fmt.Sprintf("terraform/%s/%s.tf", targetUser.UserID, vmData.Name)
+	fmt.Print(fileName)
+	// Delete the Terraform file
+	if err := os.Remove(fileName); err != nil {
+		return err
+	}
+	// Run `terraform apply -auto-approve`
+	cmd := exec.Command("terraform", "apply", "-auto-approve")
+	cmd.Dir = "terraform/" + targetUser.UserID + "/"
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("terraform apply failed: %v, output: %s", err, out)
+	}
+	_, err2 := s.Repository.DeleteOneVm(id)
+	if err2 != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *VmService) CreateNetwork(uuid string, networkName string) (string, error) {
+	//Openstack API call to create network
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.CreateNetwork(targetUser.UserID, targetUser.EncryptedPW, networkName)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) ListNetworks(uuid string) (string, error) {
+	//Openstack API call to list networks
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListNetworks(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) ListFlavors(uuid string) (string, error) {
+	//Openstack API call to list flavors
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListFlavors(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) ListKeypairs(uuid string) (string, error) {
+	//Openstack API call to list keypairs
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListKeyPairs(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) CreateKeypair(uuid string, keypairName string) (string, error) {
+	//Openstack API call to create keypair
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.CreateKeyPair(targetUser.UserID, targetUser.EncryptedPW, keypairName)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) ListSecurityGroups(uuid string) (string, error) {
+	//Openstack API call to list security groups
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListSecurityGroups(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) CreateSnapshot(uuid string, vmID string, snapshotName string) (bool, error) {
+	//Openstack API call to create snapshot
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := openstack_api.CreateSnapshot(targetUser.UserID, targetUser.EncryptedPW, vmID, snapshotName)
+	if err != nil {
+		return false, err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) SoftReboot(uuid string, vmID string) (bool, error) {
+	//Openstack API call to soft reboot
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := openstack_api.SoftReboot(targetUser.UserID, targetUser.EncryptedPW, vmID)
+	if err != nil {
+		return false, err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) HardReboot(uuid string, vmID string) (bool, error) {
+	//Openstack API call to hard reboot
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := openstack_api.HardReboot(targetUser.UserID, targetUser.EncryptedPW, vmID)
+	if err != nil {
+		return false, err
+	}
+	return result, nil
+}
+
+func (s *VmService) PowerOff(uuid string, vmID string) (bool, error) {
+	//Openstack API call to power off
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := openstack_api.PowerOff(targetUser.UserID, targetUser.EncryptedPW, vmID)
+	if err != nil {
+		return false, err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) PowerOn(uuid string, vmID string) (bool, error) {
+	//Openstack API call to power on
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return false, err
+	}
+
+	result, err := openstack_api.PowerOn(targetUser.UserID, targetUser.EncryptedPW, vmID)
+	if err != nil {
+		return false, err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) GetVnc(uuid string, vmID string) (string, error) {
+	//Openstack API call to get VNC console
+
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.GetVNCConsoleURL(targetUser.UserID, targetUser.EncryptedPW, vmID)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func (s *VmService) GetImageList(uuid string) (string, error) {
+	targetUser, err := user.Repository.GetOneUserByUUID(uuid)
+	if err != nil {
+		return "", err
+	}
+
+	result, err := openstack_api.ListImages(targetUser.UserID, targetUser.EncryptedPW)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+
 }

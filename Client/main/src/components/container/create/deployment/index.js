@@ -1,6 +1,6 @@
 // DeploymentForm.js
 import React, { useState } from 'react';
-import instance from '../../../../apis';
+import instance from '../../../../apis/instance';
 
 const DeploymentForm = () => {
   const [deploymentName, setDeploymentName] = useState('');
@@ -12,20 +12,25 @@ const DeploymentForm = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    instance.post("/deployment", {
-      ApiVersion : "apps/v1",
-      Kind : "Deployment",
-      Metadata_name : deploymentName,
-      Metadata_labels_app: deploymentName,
-      Spec_selector_matchLabels_app  : deploymentName,
-      Spec_template_metadata_labels_app : deploymentName,
-      Spec_template_spec_hostname: hostName,
-      Spec_template_spec_subdomain: subdomain,
-      Spec_template_spec_containers_image : imageUrl,
-      Spec_template_spec_containers_imagePullPolicy: imagePullPolicy,
-      Spec_template_spec_containers_name:deploymentName,
-      Spec_template_spec_containers_ports_containerPort:port
-    })
+    const datas = JSON.stringify(
+      {
+        apiVersion: "apps/v1", 
+        kind: "Deployment",
+        metadataLabelsApp: deploymentName,
+        metadataName: deploymentName,
+        specReplicas: "1",
+        specSelectorMatchlabelsApp: deploymentName,
+        specTemplateMetadataLabelsApp: deploymentName,
+        specTemplateSpecContainersImage: imageUrl ,
+        specTemplateSpecContainersName: imagePullPolicy,
+        specTemplateSpecContainersPortsContainerport: port
+      }
+      )
+    instance.post("/transaction",{
+      dest: "/deployment",
+      method: "POST",
+      data: datas}
+     )
       .then(response => {
         console.log(response.data);
         alert("생성완료");
