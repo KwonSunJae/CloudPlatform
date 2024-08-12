@@ -33,7 +33,16 @@ fi
 
 if ! nc -z localhost 8080; then
   echo "> Spring Application을 실행합니다."
+
+  # Read logstash.destination from the spring.env file
+  LOGSTASH_DESTINATION=$(grep -oP 'logstash.destination=\K.*' $BASE_PATH/setup/env/spring.env)
+
+  if [ -z "$LOGSTASH_DESTINATION" ]; then
+    echo "logstash.destination 값이 설정되지 않았습니다. spring.env 파일을 확인하세요."
+    exit 1
+  fi
+
   cd setup
-  sudo nohup java -jar $DEPLOY_PATH/*.jar &
+  sudo nohup java -jar $DEPLOY_PATH/*.jar --logstash.destination=$LOGSTASH_DESTINATION &
 fi
 
