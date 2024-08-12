@@ -222,7 +222,7 @@ public class MemberService {
     }
 
     private void logTry(RequestDto requestDto, String targetTransactionId, String transactionId, String remoteAddr) {
-        log.info("Type = {}, Target_Transaction_Id = {}, Dest = {}, Method = {}, Data = {}, Time = {}, IP = {}, Transaction_Id = {}, ",
+        log.info("Type = {}, Target_Transaction_Id = {}, Dest = {}, Method = {}, Data = {}, Time = {}, IP = {}, Transaction_Id = {}",
                 TransactionType.TRY,
                 targetTransactionId,
                 requestDto.getDest(),
