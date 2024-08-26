@@ -10,7 +10,7 @@
     - [Components](#components)
     - [Installation Guide](#installation-guide)
     - [Features](#features)
-3. [요구사항](#요구사항)
+3. [용량산정 및 요구량 추정](#용량산정-및-요구량-추정)
 4. [설계](#설계)
 5. [개발자 소개](#개발자-소개)
 
